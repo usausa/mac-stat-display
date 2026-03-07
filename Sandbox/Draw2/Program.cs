@@ -41,9 +41,9 @@ static class DashboardRenderer
         using var paint = new SKPaint { IsAntialias = true };
         DrawBackgroundGlow(canvas, width, height, paint);
 
-        const float outerPadding = 18f;
-        const float headerHeight = 64f;
-        const float gutter = 10f;
+        const float outerPadding = 10f;
+        const float headerHeight = 50f;
+        const float gutter = 6f;
 
         var headerRect = new SKRect(outerPadding, outerPadding, width - outerPadding, outerPadding + headerHeight);
         DrawHeader(canvas, headerRect, snapshot);
@@ -51,17 +51,18 @@ static class DashboardRenderer
         var bodyTop = headerRect.Bottom + gutter;
         var bodyRect = new SKRect(outerPadding, bodyTop, width - outerPadding, height - outerPadding);
 
-        var columnGap = 10f;
-        var leftWidth = 300f;
-        var middleWidth = 390f;
+        const float columnGap = 6f;
+        var columnWidth = (bodyRect.Width - columnGap * 3f) / 4f;
 
-        var leftRect = new SKRect(bodyRect.Left, bodyRect.Top, bodyRect.Left + leftWidth, bodyRect.Bottom);
-        var middleRect = new SKRect(leftRect.Right + columnGap, bodyRect.Top, leftRect.Right + columnGap + middleWidth, bodyRect.Bottom);
-        var rightRect = new SKRect(middleRect.Right + columnGap, bodyRect.Top, bodyRect.Right, bodyRect.Bottom);
+        var column1 = new SKRect(bodyRect.Left, bodyRect.Top, bodyRect.Left + columnWidth, bodyRect.Bottom);
+        var column2 = new SKRect(column1.Right + columnGap, bodyRect.Top, column1.Right + columnGap + columnWidth, bodyRect.Bottom);
+        var column3 = new SKRect(column2.Right + columnGap, bodyRect.Top, column2.Right + columnGap + columnWidth, bodyRect.Bottom);
+        var column4 = new SKRect(column3.Right + columnGap, bodyRect.Top, bodyRect.Right, bodyRect.Bottom);
 
-        DrawMetricColumn(canvas, leftRect, snapshot);
-        DrawGaugeColumn(canvas, middleRect, snapshot);
-        DrawSystemColumn(canvas, rightRect, snapshot);
+        DrawMetricColumn(canvas, column1, "CPU", snapshot.CpuMetrics);
+        DrawMetricColumn(canvas, column2, "MEMORY", snapshot.MemoryMetrics);
+        DrawGaugeColumn(canvas, column3, snapshot);
+        DrawSystemColumn(canvas, column4, snapshot);
     }
 
     private static void DrawBackgroundGlow(SKCanvas canvas, int width, int height, SKPaint paint)
@@ -86,39 +87,30 @@ static class DashboardRenderer
 
     private static void DrawHeader(SKCanvas canvas, SKRect rect, SystemSnapshot snapshot)
     {
-        DrawPanel(canvas, rect, PanelAlt, 18f);
+        DrawPanel(canvas, rect, PanelAlt, 14f);
 
-        using var titlePaint = CreateTextPaint(28f, PrimaryText, true);
-        using var infoPaint = CreateTextPaint(14f, SecondaryText);
-        using var valuePaint = CreateTextPaint(16f, Accent, true);
+        using var titlePaint = CreateTextPaint(22f, PrimaryText, true);
+        using var infoPaint = CreateTextPaint(12f, SecondaryText);
+        using var valuePaint = CreateTextPaint(14f, Accent, true);
 
-        canvas.DrawText("SYSTEM MONITOR", rect.Left + 18f, rect.Top + 28f, titlePaint);
-        canvas.DrawText("High density widget dashboard", rect.Left + 18f, rect.Top + 48f, infoPaint);
+        canvas.DrawText("SYSTEM MONITOR", rect.Left + 14f, rect.Top + 23f, titlePaint);
+        canvas.DrawText("High density widget dashboard", rect.Left + 14f, rect.Top + 40f, infoPaint);
 
-        var rightX = rect.Right - 18f;
-        DrawRightAlignedStat(canvas, rightX, rect.Top + 24f, "UPTIME", snapshot.Uptime, valuePaint, infoPaint);
-        DrawRightAlignedStat(canvas, rightX, rect.Top + 45f, "TIME", snapshot.Timestamp, valuePaint, infoPaint);
+        var rightX = rect.Right - 12f;
+        DrawRightAlignedStat(canvas, rightX, rect.Top + 20f, "UPTIME", snapshot.Uptime, valuePaint, infoPaint, 60f);
+        DrawRightAlignedStat(canvas, rightX, rect.Top + 38f, "TIME", snapshot.Timestamp, valuePaint, infoPaint, 46f);
     }
 
-    private static void DrawMetricColumn(SKCanvas canvas, SKRect rect, SystemSnapshot snapshot)
+    private static void DrawMetricColumn(SKCanvas canvas, SKRect rect, string title, IReadOnlyList<MetricWidget> metrics)
     {
-        const float gap = 8f;
-        const float titleHeight = 34f;
-        const float smallHeight = 41f;
+        const float gap = 5f;
+        const float titleHeight = 28f;
+        const float smallHeight = 32f;
 
         var y = rect.Top;
-        y = DrawSectionTitle(canvas, new SKRect(rect.Left, y, rect.Right, y + titleHeight), "CPU");
+        y = DrawSectionTitle(canvas, new SKRect(rect.Left, y, rect.Right, y + titleHeight), title);
 
-        foreach (var metric in snapshot.CpuMetrics)
-        {
-            y += gap;
-            DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + smallHeight), metric.Label, metric.Value, metric.Tone);
-            y += smallHeight;
-        }
-
-        y += gap;
-        y = DrawSectionTitle(canvas, new SKRect(rect.Left, y, rect.Right, y + titleHeight), "MEMORY");
-        foreach (var metric in snapshot.MemoryMetrics)
+        foreach (var metric in metrics)
         {
             y += gap;
             DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + smallHeight), metric.Label, metric.Value, metric.Tone);
@@ -128,14 +120,14 @@ static class DashboardRenderer
 
     private static void DrawGaugeColumn(SKCanvas canvas, SKRect rect, SystemSnapshot snapshot)
     {
-        const float titleHeight = 34f;
-        const float gap = 10f;
+        const float titleHeight = 28f;
+        const float gap = 6f;
         var y = rect.Top;
 
         y = DrawSectionTitle(canvas, new SKRect(rect.Left, y, rect.Right, y + titleHeight), "UTILIZATION");
         y += gap;
 
-        var gaugeArea = new SKRect(rect.Left, y, rect.Right, y + 220f);
+        var gaugeArea = new SKRect(rect.Left, y, rect.Right, y + 170f);
         var gaugeWidth = (gaugeArea.Width - gap) / 2f;
         DrawCircularGauge(canvas, new SKRect(gaugeArea.Left, gaugeArea.Top, gaugeArea.Left + gaugeWidth, gaugeArea.Bottom), "CPU", snapshot.CpuUsage, Accent, "busy");
         DrawCircularGauge(canvas, new SKRect(gaugeArea.Left + gaugeWidth + gap, gaugeArea.Top, gaugeArea.Right, gaugeArea.Bottom), "MEM", snapshot.MemoryUsage, Accent2, "used");
@@ -144,21 +136,21 @@ static class DashboardRenderer
         y = DrawSectionTitle(canvas, new SKRect(rect.Left, y, rect.Right, y + titleHeight), "DISK / NETWORK");
         y += gap;
 
-        DrawBarGauge(canvas, new SKRect(rect.Left, y, rect.Right, y + 72f), "DISK USED", snapshot.DiskUsage, snapshot.DiskSummary, Warning);
-        y += 82f;
-        DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 44f), "Read throughput", snapshot.DiskRead, Accent);
-        y += 52f;
-        DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 44f), "Write throughput", snapshot.DiskWrite, Accent);
-        y += 52f;
-        DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 44f), "Network down", snapshot.NetworkDown, Accent2);
-        y += 52f;
-        DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 44f), "Network up", snapshot.NetworkUp, Accent2);
+        DrawBarGauge(canvas, new SKRect(rect.Left, y, rect.Right, y + 58f), "DISK USED", snapshot.DiskUsage, snapshot.DiskSummary, Warning);
+        y += 64f;
+        DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 32f), "Read throughput", snapshot.DiskRead, Accent);
+        y += 37f;
+        DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 32f), "Write throughput", snapshot.DiskWrite, Accent);
+        y += 37f;
+        DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 32f), "Network down", snapshot.NetworkDown, Accent2);
+        y += 37f;
+        DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 32f), "Network up", snapshot.NetworkUp, Accent2);
     }
 
     private static void DrawSystemColumn(SKCanvas canvas, SKRect rect, SystemSnapshot snapshot)
     {
-        const float titleHeight = 34f;
-        const float gap = 8f;
+        const float titleHeight = 28f;
+        const float gap = 5f;
         var y = rect.Top;
 
         y = DrawSectionTitle(canvas, new SKRect(rect.Left, y, rect.Right, y + titleHeight), "PROCESS / HW / SYSTEM");
@@ -166,8 +158,8 @@ static class DashboardRenderer
         foreach (var metric in snapshot.SystemMetrics)
         {
             y += gap;
-            DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 43f), metric.Label, metric.Value, metric.Tone);
-            y += 43f;
+            DrawMetricWidget(canvas, new SKRect(rect.Left, y, rect.Right, y + 31f), metric.Label, metric.Value, metric.Tone);
+            y += 31f;
         }
 
         y += gap;
@@ -176,41 +168,41 @@ static class DashboardRenderer
 
     private static float DrawSectionTitle(SKCanvas canvas, SKRect rect, string title)
     {
-        DrawPanel(canvas, rect, PanelAlt, 14f);
-        using var textPaint = CreateTextPaint(16f, PrimaryText, true);
-        using var subPaint = CreateTextPaint(11f, SecondaryText);
-        canvas.DrawText(title, rect.Left + 12f, rect.MidY + 5f, textPaint);
-        canvas.DrawText("widgets", rect.Right - 52f, rect.MidY + 4f, subPaint);
+        DrawPanel(canvas, rect, PanelAlt, 10f);
+        using var textPaint = CreateTextPaint(14f, PrimaryText, true);
+        using var subPaint = CreateTextPaint(10f, SecondaryText);
+        canvas.DrawText(title, rect.Left + 9f, rect.MidY + 4f, textPaint);
+        canvas.DrawText("widgets", rect.Right - 46f, rect.MidY + 4f, subPaint);
         return rect.Bottom;
     }
 
     private static void DrawMetricWidget(SKCanvas canvas, SKRect rect, string label, string value, SKColor tone)
     {
-        DrawPanel(canvas, rect, Panel, 14f);
+        DrawPanel(canvas, rect, Panel, 10f);
 
-        using var labelPaint = CreateTextPaint(12f, SecondaryText);
-        using var valuePaint = CreateTextPaint(17f, tone, true);
+        using var labelPaint = CreateTextPaint(10f, SecondaryText);
+        using var valuePaint = CreateTextPaint(14f, tone, true);
 
         DrawWrappedLabel(canvas, rect, label, labelPaint);
 
         var bounds = new SKRect();
         valuePaint.MeasureText(value, ref bounds);
-        canvas.DrawText(value, rect.Right - 14f - bounds.Width, rect.MidY + 7f, valuePaint);
+        canvas.DrawText(value, rect.Right - 9f - bounds.Width, rect.MidY + 5f, valuePaint);
     }
 
     private static void DrawCircularGauge(SKCanvas canvas, SKRect rect, string title, float percent, SKColor color, string suffix)
     {
-        DrawPanel(canvas, rect, Panel, 20f);
+        DrawPanel(canvas, rect, Panel, 14f);
 
         var center = new SKPoint(rect.MidX, rect.MidY + 2f);
-        var radius = MathF.Min(rect.Width, rect.Height) * 0.31f;
+        var radius = MathF.Min(rect.Width, rect.Height) * 0.28f;
 
         using var trackPaint = new SKPaint
         {
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             Color = Hairline,
-            StrokeWidth = 14f,
+            StrokeWidth = 10f,
             StrokeCap = SKStrokeCap.Round
         };
 
@@ -219,7 +211,7 @@ static class DashboardRenderer
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             Color = color,
-            StrokeWidth = 14f,
+            StrokeWidth = 10f,
             StrokeCap = SKStrokeCap.Round
         };
 
@@ -227,28 +219,28 @@ static class DashboardRenderer
         canvas.DrawArc(arcRect, 135f, 270f, false, trackPaint);
         canvas.DrawArc(arcRect, 135f, 270f * (percent / 100f), false, valuePaint);
 
-        using var titlePaint = CreateTextPaint(15f, SecondaryText, true);
-        using var numberPaint = CreateTextPaint(28f, PrimaryText, true);
-        using var footerPaint = CreateTextPaint(12f, color);
+        using var titlePaint = CreateTextPaint(13f, SecondaryText, true);
+        using var numberPaint = CreateTextPaint(21f, PrimaryText, true);
+        using var footerPaint = CreateTextPaint(10f, color);
 
-        DrawCenteredText(canvas, title, center.X, rect.Top + 28f, titlePaint);
-        DrawCenteredText(canvas, $"{percent:0}%", center.X, center.Y + 10f, numberPaint);
-        DrawCenteredText(canvas, suffix, center.X, center.Y + 32f, footerPaint);
+        DrawCenteredText(canvas, title, center.X, rect.Top + 21f, titlePaint);
+        DrawCenteredText(canvas, $"{percent:0}%", center.X, center.Y + 8f, numberPaint);
+        DrawCenteredText(canvas, suffix, center.X, center.Y + 25f, footerPaint);
     }
 
     private static void DrawBarGauge(SKCanvas canvas, SKRect rect, string title, float percent, string summary, SKColor color)
     {
-        DrawPanel(canvas, rect, Panel, 16f);
+        DrawPanel(canvas, rect, Panel, 10f);
 
-        using var titlePaint = CreateTextPaint(13f, SecondaryText, true);
-        using var summaryPaint = CreateTextPaint(15f, PrimaryText, true);
+        using var titlePaint = CreateTextPaint(11f, SecondaryText, true);
+        using var summaryPaint = CreateTextPaint(12f, PrimaryText, true);
         using var barPaint = new SKPaint { IsAntialias = true, Color = color };
         using var trackPaint = new SKPaint { IsAntialias = true, Color = Hairline };
 
-        canvas.DrawText(title, rect.Left + 14f, rect.Top + 20f, titlePaint);
-        canvas.DrawText(summary, rect.Left + 14f, rect.Top + 41f, summaryPaint);
+        canvas.DrawText(title, rect.Left + 10f, rect.Top + 16f, titlePaint);
+        canvas.DrawText(summary, rect.Left + 10f, rect.Top + 31f, summaryPaint);
 
-        var barRect = new SKRect(rect.Left + 14f, rect.Bottom - 18f, rect.Right - 14f, rect.Bottom - 8f);
+        var barRect = new SKRect(rect.Left + 10f, rect.Bottom - 15f, rect.Right - 10f, rect.Bottom - 7f);
         canvas.DrawRoundRect(barRect, 5f, 5f, trackPaint);
 
         var fillWidth = barRect.Width * (percent / 100f);
@@ -258,15 +250,15 @@ static class DashboardRenderer
 
     private static void DrawTimeline(SKCanvas canvas, SKRect rect, SystemSnapshot snapshot)
     {
-        DrawPanel(canvas, rect, PanelAlt, 18f);
+        DrawPanel(canvas, rect, PanelAlt, 12f);
 
-        using var titlePaint = CreateTextPaint(14f, PrimaryText, true);
-        using var labelPaint = CreateTextPaint(11f, SecondaryText);
+        using var titlePaint = CreateTextPaint(12f, PrimaryText, true);
+        using var labelPaint = CreateTextPaint(10f, SecondaryText);
         using var pathPaint = new SKPaint
         {
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 3f,
+            StrokeWidth = 2f,
             Color = Accent,
             StrokeCap = SKStrokeCap.Round,
             StrokeJoin = SKStrokeJoin.Round
@@ -278,9 +270,9 @@ static class DashboardRenderer
             Color = Accent.WithAlpha(18)
         };
 
-        canvas.DrawText("CPU LOAD TIMELINE", rect.Left + 14f, rect.Top + 20f, titlePaint);
+        canvas.DrawText("CPU LOAD TIMELINE", rect.Left + 10f, rect.Top + 17f, titlePaint);
 
-        var chartRect = new SKRect(rect.Left + 12f, rect.Top + 30f, rect.Right - 12f, rect.Bottom - 22f);
+        var chartRect = new SKRect(rect.Left + 9f, rect.Top + 24f, rect.Right - 9f, rect.Bottom - 18f);
         using var gridPaint = new SKPaint { IsAntialias = true, Color = Hairline, StrokeWidth = 1f };
         for (var i = 0; i < 4; i++)
         {
@@ -314,11 +306,11 @@ static class DashboardRenderer
         canvas.DrawPath(fillPath, fillPaint);
         canvas.DrawPath(path, pathPaint);
 
-        canvas.DrawText("-15m", chartRect.Left, rect.Bottom - 6f, labelPaint);
-        DrawCenteredText(canvas, "-5m", chartRect.MidX, rect.Bottom - 6f, labelPaint);
+        canvas.DrawText("-15m", chartRect.Left, rect.Bottom - 5f, labelPaint);
+        DrawCenteredText(canvas, "-5m", chartRect.MidX, rect.Bottom - 5f, labelPaint);
         var latestBounds = new SKRect();
         labelPaint.MeasureText("now", ref latestBounds);
-        canvas.DrawText("now", chartRect.Right - latestBounds.Width, rect.Bottom - 6f, labelPaint);
+        canvas.DrawText("now", chartRect.Right - latestBounds.Width, rect.Bottom - 5f, labelPaint);
     }
 
     private static void DrawPanel(SKCanvas canvas, SKRect rect, SKColor color, float radius)
@@ -342,17 +334,17 @@ static class DashboardRenderer
         };
     }
 
-    private static void DrawRightAlignedStat(SKCanvas canvas, float rightX, float baselineY, string label, string value, SKPaint valuePaint, SKPaint labelPaint)
+    private static void DrawRightAlignedStat(SKCanvas canvas, float rightX, float baselineY, string label, string value, SKPaint valuePaint, SKPaint labelPaint, float labelOffset)
     {
         var valueBounds = new SKRect();
         valuePaint.MeasureText(value, ref valueBounds);
         canvas.DrawText(value, rightX - valueBounds.Width, baselineY, valuePaint);
-        canvas.DrawText(label, rightX - valueBounds.Width - 74f, baselineY, labelPaint);
+        canvas.DrawText(label, rightX - valueBounds.Width - labelOffset, baselineY, labelPaint);
     }
 
     private static void DrawWrappedLabel(SKCanvas canvas, SKRect rect, string label, SKPaint paint)
     {
-        var maxWidth = rect.Width * 0.56f;
+        var maxWidth = rect.Width * 0.54f;
         var words = label.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var lines = new List<string>();
         var current = string.Empty;
@@ -384,10 +376,10 @@ static class DashboardRenderer
             lines.Add(label);
         }
 
-        var startY = lines.Count == 1 ? rect.MidY + 4f : rect.MidY - 2f;
+        var startY = lines.Count == 1 ? rect.MidY + 3f : rect.MidY - 1f;
         for (var i = 0; i < lines.Count && i < 2; i++)
         {
-            canvas.DrawText(lines[i], rect.Left + 14f, startY + i * 13f, paint);
+            canvas.DrawText(lines[i], rect.Left + 9f, startY + i * 11f, paint);
         }
     }
 
