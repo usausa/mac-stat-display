@@ -11,4 +11,5 @@
   <Project Path="Draw1/Draw1.csproj" Id="2e19ed1a-e7e9-4e56-8623-e5cc1f19c8df" />
   <Project Path="Draw2/Draw2.csproj" Id="75224703-5b43-4033-a10a-f3d2aca8026c" />
   <Project Path="Draw3/Draw3.csproj" Id="df38143a-49f0-40b0-b855-6e800c0ef487" />
+  <Project Path="Draw4/Draw4.csproj" Id="fc527327-3d44-4813-9776-1c9e33a8d12b" />
 </Solution>
