@@ -1,0 +1,12 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="DebugLinux" />
+    <BuildType Name="DebugMac" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="spec.md" />
+  </Folder>
+  <Project Path="Draw1/Draw1.csproj" Id="2e19ed1a-e7e9-4e56-8623-e5cc1f19c8df" />
+</Solution>
