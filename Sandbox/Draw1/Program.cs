@@ -13,6 +13,7 @@ file sealed class DashboardRenderer(int width, int height)
 {
     private static readonly SKColor Background = new(3, 10, 22);
     private static readonly SKColor PanelFill = new(10, 23, 38, 220);
+    private static readonly SKColor LabelFill = new(12, 38, 58, 235);
     private static readonly SKColor PanelStroke = new(76, 233, 255, 180);
     private static readonly SKColor Accent = new(0, 245, 255);
     private static readonly SKColor AccentSoft = new(120, 255, 247);
@@ -22,85 +23,64 @@ file sealed class DashboardRenderer(int width, int height)
     private static readonly SKColor Danger = new(255, 94, 122);
     private static readonly SKColor Good = new(110, 255, 184);
 
-    private readonly IReadOnlyList<PanelData> _panels =
+    private readonly IReadOnlyList<WidgetData> _widgets =
     [
-        new(
-            "CPU",
-            new SKRect(24, 54, 566, 286),
-            [
-                new MetricLine("Usage", "42%", Accent),
-                new MetricLine("System", "11%", TextSecondary),
-                new MetricLine("User", "24%", TextSecondary),
-                new MetricLine("Idle", "58%", Good),
-                new MetricLine("E-Core", "37%", AccentSoft),
-                new MetricLine("P-Core", "61%", Warning),
-                new MetricLine("Load 1/5/15", "3.12 / 2.84 / 2.41", TextPrimary),
-                new MetricLine("Freq", "3560 MHz", TextPrimary),
-                new MetricLine("E/P Freq", "2840 / 4012 MHz", TextPrimary)
-            ],
-            0.42f,
-            PanelVisual.GaugeAndTimeline),
-        new(
-            "MEMORY",
-            new SKRect(24, 302, 566, 456),
-            [
-                new MetricLine("Usage", "68%", Warning),
-                new MetricLine("Used", "21.8 GB", TextPrimary),
-                new MetricLine("App", "14.2 GB", AccentSoft),
-                new MetricLine("Wired", "4.7 GB", TextSecondary),
-                new MetricLine("Swap", "512 MB", Danger)
-            ],
-            0.68f,
-            PanelVisual.GaugeAndTimeline),
-        new(
-            "NETWORK",
-            new SKRect(590, 54, 944, 286),
-            [
-                new MetricLine("Download", "18.4 MB/s", Accent),
-                new MetricLine("Upload", "2.6 MB/s", AccentSoft)
-            ],
-            0.51f,
-            PanelVisual.NetworkTimeline),
-        new(
-            "DISK",
-            new SKRect(590, 302, 944, 456),
-            [
-                new MetricLine("Usage", "74%", Warning),
-                new MetricLine("Free / Total", "468 GB / 1.8 TB", TextPrimary),
-                new MetricLine("Read", "824 KB/s", AccentSoft),
-                new MetricLine("Write", "391 KB/s", Accent)
-            ],
-            0.74f,
-            PanelVisual.GaugeOnly),
-        new(
-            "PROCESS",
-            new SKRect(968, 54, 1256, 166),
-            [
-                new MetricLine("Processes", "412", TextPrimary),
-                new MetricLine("Threads", "6489", TextPrimary)
-            ],
-            0.36f,
-            PanelVisual.TextOnly),
-        new(
-            "HW MONITOR",
-            new SKRect(968, 182, 1256, 356),
-            [
-                new MetricLine("CPU Temp", "63 C", Warning),
-                new MetricLine("GPU Temp", "57 C", AccentSoft),
-                new MetricLine("System Power", "214 W", TextPrimary),
-                new MetricLine("CPU Power", "88 W", Accent),
-                new MetricLine("GPU Power", "126 W", Danger)
-            ],
-            0.59f,
-            PanelVisual.TextOnly),
-        new(
-            "SYSTEM",
-            new SKRect(968, 372, 1256, 456),
-            [
-                new MetricLine("Uptime", "03d 14h 22m", Good)
-            ],
-            0.82f,
-            PanelVisual.GaugeOnly)
+        new(WidgetKind.Title, new SKRect(16, 12, 224, 62), "MAC STATUS", "Variable widget layout", Accent, 0f),
+        new(WidgetKind.Info, new SKRect(16, 68, 224, 108), "UPTIME", "03d 14h 22m", Good, 0f),
+        new(WidgetKind.Info, new SKRect(16, 112, 224, 152), "LOCAL TIME", "20:41:36", TextPrimary, 0f),
+        new(WidgetKind.Info, new SKRect(16, 156, 224, 196), "PROCESSES", "412", TextPrimary, 0f),
+        new(WidgetKind.Info, new SKRect(16, 200, 224, 240), "THREADS", "6489", TextPrimary, 0f),
+        new(WidgetKind.Info, new SKRect(16, 244, 224, 284), "CPU TEMP", "63 C", Warning, 0f),
+        new(WidgetKind.Info, new SKRect(16, 288, 224, 328), "GPU TEMP", "57 C", AccentSoft, 0f),
+
+        new(WidgetKind.Label, new SKRect(236, 12, 390, 46), "CPU", "CORE TELEMETRY", TextPrimary, 0f),
+        new(WidgetKind.Label, new SKRect(398, 12, 552, 46), "MEMORY", "PRESSURE / CACHE", TextPrimary, 0f),
+        new(WidgetKind.Label, new SKRect(560, 12, 714, 46), "NETWORK", "TRANSFER RATE", TextPrimary, 0f),
+
+        new(WidgetKind.Gauge, new SKRect(236, 52, 390, 164), "CPU Usage", "42%", Accent, 0.42f),
+        new(WidgetKind.Gauge, new SKRect(398, 52, 552, 164), "Memory Usage", "68%", Warning, 0.68f),
+        new(WidgetKind.Gauge, new SKRect(560, 52, 714, 164), "Network Load", "51%", AccentSoft, 0.51f),
+
+        new(WidgetKind.Timeline, new SKRect(236, 170, 390, 282), "CPU History", "60 sec", Accent, 0.42f),
+        new(WidgetKind.Timeline, new SKRect(398, 170, 552, 282), "Memory History", "60 sec", Warning, 0.68f),
+        new(WidgetKind.NetworkTimeline, new SKRect(560, 170, 714, 282), "Traffic", "DL / UP", Accent, 0.51f),
+
+        new(WidgetKind.Label, new SKRect(722, 12, 872, 46), "STORAGE", "IO / CAPACITY", TextPrimary, 0f),
+        new(WidgetKind.Label, new SKRect(880, 12, 1048, 46), "POWER", "SUPPLY / LOAD", TextPrimary, 0f),
+        new(WidgetKind.Label, new SKRect(1056, 12, 1256, 46), "CPU DETAIL", "LOAD COMPONENTS", TextPrimary, 0f),
+
+        new(WidgetKind.Metric, new SKRect(236, 292, 390, 334), "CPU System", "11%", TextSecondary, 0f),
+        new(WidgetKind.Metric, new SKRect(236, 338, 390, 380), "CPU User", "24%", TextPrimary, 0f),
+        new(WidgetKind.Metric, new SKRect(236, 384, 390, 426), "CPU Idle", "58%", Good, 0f),
+        new(WidgetKind.Metric, new SKRect(236, 430, 390, 472), "CPU E-Core", "37%", AccentSoft, 0f),
+
+        new(WidgetKind.Metric, new SKRect(398, 292, 552, 334), "CPU P-Core", "61%", Warning, 0f),
+        new(WidgetKind.Metric, new SKRect(398, 338, 552, 380), "CPU Freq", "3560 MHz", TextPrimary, 0f),
+        new(WidgetKind.Metric, new SKRect(398, 384, 552, 426), "CPU E/P Freq", "2840 / 4012 MHz", TextPrimary, 0f),
+        new(WidgetKind.Metric, new SKRect(398, 430, 552, 472), "Load 1/5", "3.12 / 2.84", TextPrimary, 0f),
+
+        new(WidgetKind.Metric, new SKRect(560, 292, 714, 334), "Download", "18.4 MB/s", Accent, 0f),
+        new(WidgetKind.Metric, new SKRect(560, 338, 714, 380), "Upload", "2.6 MB/s", AccentSoft, 0f),
+        new(WidgetKind.Metric, new SKRect(560, 384, 714, 426), "Used", "21.8 GB", TextPrimary, 0f),
+        new(WidgetKind.Metric, new SKRect(560, 430, 714, 472), "Application", "14.2 GB", AccentSoft, 0f),
+
+        new(WidgetKind.BarGauge, new SKRect(722, 52, 872, 102), "Disk Usage", "74%", Warning, 0.74f),
+        new(WidgetKind.Metric, new SKRect(722, 106, 872, 148), "Disk Free", "468 GB", TextPrimary, 0f),
+        new(WidgetKind.Metric, new SKRect(722, 152, 872, 194), "Disk Total", "1.8 TB", TextPrimary, 0f),
+        new(WidgetKind.Metric, new SKRect(722, 198, 872, 240), "Disk Read", "824 KB/s", AccentSoft, 0f),
+        new(WidgetKind.Metric, new SKRect(722, 244, 872, 286), "Disk Write", "391 KB/s", Accent, 0f),
+        new(WidgetKind.Metric, new SKRect(722, 292, 872, 334), "Wired", "4.7 GB", TextSecondary, 0f),
+        new(WidgetKind.Metric, new SKRect(722, 338, 872, 380), "Swap", "512 MB", Danger, 0f),
+
+        new(WidgetKind.Metric, new SKRect(880, 52, 1048, 94), "System Power", "214 W", TextPrimary, 0f),
+        new(WidgetKind.Metric, new SKRect(880, 98, 1048, 140), "CPU Power", "88 W", Accent, 0f),
+        new(WidgetKind.Metric, new SKRect(880, 144, 1048, 186), "GPU Power", "126 W", Danger, 0f),
+        new(WidgetKind.Metric, new SKRect(880, 190, 1048, 232), "Load 15", "2.41", TextPrimary, 0f),
+
+        new(WidgetKind.Metric, new SKRect(1056, 52, 1256, 94), "Load Avg", "3.12 / 2.84 / 2.41", TextPrimary, 0f),
+        new(WidgetKind.Metric, new SKRect(1056, 98, 1256, 140), "CPU System/User", "11 / 24 %", TextPrimary, 0f),
+        new(WidgetKind.Metric, new SKRect(1056, 144, 1256, 186), "CPU Idle", "58%", Good, 0f),
+        new(WidgetKind.Metric, new SKRect(1056, 190, 1256, 232), "CPU E/P", "37 / 61 %", Warning, 0f)
     ];
 
     public void Render(string outputPath)
@@ -113,12 +93,11 @@ file sealed class DashboardRenderer(int width, int height)
         canvas.Clear(Background);
         DrawBackground(canvas);
 
-        foreach (var panel in _panels)
+        foreach (var widget in _widgets)
         {
-            DrawPanel(canvas, panel);
+            DrawWidget(canvas, widget);
         }
 
-        DrawHeader(canvas);
         using var image = surface.Snapshot();
         using var data = image.Encode(SKEncodedImageFormat.Png, 100);
         using var stream = File.Open(outputPath, FileMode.Create, FileAccess.Write, FileShare.None);
@@ -159,27 +138,15 @@ file sealed class DashboardRenderer(int width, int height)
         }
     }
 
-    private void DrawHeader(SKCanvas canvas)
+    private void DrawWidget(SKCanvas canvas, WidgetData widget)
     {
-        using var titlePaint = CreateTextPaint(28, Accent, true);
-        using var subPaint = CreateTextPaint(13, TextSecondary, false);
-        using var linePaint = new SKPaint
+        var rect = widget.Bounds;
+
+        if (widget.Kind == WidgetKind.Label)
         {
-            Color = Accent,
-            StrokeWidth = 2,
-            IsAntialias = true,
-            Style = SKPaintStyle.Stroke
-        };
-
-        canvas.DrawText("MAC SYSTEM STATUS", 34, 24, titlePaint);
-        canvas.DrawText("SKIASHARP VISUAL OUTPUT / 1280x480 / SCI-FI DASHBOARD", 36, 44, subPaint);
-        canvas.DrawLine(320, 16, 1244, 16, linePaint);
-        canvas.DrawLine(960, 44, 1244, 44, linePaint);
-    }
-
-    private void DrawPanel(SKCanvas canvas, PanelData panel)
-    {
-        var rect = panel.Bounds;
+            DrawLabelWidget(canvas, widget);
+            return;
+        }
 
         using var shadowPaint = new SKPaint
         {
@@ -203,107 +170,106 @@ file sealed class DashboardRenderer(int width, int height)
             Style = SKPaintStyle.Stroke
         };
 
-        using var accentPaint = new SKPaint
+        var rounded = new SKRoundRect(rect, 8, 8);
+        canvas.DrawRoundRect(rounded, shadowPaint);
+        canvas.DrawRoundRect(rounded, fillPaint);
+        canvas.DrawRoundRect(rounded, strokePaint);
+
+        switch (widget.Kind)
         {
-            Color = Accent,
-            StrokeWidth = 3,
+            case WidgetKind.Title:
+                DrawTitleWidget(canvas, widget);
+                break;
+            case WidgetKind.Label:
+                break;
+            case WidgetKind.Info:
+                DrawInfoWidget(canvas, widget);
+                break;
+            case WidgetKind.Metric:
+                DrawMetricWidget(canvas, widget);
+                break;
+            case WidgetKind.Gauge:
+                DrawGaugeWidget(canvas, widget);
+                break;
+            case WidgetKind.BarGauge:
+                DrawBarGaugeWidget(canvas, widget);
+                break;
+            case WidgetKind.Timeline:
+                DrawTimelineWidget(canvas, widget);
+                break;
+            case WidgetKind.NetworkTimeline:
+                DrawNetworkTimelineWidget(canvas, widget);
+                break;
+        }
+    }
+
+    private void DrawTitleWidget(SKCanvas canvas, WidgetData widget)
+    {
+        using var titlePaint = CreateTextPaint(24, widget.Color, true);
+        using var subtitlePaint = CreateTextPaint(11, TextSecondary, false);
+        canvas.DrawText(widget.Title, widget.Bounds.Left + 12, widget.Bounds.Top + 34, titlePaint);
+        canvas.DrawText(widget.Value, widget.Bounds.Left + 12, widget.Bounds.Top + 52, subtitlePaint);
+    }
+
+    private void DrawLabelWidget(SKCanvas canvas, WidgetData widget)
+    {
+        using var fillPaint = new SKPaint
+        {
+            Color = LabelFill,
+            IsAntialias = true,
+            Style = SKPaintStyle.Fill
+        };
+
+        using var linePaint = new SKPaint
+        {
+            Color = widget.Color.WithAlpha(90),
+            StrokeWidth = 2,
             IsAntialias = true,
             Style = SKPaintStyle.Stroke
         };
 
-        var rounded = new SKRoundRect(rect, 16, 16);
-        canvas.DrawRoundRect(rounded, shadowPaint);
-        canvas.DrawRoundRect(rounded, fillPaint);
-        canvas.DrawRoundRect(rounded, strokePaint);
-        canvas.DrawLine(rect.Left + 18, rect.Top + 18, rect.Left + 118, rect.Top + 18, accentPaint);
-        canvas.DrawLine(rect.Right - 98, rect.Bottom - 16, rect.Right - 18, rect.Bottom - 16, accentPaint);
-
         using var titlePaint = CreateTextPaint(18, TextPrimary, true);
-        using var labelPaint = CreateTextPaint(12, TextSecondary, false);
+        using var subtitlePaint = CreateTextPaint(11, TextSecondary, false);
 
-        canvas.DrawText(panel.Title, rect.Left + 18, rect.Top + 40, titlePaint);
-        canvas.DrawText("REALTIME TELEMETRY", rect.Right - 146, rect.Top + 40, labelPaint);
-
-        DrawPanelContents(canvas, panel);
+        canvas.DrawRoundRect(new SKRoundRect(widget.Bounds, 6, 6), fillPaint);
+        canvas.DrawLine(widget.Bounds.Left + 10, widget.Bounds.MidY, widget.Bounds.Left + 34, widget.Bounds.MidY, linePaint);
+        canvas.DrawText(widget.Title, widget.Bounds.Left + 40, widget.Bounds.Top + 29, titlePaint);
+        canvas.DrawText(widget.Value, widget.Bounds.Left + 40, widget.Bounds.Top + 44, subtitlePaint);
     }
 
-    private void DrawPanelContents(SKCanvas canvas, PanelData panel)
+    private void DrawInfoWidget(SKCanvas canvas, WidgetData widget)
     {
-        var rect = panel.Bounds;
-        switch (panel.Visual)
-        {
-            case PanelVisual.GaugeAndTimeline:
-            {
-                var gaugeRect = new SKRect(rect.Left + 18, rect.Top + 60, rect.Left + 108, rect.Top + 150);
-                var statsRect = new SKRect(rect.Left + 126, rect.Top + 62, rect.Right - 18, rect.Top + 156);
-                var timelineRect = new SKRect(rect.Left + 18, rect.Top + 172, rect.Right - 18, rect.Bottom - 20);
-                DrawGauge(canvas, gaugeRect, panel.Ratio);
-                DrawMetrics(canvas, panel.Items, statsRect, 4);
-                DrawTimeline(canvas, timelineRect, panel.Ratio);
-                break;
-            }
-            case PanelVisual.NetworkTimeline:
-            {
-                var statsRect = new SKRect(rect.Left + 20, rect.Top + 66, rect.Right - 20, rect.Top + 118);
-                var timelineRect = new SKRect(rect.Left + 18, rect.Top + 130, rect.Right - 18, rect.Bottom - 18);
-                DrawMetrics(canvas, panel.Items, statsRect, 12);
-                DrawNetworkTimeline(canvas, timelineRect, panel.Ratio);
-                break;
-            }
-            case PanelVisual.GaugeOnly:
-            {
-                var gaugeRect = new SKRect(rect.Left + 18, rect.Top + 64, rect.Left + 102, rect.Top + 148);
-                var statsRect = new SKRect(rect.Left + 116, rect.Top + 70, rect.Right - 20, rect.Bottom - 24);
-                DrawGauge(canvas, gaugeRect, panel.Ratio);
-                DrawMetrics(canvas, panel.Items, statsRect, 8);
-                break;
-            }
-            case PanelVisual.TextOnly:
-            {
-                var statsRect = new SKRect(rect.Left + 18, rect.Top + 66, rect.Right - 18, rect.Bottom - 18);
-                DrawMetrics(canvas, panel.Items, statsRect, 8);
-                break;
-            }
-        }
+        using var labelPaint = CreateTextPaint(11, TextSecondary, false);
+        using var valuePaint = CreateTextPaint(20, widget.Color, true);
+        DrawTitleValueWidget(canvas, widget, labelPaint, valuePaint);
     }
 
-    private void DrawMetrics(SKCanvas canvas, IReadOnlyList<MetricLine> items, SKRect rect, float rowGap)
+    private void DrawMetricWidget(SKCanvas canvas, WidgetData widget)
     {
-        using var namePaint = CreateTextPaint(13, TextSecondary, false);
-        using var valuePaint = CreateTextPaint(15, TextPrimary, true);
-
-        var rowHeight = (rect.Height - rowGap * Math.Max(0, items.Count - 1)) / Math.Max(1, items.Count);
-        var valueX = rect.Right - 2;
-
-        for (var index = 0; index < items.Count; index++)
-        {
-            var item = items[index];
-            var top = rect.Top + index * (rowHeight + rowGap);
-            var baseline = top + Math.Min(rowHeight * 0.72f, 16f);
-
-            valuePaint.Color = item.Color;
-            canvas.DrawText(item.Name, rect.Left, baseline, namePaint);
-
-            var valueWidth = valuePaint.MeasureText(item.Value);
-            canvas.DrawText(item.Value, valueX - valueWidth, baseline, valuePaint);
-
-            using var separatorPaint = new SKPaint
-            {
-                Color = new SKColor(120, 200, 220, 24),
-                StrokeWidth = 1,
-                IsAntialias = true,
-                Style = SKPaintStyle.Stroke
-            };
-
-            if (index < items.Count - 1)
-            {
-                var lineY = top + rowHeight + 2;
-                canvas.DrawLine(rect.Left, lineY, rect.Right, lineY, separatorPaint);
-            }
-        }
+        using var labelPaint = CreateTextPaint(11, TextSecondary, false);
+        using var valuePaint = CreateTextPaint(17, widget.Color, true);
+        DrawTitleValueWidget(canvas, widget, labelPaint, valuePaint);
     }
 
-    private void DrawGauge(SKCanvas canvas, SKRect rect, float ratio)
+    private void DrawGaugeWidget(SKCanvas canvas, WidgetData widget)
+    {
+        DrawGauge(canvas, new SKRect(widget.Bounds.Left + 6, widget.Bounds.Top + 6, widget.Bounds.Right - 6, widget.Bounds.Bottom - 6), widget.Ratio, widget.Value);
+    }
+
+    private void DrawBarGaugeWidget(SKCanvas canvas, WidgetData widget)
+    {
+        using var labelPaint = CreateTextPaint(10, TextSecondary, false);
+        using var valuePaint = CreateTextPaint(16, widget.Color, true);
+        var titleWidth = labelPaint.MeasureText(widget.Title);
+        var valueWidth = valuePaint.MeasureText(widget.Value);
+        canvas.DrawText(widget.Title, widget.Bounds.Left + 8, widget.Bounds.Top + 18, labelPaint);
+        canvas.DrawText(widget.Value, widget.Bounds.Right - valueWidth - 8, widget.Bounds.Top + 18, valuePaint);
+
+        var barRect = new SKRect(widget.Bounds.Left + 8, widget.Bounds.Top + 26, widget.Bounds.Right - 8, widget.Bounds.Bottom - 10);
+        DrawBarGauge(canvas, barRect, widget.Ratio, widget.Color);
+    }
+
+    private void DrawGauge(SKCanvas canvas, SKRect rect, float ratio, string valueText)
     {
         using var trackPaint = new SKPaint
         {
@@ -326,20 +292,59 @@ file sealed class DashboardRenderer(int width, int height)
             StrokeCap = SKStrokeCap.Round
         };
 
-        using var textPaint = CreateTextPaint(18, TextPrimary, true);
+        using var textPaint = CreateTextPaint(19, TextPrimary, true);
         using var percentPaint = CreateTextPaint(10, TextSecondary, false);
 
         canvas.DrawArc(rect, 135, 270, false, trackPaint);
         canvas.DrawArc(rect, 135, 270 * Math.Clamp(ratio, 0f, 1f), false, valuePaint);
-        canvas.DrawText($"{ratio * 100:0}%", rect.Left + 16, rect.MidY + 6, textPaint);
-        canvas.DrawText("LOAD", rect.Left + 22, rect.MidY + 24, percentPaint);
+        canvas.DrawText(valueText, rect.Left + 12, rect.MidY + 6, textPaint);
+        canvas.DrawText("LOAD", rect.Left + 18, rect.MidY + 22, percentPaint);
     }
 
-    private void DrawTimeline(SKCanvas canvas, SKRect rect, float seed)
+    private void DrawBarGauge(SKCanvas canvas, SKRect rect, float ratio, SKColor color)
     {
+        using var trackPaint = new SKPaint
+        {
+            Color = new SKColor(80, 188, 210, 42),
+            IsAntialias = true,
+            Style = SKPaintStyle.Fill
+        };
+
+        using var fillPaint = new SKPaint
+        {
+            Color = color.WithAlpha(180),
+            IsAntialias = true,
+            Style = SKPaintStyle.Fill
+        };
+
+        using var borderPaint = new SKPaint
+        {
+            Color = color.WithAlpha(120),
+            StrokeWidth = 1,
+            IsAntialias = true,
+            Style = SKPaintStyle.Stroke
+        };
+
+        var fillRect = new SKRect(rect.Left, rect.Top, rect.Left + rect.Width * Math.Clamp(ratio, 0f, 1f), rect.Bottom);
+        canvas.DrawRoundRect(new SKRoundRect(rect, 4, 4), trackPaint);
+        canvas.DrawRoundRect(new SKRoundRect(fillRect, 4, 4), fillPaint);
+        canvas.DrawRoundRect(new SKRoundRect(rect, 4, 4), borderPaint);
+    }
+
+    private void DrawTimelineWidget(SKCanvas canvas, WidgetData widget)
+    {
+        using var labelPaint = CreateTextPaint(11, TextSecondary, false);
+        DrawTimelineHeader(canvas, widget, labelPaint);
+        DrawTimeline(canvas, new SKRect(widget.Bounds.Left + 8, widget.Bounds.Top + 26, widget.Bounds.Right - 8, widget.Bounds.Bottom - 8), widget.Ratio, widget.Color);
+    }
+
+    private void DrawTimeline(SKCanvas canvas, SKRect rect, float seed, SKColor color)
+    {
+        DrawTimelineFrame(canvas, rect);
+
         using var linePaint = new SKPaint
         {
-            Color = Accent,
+            Color = color,
             StrokeWidth = 2,
             IsAntialias = true,
             Style = SKPaintStyle.Stroke
@@ -347,7 +352,7 @@ file sealed class DashboardRenderer(int width, int height)
 
         using var fillPaint = new SKPaint
         {
-            Color = new SKColor(0, 245, 255, 28),
+            Color = color.WithAlpha(28),
             IsAntialias = true,
             Style = SKPaintStyle.Fill
         };
@@ -382,6 +387,75 @@ file sealed class DashboardRenderer(int width, int height)
 
         canvas.DrawPath(fillPath, fillPaint);
         canvas.DrawPath(path, linePaint);
+    }
+
+    private void DrawNetworkTimelineWidget(SKCanvas canvas, WidgetData widget)
+    {
+        using var labelPaint = CreateTextPaint(11, TextSecondary, false);
+        DrawTimelineHeader(canvas, widget, labelPaint);
+        DrawNetworkTimeline(canvas, new SKRect(widget.Bounds.Left + 8, widget.Bounds.Top + 26, widget.Bounds.Right - 8, widget.Bounds.Bottom - 8), widget.Ratio);
+    }
+
+    private void DrawTimelineHeader(SKCanvas canvas, WidgetData widget, SKPaint labelPaint)
+    {
+        var titleLines = WrapTitle(widget.Title, labelPaint, widget.Bounds.Width * 0.55f);
+        var headerTop = widget.Bounds.Top + 12;
+
+        for (var index = 0; index < titleLines.Count; index++)
+        {
+            canvas.DrawText(titleLines[index], widget.Bounds.Left + 10, headerTop + index * 10, labelPaint);
+        }
+
+        var valueWidth = labelPaint.MeasureText(widget.Value);
+        canvas.DrawText(widget.Value, widget.Bounds.Right - valueWidth - 10, widget.Bounds.Top + 18, labelPaint);
+    }
+
+    private void DrawTitleValueWidget(SKCanvas canvas, WidgetData widget, SKPaint titlePaint, SKPaint valuePaint)
+    {
+        var titleLines = WrapTitle(widget.Title, titlePaint, widget.Bounds.Width * 0.46f);
+        var firstLineY = widget.Bounds.Top + 18;
+
+        for (var index = 0; index < titleLines.Count; index++)
+        {
+            canvas.DrawText(titleLines[index], widget.Bounds.Left + 10, firstLineY + index * 10, titlePaint);
+        }
+
+        var valueWidth = valuePaint.MeasureText(widget.Value);
+        var valueX = widget.Bounds.Right - valueWidth - 10;
+        var valueY = widget.Bounds.Top + (widget.Bounds.Height / 2f) + 4;
+        canvas.DrawText(widget.Value, valueX, valueY, valuePaint);
+    }
+
+    private static IReadOnlyList<string> WrapTitle(string title, SKPaint paint, float maxWidth)
+    {
+        if (paint.MeasureText(title) <= maxWidth)
+        {
+            return [title];
+        }
+
+        var words = title.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length < 2)
+        {
+            return [title];
+        }
+
+        var firstLine = words[0];
+        var secondLine = string.Join(' ', words.Skip(1));
+        for (var i = 1; i < words.Length; i++)
+        {
+            var candidate = string.Join(' ', words.Take(i));
+            if (paint.MeasureText(candidate) <= maxWidth)
+            {
+                firstLine = candidate;
+                secondLine = string.Join(' ', words.Skip(i));
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return string.IsNullOrWhiteSpace(secondLine) ? [firstLine] : [firstLine, secondLine];
     }
 
     private void DrawNetworkTimeline(SKCanvas canvas, SKRect rect, float seed)
@@ -522,15 +596,17 @@ file sealed class DashboardRenderer(int width, int height)
         };
     }
 
-    private sealed record PanelData(string Title, SKRect Bounds, IReadOnlyList<MetricLine> Items, float Ratio, PanelVisual Visual);
+    private sealed record WidgetData(WidgetKind Kind, SKRect Bounds, string Title, string Value, SKColor Color, float Ratio);
 
-    private sealed record MetricLine(string Name, string Value, SKColor Color);
-
-    private enum PanelVisual
+    private enum WidgetKind
     {
-        GaugeAndTimeline,
+        Title,
+        Label,
+        Info,
+        Metric,
+        Gauge,
+        BarGauge,
+        Timeline,
         NetworkTimeline,
-        GaugeOnly,
-        TextOnly
     }
 }
