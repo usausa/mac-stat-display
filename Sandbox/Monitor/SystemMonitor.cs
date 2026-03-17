@@ -113,7 +113,7 @@ public sealed class FanSensorEntry
     internal FanSensorEntry(FanSensor fanSensor) => sensor = fanSensor;
 }
 
-internal sealed class SystemMonitor : ISystemMonitor
+internal sealed class SystemMonitor
 {
     //--------------------------------------------------------------------------------
     // System info providers
@@ -291,99 +291,6 @@ internal sealed class SystemMonitor : ISystemMonitor
     public double PowerRamW => powerRamW;
     public double PowerPciW => powerPciW;
     public double PowerTotalW => powerCpuW + powerGpuW + powerAneW + powerRamW + powerPciW;
-
-    // Disk (aggregate)
-
-    public double DiskUsagePercent
-    {
-        get
-        {
-            var root = fileSystemEntries.Find(static e => e.MountPoint == "/");
-            return root is not null && root.TotalSize > 0
-                ? (double)(root.TotalSize - root.FreeSize) / root.TotalSize * 100.0
-                : 0;
-        }
-    }
-
-    public double DiskTotalGb
-    {
-        get
-        {
-            var root = fileSystemEntries.Find(static e => e.MountPoint == "/");
-            return root is not null ? root.TotalSize / (1024.0 * 1024.0 * 1024.0) : 0;
-        }
-    }
-
-    public double DiskFreeGb
-    {
-        get
-        {
-            var root = fileSystemEntries.Find(static e => e.MountPoint == "/");
-            return root is not null ? root.FreeSize / (1024.0 * 1024.0 * 1024.0) : 0;
-        }
-    }
-
-    public double DiskReadBytesPerSec
-    {
-        get
-        {
-            var sum = 0.0;
-            for (var i = 0; i < diskEntries.Count; i++)
-            {
-                sum += diskEntries[i].ReadBytesPerSec;
-            }
-
-            return sum;
-        }
-    }
-
-    public double DiskWriteBytesPerSec
-    {
-        get
-        {
-            var sum = 0.0;
-            for (var i = 0; i < diskEntries.Count; i++)
-            {
-                sum += diskEntries[i].WriteBytesPerSec;
-            }
-
-            return sum;
-        }
-    }
-
-    // Network (aggregate)
-
-    public double NetworkRxBytesPerSec
-    {
-        get
-        {
-            var sum = 0.0;
-            for (var i = 0; i < networkEntries.Count; i++)
-            {
-                sum += networkEntries[i].RxBytesPerSec;
-            }
-
-            return sum;
-        }
-    }
-
-    public double NetworkTxBytesPerSec
-    {
-        get
-        {
-            var sum = 0.0;
-            for (var i = 0; i < networkEntries.Count; i++)
-            {
-                sum += networkEntries[i].TxBytesPerSec;
-            }
-
-            return sum;
-        }
-    }
-
-    // GPU Temperature
-
-    public double? GpuTemperature => gpuEntries.Count > 0 ? gpuEntries[0].Temperature : null;
 
     //--------------------------------------------------------------------------------
     // Constructor

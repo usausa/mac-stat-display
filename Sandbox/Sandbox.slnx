@@ -14,4 +14,5 @@
   <Project Path="Draw4/Draw4.csproj" Id="fc527327-3d44-4813-9776-1c9e33a8d12b" />
   <Project Path="Draw5/Draw5.csproj" />
   <Project Path="Driver/Driver.csproj" Id="c9608933-6209-49f3-9a95-66858dc0c1a6" />
+  <Project Path="Monitor/Monitor.csproj" Id="5c247b33-be17-4541-9429-fdbb1d37e712" />
 </Solution>
