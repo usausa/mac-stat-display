@@ -14,11 +14,11 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
 {
     private const int ImageWidth = 1280;
     private const int ImageHeight = 480;
-    private const int Margin = 3;
-    private const int HeaderHeight = 28;
+    private const int OuterPadding = 18;
+    private const int HeaderHeight = 76;
+    private const int ContentGap = 12;
     private const int GridColumns = 4;
     private const int GridRows = 4;
-    private const int GridGap = 3;
 
     private record struct WidgetPlacement(IWidget Widget, int Column, int Row, int ColumnSpan = 1, int RowSpan = 1);
 
@@ -80,61 +80,80 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
     [
         new(new CpuUsageWidget(), 0, 0, 1, 2),
         new(new MemoryUsageWidget(), 1, 0, 1, 2),
-        new(new DiskUsageWidget(), 2, 0, 2, 1),
-        new(new CpuTemperatureWidget(), 2, 1),
-        new(new GpuTemperatureWidget(), 3, 1),
-        new(new NetworkDownloadWidget(), 0, 2),
-        new(new NetworkUploadWidget(), 1, 2),
-        new(new LoadAverageWidget(), 2, 2),
-        new(new ProcessCountWidget(), 3, 2),
-        new(new CpuUserWidget(), 0, 3),
-        new(new CpuSystemWidget(), 1, 3),
-        new(new PowerTotalWidget(), 2, 3),
-        new(new ThreadCountWidget(), 3, 3)
+        new(new LoadAverageWidget(), 2, 0),
+        new(new CpuClockWidget(), 3, 0),
+        new(new DiskCapacityWidget(), 2, 1),
+        new(new NetworkDownloadWidget(), 3, 1),
+        new(new MemoryAppWidget(), 0, 2),
+        new(new MemorySwapWidget(), 1, 2),
+        new(new DiskReadWidget(), 2, 2),
+        new(new DiskWriteWidget(), 3, 2),
+        new(new ProcessCountWidget(), 0, 3),
+        new(new CpuTemperatureWidget(), 1, 3),
+        new(new GpuTemperatureWidget(), 2, 3),
+        new(new PowerTotalWidget(), 3, 3),
     ];
 
     private void RenderDashboard(SKCanvas canvas, WidgetPlacement[] placements, DrawHelper drawHelper)
     {
-        canvas.Clear(DrawHelper.BgColor);
+        DrawHelper.DrawBackground(canvas, ImageWidth, ImageHeight);
         DrawHeader(canvas, drawHelper);
         DrawWidgets(canvas, placements, drawHelper);
     }
 
     private void DrawHeader(SKCanvas canvas, DrawHelper drawHelper)
     {
-        using var bgPaint = DrawHelper.Fill(DrawHelper.HeaderBg);
-        canvas.DrawRect(0, 0, ImageWidth, HeaderHeight, bgPaint);
+        var headerRect = new SKRect(OuterPadding, OuterPadding, ImageWidth - OuterPadding, OuterPadding + HeaderHeight);
 
-        using var separator = DrawHelper.Stroke(DrawHelper.CardBorder, 1);
-        canvas.DrawLine(0, HeaderHeight, ImageWidth, HeaderHeight, separator);
+        using var panelBg = DrawHelper.Fill(DrawHelper.PanelBg);
+        canvas.DrawRoundRect(headerRect, DrawHelper.HeaderRadius, DrawHelper.HeaderRadius, panelBg);
 
-        using var titleFont = drawHelper.MakeFont(14f);
-        using var titlePaint = DrawHelper.Fill(new SKColor(112, 223, 255));
-        canvas.DrawText("SYSTEM MONITOR", Margin + 2, 19, titleFont, titlePaint);
+        using var panelBorder = DrawHelper.Stroke(DrawHelper.PanelBorder, 1);
+        canvas.DrawRoundRect(headerRect, DrawHelper.HeaderRadius, DrawHelper.HeaderRadius, panelBorder);
 
-        using var infoFont = drawHelper.MakeFont(10f);
-        using var infoPaint = DrawHelper.Fill(DrawHelper.TextSub);
+        // Title
+        using var titleFont = drawHelper.MakeFont(26f, true);
+        using var titlePaint = DrawHelper.Fill(SKColors.White);
+        canvas.DrawText("SYSTEM MONITOR", headerRect.Left + 20, headerRect.Top + 30, titleFont, titlePaint);
 
+        // Subtitle
+        using var subtitleFont = drawHelper.MakeFont(13f);
+        using var subtitlePaint = DrawHelper.Fill(DrawHelper.HeaderSubtitle);
+        canvas.DrawText("Realtime System Monitor", headerRect.Left + 20, headerRect.Top + 52, subtitleFont, subtitlePaint);
+
+        // Header metrics
+        using var labelFont = drawHelper.MakeFont(16f, true);
+        using var labelPaint = DrawHelper.Fill(DrawHelper.AccentCyan);
+        using var valueFont = drawHelper.MakeFont(18f, true);
+        using var valuePaint = DrawHelper.Fill(SKColors.White);
+
+        // Uptime
         var uptime = monitor.Uptime;
-        var uptimeText = $"Uptime {(int)uptime.TotalDays}d {uptime.Hours:D2}h {uptime.Minutes:D2}m";
-        canvas.DrawText(uptimeText, (ImageWidth - infoFont.MeasureText(uptimeText)) / 2f, 19, infoFont, infoPaint);
+        var uptimeText = $"{(int)uptime.TotalDays}d {uptime.Hours:D2}h {uptime.Minutes:D2}m";
+        var uptimeX = ImageWidth - 420f;
+        canvas.DrawText("UPTIME", uptimeX, headerRect.Top + 24, labelFont, labelPaint);
+        canvas.DrawText(uptimeText, uptimeX, headerRect.Top + 48, valueFont, valuePaint);
 
-        var clock = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-        canvas.DrawText(clock, ImageWidth - Margin - infoFont.MeasureText(clock) - 2, 19, infoFont, infoPaint);
+        // Time
+        var clock = DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+        var timeX = ImageWidth - 250f;
+        canvas.DrawText("TIME", timeX, headerRect.Top + 24, labelFont, labelPaint);
+        canvas.DrawText(clock, timeX, headerRect.Top + 48, valueFont, valuePaint);
     }
 
     private void DrawWidgets(SKCanvas canvas, WidgetPlacement[] placements, DrawHelper drawHelper)
     {
-        var gridTop = HeaderHeight + GridGap;
-        var cellWidth = (ImageWidth - (Margin * 2f) - ((GridColumns - 1) * GridGap)) / GridColumns;
-        var cellHeight = (ImageHeight - gridTop - Margin - ((GridRows - 1) * GridGap)) / GridRows;
+        var gridTop = OuterPadding + HeaderHeight + ContentGap;
+        var gridHeight = ImageHeight - gridTop - OuterPadding;
+        var cellWidth = (ImageWidth - (OuterPadding * 2) - (ContentGap * (GridColumns - 1))) / (float)GridColumns;
+        var cellHeight = (gridHeight - (ContentGap * (GridRows - 1))) / (float)GridRows;
 
         foreach (var placement in placements)
         {
-            var x = Margin + (placement.Column * (cellWidth + GridGap));
-            var y = gridTop + (placement.Row * (cellHeight + GridGap));
-            var w = (cellWidth * placement.ColumnSpan) + (GridGap * (placement.ColumnSpan - 1));
-            var h = (cellHeight * placement.RowSpan) + (GridGap * (placement.RowSpan - 1));
+            var x = OuterPadding + (placement.Column * (cellWidth + ContentGap));
+            var y = gridTop + (placement.Row * (cellHeight + ContentGap));
+            var w = (cellWidth * placement.ColumnSpan) + (ContentGap * (placement.ColumnSpan - 1));
+            var h = (cellHeight * placement.RowSpan) + (ContentGap * (placement.RowSpan - 1));
             var rect = new SKRect(x, y, x + w, y + h);
 
             placement.Widget.Draw(canvas, rect, monitor, drawHelper);

@@ -2,78 +2,61 @@ namespace MacStatDisplay.Widgets;
 
 using SkiaSharp;
 
-/// <summary>Circular gauge widget for CPU usage.</summary>
+/// <summary>Ring gauge widget for CPU usage.</summary>
 internal sealed class CpuUsageWidget : IWidget
 {
-    private static readonly SKColor Accent = new(0, 200, 255);
+    private static readonly SKColor Accent = new(88, 166, 255);
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
     {
-        helper.DrawCard(canvas, rect);
-        helper.DrawBadge(canvas, "CPU", Accent, rect.Left + 5, rect.Top + 4);
+        helper.DrawPanel(canvas, rect);
+        helper.DrawTitleBlock(canvas, rect, "CPU", "Usage");
 
         var usage = monitor.CpuUsageTotal;
-        var valueColor = DrawHelper.ResolvePercentColor(usage, Accent);
+        var center = new SKPoint(rect.MidX, rect.MidY + 12);
+        const float radius = 50;
 
-        helper.DrawLabel(canvas, "CPU使用率", rect.Left + 8, rect.Top + 32, rect.Width - 132);
-        helper.DrawLargeValue(canvas, $"{usage:0}%", rect.Right - 8, rect.Top + 42, valueColor);
+        helper.DrawRingGauge(canvas, center.X, center.Y, radius, (float)Math.Clamp(usage, 0, 100), Accent);
+        helper.DrawCenteredValue(canvas, $"{usage:0}%", center.X, center.Y + 12, Accent);
 
-        var percentage = (float)Math.Clamp(usage, 0, 100);
-        helper.DrawCircularGauge(canvas, rect.MidX, rect.MidY + 18, Math.Min(rect.Width, rect.Height) * 0.27f, percentage, valueColor);
-
-        helper.DrawDetail(canvas, $"P {monitor.CpuUsagePerformance:0}% / E {monitor.CpuUsageEfficiency:0}%", rect.Left + 8, rect.Bottom - 8);
+        var detailX = rect.Right - 18;
+        var detailTop = rect.Top + 54;
+        helper.DrawRightAlignedDetail(canvas, $"System {monitor.CpuSystemPercent:0}%", detailX, detailTop);
+        helper.DrawRightAlignedDetail(canvas, $"User {monitor.CpuUserPercent:0}%", detailX, detailTop + 18);
+        helper.DrawRightAlignedDetail(canvas, $"Idle {100 - monitor.CpuUsageTotal:0}%", detailX, detailTop + 36);
     }
 }
 
-/// <summary>Stat widget for CPU user percentage.</summary>
-internal sealed class CpuUserWidget : IWidget
-{
-    private static readonly SKColor Accent = new(0, 200, 255);
-
-    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
-    {
-        helper.DrawCard(canvas, rect);
-        helper.DrawBadge(canvas, "CPU", Accent, rect.Left + 5, rect.Top + 4);
-
-        var value = monitor.CpuUserPercent;
-        var valueColor = DrawHelper.ResolvePercentColor(value, Accent);
-
-        helper.DrawLabel(canvas, "ユーザー", rect.Left + 8, rect.Top + 32, rect.Width - 132);
-        helper.DrawLargeValue(canvas, $"{value:0.0}%", rect.Right - 8, rect.MidY + 8, valueColor, 36f);
-    }
-}
-
-/// <summary>Stat widget for CPU system percentage.</summary>
-internal sealed class CpuSystemWidget : IWidget
-{
-    private static readonly SKColor Accent = new(0, 200, 255);
-
-    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
-    {
-        helper.DrawCard(canvas, rect);
-        helper.DrawBadge(canvas, "CPU", Accent, rect.Left + 5, rect.Top + 4);
-
-        var value = monitor.CpuSystemPercent;
-        var valueColor = DrawHelper.ResolvePercentColor(value, Accent);
-
-        helper.DrawLabel(canvas, "システム", rect.Left + 8, rect.Top + 32, rect.Width - 132);
-        helper.DrawLargeValue(canvas, $"{value:0.0}%", rect.Right - 8, rect.MidY + 8, valueColor, 36f);
-    }
-}
-
-/// <summary>Stat widget for load average.</summary>
+/// <summary>Text widget for load average.</summary>
 internal sealed class LoadAverageWidget : IWidget
 {
-    private static readonly SKColor Accent = new(0, 200, 255);
+    private static readonly SKColor Accent = new(127, 225, 255);
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
     {
-        helper.DrawCard(canvas, rect);
-        helper.DrawBadge(canvas, "CPU", Accent, rect.Left + 5, rect.Top + 4);
+        helper.DrawPanel(canvas, rect);
+        helper.DrawTitleBlock(canvas, rect, "CPU", "Load Avg");
 
-        helper.DrawLabel(canvas, "Load 1m", rect.Left + 8, rect.Top + 32, rect.Width - 132);
-        helper.DrawLargeValue(canvas, $"{monitor.LoadAverage1:0.00}", rect.Right - 8, rect.MidY + 8, Accent, 36f);
+        helper.DrawValue(canvas, $"1m {monitor.LoadAverage1:0.00}", rect.Right - 16, rect.MidY + 8, Accent);
+        helper.DrawWrappedDetail(canvas, $"5m {monitor.LoadAverage5:0.00}  15m {monitor.LoadAverage15:0.00}", rect.Left + 16, rect.MidY + 8, rect.Width - 32);
+    }
+}
 
-        helper.DrawDetail(canvas, $"5m {monitor.LoadAverage5:0.00}  15m {monitor.LoadAverage15:0.00}", rect.Left + 8, rect.Bottom - 7, 9f);
+/// <summary>Text widget for CPU clock frequency.</summary>
+internal sealed class CpuClockWidget : IWidget
+{
+    private static readonly SKColor Accent = new(196, 181, 253);
+
+    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
+    {
+        helper.DrawPanel(canvas, rect);
+        helper.DrawTitleBlock(canvas, rect, "CPU", "Clock");
+
+        var mhz = monitor.CpuFrequencyAllHz / 1_000_000.0;
+        var pMhz = monitor.CpuFrequencyPerformanceHz / 1_000_000.0;
+        var eMhz = monitor.CpuFrequencyEfficiencyHz / 1_000_000.0;
+
+        helper.DrawValue(canvas, $"{mhz:0} MHz", rect.Right - 16, rect.MidY + 8, Accent);
+        helper.DrawWrappedDetail(canvas, $"P {pMhz:0} / E {eMhz:0}", rect.Left + 16, rect.MidY + 8, rect.Width - 32);
     }
 }

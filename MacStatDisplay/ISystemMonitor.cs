@@ -10,6 +10,12 @@ internal interface ISystemMonitor
     double CpuUserPercent { get; }
     double CpuSystemPercent { get; }
 
+    // CPU Frequency
+
+    double CpuFrequencyAllHz { get; }
+    double CpuFrequencyEfficiencyHz { get; }
+    double CpuFrequencyPerformanceHz { get; }
+
     // Uptime
 
     TimeSpan Uptime { get; }
@@ -28,6 +34,7 @@ internal interface ISystemMonitor
     // Memory
 
     double MemoryUsagePercent { get; }
+    double MemoryActivePercent { get; }
     double MemoryWiredPercent { get; }
     double SwapUsagePercent { get; }
 

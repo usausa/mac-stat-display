@@ -2,26 +2,50 @@ namespace MacStatDisplay.Widgets;
 
 using SkiaSharp;
 
-/// <summary>Bar gauge widget for disk usage.</summary>
-internal sealed class DiskUsageWidget : IWidget
+/// <summary>Bar gauge widget for disk capacity.</summary>
+internal sealed class DiskCapacityWidget : IWidget
 {
-    private static readonly SKColor Accent = new(255, 210, 60);
+    private static readonly SKColor Accent = new(255, 99, 132);
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
     {
-        helper.DrawCard(canvas, rect);
-        helper.DrawBadge(canvas, "ディスク", Accent, rect.Left + 5, rect.Top + 4);
+        helper.DrawPanel(canvas, rect);
+        helper.DrawTitleBlock(canvas, rect, "DISK", "Capacity");
 
         var usage = monitor.DiskUsagePercent;
-        var valueColor = DrawHelper.ResolvePercentColor(usage, Accent);
 
-        helper.DrawLabel(canvas, "ディスク 使用率", rect.Left + 8, rect.Top + 28, rect.Width - 150);
-        helper.DrawLargeValue(canvas, $"{usage:0}%", rect.Right - 8, rect.Top + 31, valueColor);
+        helper.DrawValue(canvas, $"{usage:0}%", rect.Right - 16, rect.MidY + 8, Accent);
+        helper.DrawWrappedDetail(canvas, $"{monitor.DiskFreeGb:0} GB free / {monitor.DiskTotalGb:0} GB", rect.Left + 16, rect.MidY + 8, rect.Width - 32);
+        helper.DrawBarGauge(canvas, rect, (float)Math.Clamp(usage, 0, 100), Accent);
+    }
+}
 
-        var percentage = (float)Math.Clamp(usage, 0, 100);
-        var trackRect = new SKRect(rect.Left + 8, rect.Top + 48, rect.Right - 8, rect.Top + 61);
-        helper.DrawBarGauge(canvas, trackRect, percentage, valueColor);
+/// <summary>Text widget for disk read speed.</summary>
+internal sealed class DiskReadWidget : IWidget
+{
+    private static readonly SKColor Accent = new(255, 154, 162);
 
-        helper.DrawDetail(canvas, $"{monitor.DiskFreeGb:0} GB free / {monitor.DiskTotalGb:0} GB", rect.Left + 8, rect.Bottom - 8);
+    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
+    {
+        helper.DrawPanel(canvas, rect);
+        helper.DrawTitleBlock(canvas, rect, "DISK", "Read");
+
+        var kbps = monitor.DiskReadBytesPerSec / 1024.0;
+        helper.DrawValue(canvas, $"{kbps:0} KB/s", rect.Right - 16, rect.MidY + 8, Accent);
+    }
+}
+
+/// <summary>Text widget for disk write speed.</summary>
+internal sealed class DiskWriteWidget : IWidget
+{
+    private static readonly SKColor Accent = new(255, 154, 162);
+
+    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
+    {
+        helper.DrawPanel(canvas, rect);
+        helper.DrawTitleBlock(canvas, rect, "DISK", "Write");
+
+        var kbps = monitor.DiskWriteBytesPerSec / 1024.0;
+        helper.DrawValue(canvas, $"{kbps:0} KB/s", rect.Right - 16, rect.MidY + 8, Accent);
     }
 }

@@ -13,6 +13,12 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     public double CpuUserPercent { get; private set; } = 29.8;
     public double CpuSystemPercent { get; private set; } = 5.2;
 
+    // CPU Frequency
+
+    public double CpuFrequencyAllHz { get; private set; } = 3_200_000_000;
+    public double CpuFrequencyEfficiencyHz { get; private set; } = 2_400_000_000;
+    public double CpuFrequencyPerformanceHz { get; private set; } = 3_800_000_000;
+
     // Uptime
 
     public TimeSpan Uptime => DateTime.UtcNow - startTime + TimeSpan.FromDays(3);
@@ -31,6 +37,7 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     // Memory
 
     public double MemoryUsagePercent { get; private set; } = 72;
+    public double MemoryActivePercent { get; private set; } = 48;
     public double MemoryWiredPercent { get; private set; } = 18;
     public double SwapUsagePercent { get; private set; } = 12;
 
