@@ -49,14 +49,11 @@ internal sealed class DrawHelper : IDisposable
     /// <summary>Draws a colored section badge.</summary>
     internal void DrawBadge(SKCanvas canvas, string text, SKColor accentColor, float x, float y)
     {
-        using var font = MakeFont(8.5f);
-        var textWidth = font.MeasureText(text);
-        var badgeWidth = Math.Max(textWidth + 10, 30);
-
         using var bgPaint = Fill(accentColor.WithAlpha(34));
-        var rect = new SKRect(x, y, x + badgeWidth, y + 15);
+        var rect = new SKRect(x, y, x + 52, y + 15);
         canvas.DrawRoundRect(rect, 7, 7, bgPaint);
 
+        using var font = MakeFont(8.5f);
         using var textPaint = Fill(accentColor);
         canvas.DrawText(text, x + 5, y + 11.5f, font, textPaint);
     }
@@ -82,9 +79,9 @@ internal sealed class DrawHelper : IDisposable
     }
 
     /// <summary>Draws a small detail text.</summary>
-    internal void DrawDetail(SKCanvas canvas, string text, float x, float y)
+    internal void DrawDetail(SKCanvas canvas, string text, float x, float y, float fontSize = 9.5f)
     {
-        using var font = MakeFont(9.5f);
+        using var font = MakeFont(fontSize);
         using var paint = Fill(TextSub);
         canvas.DrawText(text, x, y, font, paint);
     }

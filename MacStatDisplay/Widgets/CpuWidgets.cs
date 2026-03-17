@@ -74,6 +74,6 @@ internal sealed class LoadAverageWidget : IWidget
         helper.DrawLabel(canvas, "Load 1m", rect.Left + 8, rect.Top + 32, rect.Width - 132);
         helper.DrawLargeValue(canvas, $"{monitor.LoadAverage1:0.00}", rect.Right - 8, rect.MidY + 8, Accent, 36f);
 
-        helper.DrawDetail(canvas, $"5m {monitor.LoadAverage5:0.00}  15m {monitor.LoadAverage15:0.00}", rect.Left + 8, rect.Bottom - 7);
+        helper.DrawDetail(canvas, $"5m {monitor.LoadAverage5:0.00}  15m {monitor.LoadAverage15:0.00}", rect.Left + 8, rect.Bottom - 7, 9f);
     }
 }
