@@ -242,6 +242,32 @@ internal static class DrawHelper
 
     private static SKTypeface ResolveTypeface(bool bold)
     {
+        // Bold: prefer Roboto-Bold.ttf, then fall back to Roboto-Medium.ttf
+        if (bold)
+        {
+            var boldPath = Path.Combine("Assets", "Roboto-Bold.ttf");
+            if (File.Exists(boldPath))
+            {
+                var tf = SKTypeface.FromFile(boldPath);
+                if (tf is not null)
+                {
+                    return tf;
+                }
+            }
+        }
+
+        // Regular (and bold fallback): Roboto-Medium.ttf
+        var mediumPath = Path.Combine("Assets", "Roboto-Medium.ttf");
+        if (File.Exists(mediumPath))
+        {
+            var tf = SKTypeface.FromFile(mediumPath);
+            if (tf is not null)
+            {
+                return tf;
+            }
+        }
+
+        // System font fallback
         string[] families =
         [
             "Yu Gothic UI", "Meiryo", "MS Gothic",

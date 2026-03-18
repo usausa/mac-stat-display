@@ -18,4 +18,10 @@
     <PackageReference Include="Serilog.Sinks.SyslogMessages" Version="4.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Assets\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
