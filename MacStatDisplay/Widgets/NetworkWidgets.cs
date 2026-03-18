@@ -23,11 +23,6 @@ internal sealed class NetworkWidget : IWidget
 
         if (entries.Count == 0)
         {
-            PushHistory(rxHistory, "agg", (float)monitor.NetworkRxBytesPerSec);
-            PushHistory(txHistory, "agg", (float)monitor.NetworkTxBytesPerSec);
-            DrawIfEntry(canvas, "aggregate", monitor.NetworkRxBytesPerSec, monitor.NetworkTxBytesPerSec,
-                leftX, rightX, contentTop, contentH,
-                rxHistory["agg"], txHistory["agg"]);
             return;
         }
 

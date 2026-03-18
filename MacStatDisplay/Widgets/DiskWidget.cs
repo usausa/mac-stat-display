@@ -16,14 +16,7 @@ internal sealed class FileSystemWidget : IWidget
         var contentBottom = rect.Bottom - WidgetTheme.PadY;
         var contentH = contentBottom - contentTop;
 
-        if (entries.Count == 0)
-        {
-            DrawEntry(canvas, rect, "/", monitor.DiskTotalGb, monitor.DiskFreeGb, monitor.DiskUsagePercent,
-                contentTop, contentH);
-            return;
-        }
-
-        var entryH = contentH / entries.Count;
+        var entryH = contentH / Math.Max(entries.Count, 1);
         for (var i = 0; i < entries.Count; i++)
         {
             var e = entries[i];
@@ -94,11 +87,6 @@ internal sealed class DiskIoWidget : IWidget
 
         if (entries.Count == 0)
         {
-            PushHistory(readHistory, "agg", (float)monitor.DiskReadBytesPerSec);
-            PushHistory(writeHistory, "agg", (float)monitor.DiskWriteBytesPerSec);
-            DrawIoEntry(canvas, "aggregate", monitor.DiskReadBytesPerSec, monitor.DiskWriteBytesPerSec,
-                leftX, rightX, contentTop, contentH,
-                readHistory["agg"], writeHistory["agg"]);
             return;
         }
 
