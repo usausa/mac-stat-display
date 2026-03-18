@@ -117,7 +117,7 @@ internal static class DrawHelper
 
         using var valueFont = MakeFont(WidgetTheme.DetailFontSize, true);
         using var valuePaint = Fill(valueColor);
-        canvas.DrawText(value, x, y + 16, valueFont, valuePaint);
+        canvas.DrawText(value, x, y + 18, valueFont, valuePaint);
     }
 
     /// <summary>Draws a right-aligned label on one line and a colored value below it.</summary>
@@ -129,7 +129,7 @@ internal static class DrawHelper
 
         using var valueFont = MakeFont(WidgetTheme.DetailFontSize, true);
         using var valuePaint = Fill(valueColor);
-        canvas.DrawText(value, rightX - valueFont.MeasureText(value), y + 16, valueFont, valuePaint);
+        canvas.DrawText(value, rightX - valueFont.MeasureText(value), y + 18, valueFont, valuePaint);
     }
 
     /// <summary>Draws a 270° ring gauge (open at bottom).</summary>
@@ -195,6 +195,57 @@ internal static class DrawHelper
         {
             var x = rect.Left + (i * stepX);
             var y = rect.Bottom - (Math.Clamp(values[i] / maxValue, 0, 1) * rect.Height);
+            if (i == 0)
+            {
+                linePath.MoveTo(x, y);
+            }
+            else
+            {
+                linePath.LineTo(x, y);
+            }
+        }
+
+        using var linePaint = new SKPaint { Color = color.WithAlpha(100), IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
+        canvas.DrawPath(linePath, linePaint);
+    }
+
+    /// <summary>Draws an inverted sparkline area chart (value 0 at top, growing downward).</summary>
+    internal static void DrawSparklineInverted(SKCanvas canvas, SKRect rect, IReadOnlyList<float> values, float maxValue, SKColor color)
+    {
+        if (values.Count < 2)
+        {
+            return;
+        }
+
+        if (maxValue <= 0)
+        {
+            maxValue = 1;
+        }
+
+        var stepX = rect.Width / Math.Max(values.Count - 1, 1);
+
+        // Filled area (from top, growing downward)
+        using var areaPath = new SKPath();
+        areaPath.MoveTo(rect.Left, rect.Top);
+        for (var i = 0; i < values.Count; i++)
+        {
+            var x = rect.Left + (i * stepX);
+            var y = rect.Top + (Math.Clamp(values[i] / maxValue, 0, 1) * rect.Height);
+            areaPath.LineTo(x, y);
+        }
+
+        areaPath.LineTo(rect.Left + ((values.Count - 1) * stepX), rect.Top);
+        areaPath.Close();
+
+        using var fillPaint = new SKPaint { Color = color.WithAlpha(30), IsAntialias = true, Style = SKPaintStyle.Fill };
+        canvas.DrawPath(areaPath, fillPaint);
+
+        // Line on edge
+        using var linePath = new SKPath();
+        for (var i = 0; i < values.Count; i++)
+        {
+            var x = rect.Left + (i * stepX);
+            var y = rect.Top + (Math.Clamp(values[i] / maxValue, 0, 1) * rect.Height);
             if (i == 0)
             {
                 linePath.MoveTo(x, y);

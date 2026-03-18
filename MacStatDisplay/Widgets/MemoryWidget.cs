@@ -16,7 +16,7 @@ internal sealed class MemoryUsageWidget : IWidget
         // Content area below title
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
         var contentH = rect.Bottom - WidgetTheme.PadY - contentTop;
-        var sideMargin = 80f;
+        var sideMargin = 70f;
         var maxRadiusH = contentH / 1.707f;
         var maxRadiusW = (rect.Width - (2 * sideMargin)) / 2f;
         var radius = Math.Min(maxRadiusH, maxRadiusW);
@@ -35,6 +35,6 @@ internal sealed class MemoryUsageWidget : IWidget
         // Right: Active, Wired
         var rightX = rect.Right - WidgetTheme.PadX;
         DrawHelper.DrawStackedLabelValueRight(canvas, "Active", $"{monitor.MemoryActivePercent:0.0}%", rightX, sideTop, WidgetTheme.MemoryAccent);
-        DrawHelper.DrawStackedLabelValueRight(canvas, "Wired", $"{monitor.MemoryWiredPercent:0.0}%", rightX, sideTop + 40, WidgetTheme.MemoryAccent);
+        DrawHelper.DrawStackedLabelValueRight(canvas, "Wired", $"{monitor.MemoryWiredPercent:0.0}%", rightX, sideTop + 44, WidgetTheme.MemoryAccent);
     }
 }

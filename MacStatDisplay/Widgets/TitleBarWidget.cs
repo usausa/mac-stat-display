@@ -6,10 +6,10 @@ using MacStatDisplay.Monitor;
 
 using SkiaSharp;
 
-/// <summary>Header widget with fixed-position grid: title, PROC/THR, UPTIME, TIME.</summary>
+/// <summary>Header widget with 6-column grid: title | Process | Thread | UPTIME | TIME (right-aligned per column).</summary>
 internal sealed class TitleBarWidget : IWidget
 {
-    private const int GridColumns = 5;
+    private const int GridColumns = 6;
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
@@ -33,22 +33,41 @@ internal sealed class TitleBarWidget : IWidget
         using var valPaint = DrawHelper.Fill(WidgetTheme.TextPrimary);
 
         var baseline = cy + (valFont.Size * 0.35f);
-        var labelOffsetX = 60f;
+        const float colPad = 8f;
 
-        // Column 2: PROC / THR
-        var col2X = rect.Left + (2 * colWidth);
-        canvas.DrawText("PROC", col2X, baseline, labelFont, labelPaint);
-        canvas.DrawText($"{monitor.ProcessCount} / THR {monitor.ThreadCount}", col2X + labelOffsetX, baseline, valFont, valPaint);
+        // Column 2: Process (right-aligned within column)
+        var col2Right = rect.Left + (3 * colWidth) - colPad;
+        DrawRightAlignedLabelValue(canvas, "Process ", $"{monitor.ProcessCount}",
+            col2Right, baseline, labelFont, labelPaint, valFont, valPaint);
 
-        // Column 3: UPTIME
-        var col3X = rect.Left + (3 * colWidth);
+        // Column 3: Thread (right-aligned within column)
+        var col3Right = rect.Left + (4 * colWidth) - colPad;
+        DrawRightAlignedLabelValue(canvas, "Thread ", $"{monitor.ThreadCount}",
+            col3Right, baseline, labelFont, labelPaint, valFont, valPaint);
+
+        // Column 4: UPTIME (right-aligned within column)
+        var col4Right = rect.Left + (5 * colWidth) - colPad;
         var uptime = monitor.Uptime;
-        canvas.DrawText("UPTIME", col3X, baseline, labelFont, labelPaint);
-        canvas.DrawText($"{(int)uptime.TotalDays}d {uptime.Hours:D2}h {uptime.Minutes:D2}m", col3X + labelOffsetX, baseline, valFont, valPaint);
+        DrawRightAlignedLabelValue(canvas, "UPTIME ", $"{(int)uptime.TotalDays}d {uptime.Hours:D2}h {uptime.Minutes:D2}m",
+            col4Right, baseline, labelFont, labelPaint, valFont, valPaint);
 
-        // Column 4: TIME
-        var col4X = rect.Left + (4 * colWidth);
-        canvas.DrawText("TIME", col4X, baseline, labelFont, labelPaint);
-        canvas.DrawText(DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), col4X + labelOffsetX, baseline, valFont, valPaint);
+        // Column 5: TIME (right-aligned within column)
+        var col5Right = rect.Right - colPad;
+        DrawRightAlignedLabelValue(canvas, "TIME ", DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture),
+            col5Right, baseline, labelFont, labelPaint, valFont, valPaint);
+    }
+
+    private static void DrawRightAlignedLabelValue(
+        SKCanvas canvas, string label, string value,
+        float rightX, float y,
+        SKFont labelFont, SKPaint labelPaint,
+        SKFont valFont, SKPaint valPaint)
+    {
+        var valW = valFont.MeasureText(value);
+        var x = rightX - valW;
+        canvas.DrawText(value, x, y, valFont, valPaint);
+
+        var lblW = labelFont.MeasureText(label);
+        canvas.DrawText(label, x - lblW, y, labelFont, labelPaint);
     }
 }

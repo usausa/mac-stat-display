@@ -17,7 +17,7 @@ internal sealed class GpuUsageWidget : IWidget
         // Content area below title
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
         var contentH = rect.Bottom - WidgetTheme.PadY - contentTop;
-        var sideMargin = 80f;
+        var sideMargin = 70f;
         var maxRadiusH = contentH / 1.707f;
         var maxRadiusW = (rect.Width - (2 * sideMargin)) / 2f;
         var radius = Math.Min(maxRadiusH, maxRadiusW);
@@ -31,10 +31,10 @@ internal sealed class GpuUsageWidget : IWidget
         var temp = monitor.GpuTemperature;
         if (temp.HasValue)
         {
-            using var tempFont = DrawHelper.MakeFont(WidgetTheme.DetailFontSize);
+            using var tempFont = DrawHelper.MakeFont(WidgetTheme.TemperatureFontSize);
             using var tempPaint = DrawHelper.Fill(WidgetTheme.TemperatureAccent);
             var tempText = $"{temp.Value:0}\u00b0C";
-            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (WidgetTheme.CenterValueFontSize * 0.35f) + 18, tempFont, tempPaint);
+            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (WidgetTheme.CenterValueFontSize * 0.35f) + 22, tempFont, tempPaint);
         }
 
         // Left side: Renderer / Tiler utilization from first GPU entry
@@ -45,7 +45,7 @@ internal sealed class GpuUsageWidget : IWidget
         {
             var gpu = gpuDevices[0];
             DrawHelper.DrawStackedLabelValue(canvas, "Renderer", $"{gpu.RendererUtilization}%", leftX, sideTop, WidgetTheme.GpuAccent);
-            DrawHelper.DrawStackedLabelValue(canvas, "Tiler", $"{gpu.TilerUtilization}%", leftX, sideTop + 40, WidgetTheme.GpuAccent);
+            DrawHelper.DrawStackedLabelValue(canvas, "Tiler", $"{gpu.TilerUtilization}%", leftX, sideTop + 44, WidgetTheme.GpuAccent);
         }
     }
 }

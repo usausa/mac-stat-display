@@ -28,7 +28,9 @@ internal static class WidgetTheme
     internal static readonly SKColor GpuAccent = new(94, 234, 212);
     internal static readonly SKColor FileSystemAccent = new(255, 99, 132);
     internal static readonly SKColor DiskIoAccent = new(255, 154, 162);
+    internal static readonly SKColor DiskIoReadAccent = new(100, 200, 255);
     internal static readonly SKColor NetworkAccent = new(56, 189, 248);
+    internal static readonly SKColor NetworkRxAccent = new(74, 222, 128);
     internal static readonly SKColor TemperatureAccent = new(251, 146, 60);
     internal static readonly SKColor PowerAccent = new(250, 204, 21);
     internal static readonly SKColor FanAccent = new(96, 165, 250);
@@ -41,17 +43,18 @@ internal static class WidgetTheme
     // ── Font Sizes ──────────────────────────────────────────────────────
 
     internal const float TitleFontSize = 14f;
-    internal const float ValueLargeFontSize = 28f;
-    internal const float CenterValueFontSize = 34f;
-    internal const float DetailFontSize = 13f;
-    internal const float SmallFontSize = 11f;
+    internal const float ValueLargeFontSize = 34f;
+    internal const float CenterValueFontSize = 40f;
+    internal const float TemperatureFontSize = 20f;
+    internal const float DetailFontSize = 16f;
+    internal const float SmallFontSize = 13f;
     internal const float HeaderTitleFontSize = 22f;
-    internal const float HeaderValueFontSize = 16f;
-    internal const float HeaderLabelFontSize = 11f;
+    internal const float HeaderValueFontSize = 20f;
+    internal const float HeaderLabelFontSize = 14f;
 
     // ── Ring Gauge ──────────────────────────────────────────────────────
 
-    internal const float RingStrokeWidth = 9f;
+    internal const float RingStrokeWidth = 14f;
     internal const float RingArcDegrees = 270f;
     internal const float RingStartAngle = 135f;
 

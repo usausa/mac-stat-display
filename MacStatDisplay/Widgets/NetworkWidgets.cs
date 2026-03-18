@@ -3,7 +3,7 @@ namespace MacStatDisplay.Widgets;
 using MacStatDisplay.Monitor;
 using SkiaSharp;
 
-/// <summary>Network traffic widget with sparkline graphs and multi-interface support using real NetworkIfEntry types.</summary>
+/// <summary>Network traffic widget with sparkline graphs using display entries. Separate TX/RX sparklines per entry.</summary>
 internal sealed class NetworkWidget : IWidget
 {
     private readonly Dictionary<string, List<float>> rxHistory = [];
@@ -14,68 +14,75 @@ internal sealed class NetworkWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitleBlock(canvas, rect, "NET", "Traffic");
 
-        var entries = monitor.NetworkInterfaces;
+        var entries = monitor.NetworkIfDisplayEntries;
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
         var contentBottom = rect.Bottom - WidgetTheme.PadY;
+        var contentH = contentBottom - contentTop;
         var leftX = rect.Left + WidgetTheme.PadX;
         var rightX = rect.Right - WidgetTheme.PadX;
 
         if (entries.Count == 0)
         {
-            // Fallback to aggregate
             PushHistory(rxHistory, "agg", (float)monitor.NetworkRxBytesPerSec);
             PushHistory(txHistory, "agg", (float)monitor.NetworkTxBytesPerSec);
             DrawIfEntry(canvas, "aggregate", monitor.NetworkRxBytesPerSec, monitor.NetworkTxBytesPerSec,
-                leftX, rightX, contentTop, contentBottom,
+                leftX, rightX, contentTop, contentH,
                 rxHistory["agg"], txHistory["agg"]);
             return;
         }
 
-        var entryHeight = (contentBottom - contentTop) / entries.Count;
+        var entryH = contentH / entries.Count;
         for (var i = 0; i < entries.Count; i++)
         {
             var e = entries[i];
-            var name = e.DisplayName ?? e.Name;
-            PushHistory(rxHistory, name, (float)e.RxBytesPerSec);
-            PushHistory(txHistory, name, (float)e.TxBytesPerSec);
-            DrawIfEntry(canvas, name, e.RxBytesPerSec, e.TxBytesPerSec,
-                leftX, rightX, contentTop + (i * entryHeight), contentTop + ((i + 1) * entryHeight),
-                rxHistory[name], txHistory[name]);
+            PushHistory(rxHistory, e.Name, (float)e.RxBytesPerSec);
+            PushHistory(txHistory, e.Name, (float)e.TxBytesPerSec);
+            DrawIfEntry(canvas, e.Name, e.RxBytesPerSec, e.TxBytesPerSec,
+                leftX, rightX, contentTop + (i * entryH), entryH,
+                rxHistory[e.Name], txHistory[e.Name]);
         }
     }
 
     private static void DrawIfEntry(
         SKCanvas canvas, string name, double rxBps, double txBps,
-        float leftX, float rightX, float top, float bottom,
+        float leftX, float rightX, float entryTop, float entryH,
         List<float> rHist, List<float> tHist)
     {
+        // Name label at entry top
         using var nameFont = DrawHelper.MakeFont(WidgetTheme.SmallFontSize);
         using var namePaint = DrawHelper.Fill(WidgetTheme.TextSub);
-        canvas.DrawText(name, leftX, top + 14, nameFont, namePaint);
+        canvas.DrawText(name, leftX, entryTop + 14, nameFont, namePaint);
 
-        var valueWidth = 130f;
+        var labelH = 18f;
+        var graphAreaTop = entryTop + labelH;
+        var graphAreaBottom = entryTop + entryH - 2;
+        var centerY = graphAreaTop + ((graphAreaBottom - graphAreaTop) / 2f);
+        var valueWidth = 85f;
         var graphRight = rightX - valueWidth;
-        var rowH = (bottom - top - 18) / 2f;
 
-        // DL row
-        var dlTop = top + 18;
-        var dlGraphRect = new SKRect(leftX, dlTop, graphRight - 4, dlTop + rowH - 2);
-        var dlMax = rHist.Count > 0 ? Math.Max(rHist.Max(), 1f) : 1f;
-        DrawHelper.DrawSparkline(canvas, dlGraphRect, rHist, dlMax, WidgetTheme.NetworkAccent);
-
+        using var labelFont = DrawHelper.MakeFont(WidgetTheme.SmallFontSize);
         using var valFont = DrawHelper.MakeFont(WidgetTheme.DetailFontSize, true);
-        using var valPaint = DrawHelper.Fill(WidgetTheme.NetworkAccent);
-        var dlText = $"\u2193 {DrawHelper.FormatSpeed(rxBps)}";
-        canvas.DrawText(dlText, rightX - valFont.MeasureText(dlText), dlTop + rowH - 4, valFont, valPaint);
+        using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSub);
 
-        // UL row
-        var ulTop = dlTop + rowH;
-        var ulGraphRect = new SKRect(leftX, ulTop, graphRight - 4, ulTop + rowH - 2);
-        var ulMax = tHist.Count > 0 ? Math.Max(tHist.Max(), 1f) : 1f;
-        DrawHelper.DrawSparkline(canvas, ulGraphRect, tHist, ulMax, WidgetTheme.NetworkAccent);
+        // Upper half: TX (upload) sparkline (upward from center)
+        var txGraphRect = new SKRect(leftX, graphAreaTop, graphRight - 4, centerY - 1);
+        var txMax = tHist.Count > 0 ? Math.Max(tHist.Max(), 1f) : 1f;
+        DrawHelper.DrawSparkline(canvas, txGraphRect, tHist, txMax, WidgetTheme.NetworkAccent);
 
-        var ulText = $"\u2191 {DrawHelper.FormatSpeed(txBps)}";
-        canvas.DrawText(ulText, rightX - valFont.MeasureText(ulText), ulTop + rowH - 4, valFont, valPaint);
+        canvas.DrawText("Upload", rightX - labelFont.MeasureText("Upload"), centerY - 20, labelFont, statLabelPaint);
+        var txText = DrawHelper.FormatSpeed(txBps);
+        using var txValPaint = DrawHelper.Fill(WidgetTheme.NetworkAccent);
+        canvas.DrawText(txText, rightX - valFont.MeasureText(txText), centerY - 4, valFont, txValPaint);
+
+        // Lower half: RX (download) sparkline (inverted, downward from center)
+        var rxGraphRect = new SKRect(leftX, centerY + 1, graphRight - 4, graphAreaBottom);
+        var rxMax = rHist.Count > 0 ? Math.Max(rHist.Max(), 1f) : 1f;
+        DrawHelper.DrawSparklineInverted(canvas, rxGraphRect, rHist, rxMax, WidgetTheme.NetworkRxAccent);
+
+        canvas.DrawText("Download", rightX - labelFont.MeasureText("Download"), centerY + 14, labelFont, statLabelPaint);
+        var rxText = DrawHelper.FormatSpeed(rxBps);
+        using var rxValPaint = DrawHelper.Fill(WidgetTheme.NetworkRxAccent);
+        canvas.DrawText(rxText, rightX - valFont.MeasureText(rxText), centerY + 30, valFont, rxValPaint);
     }
 
     private static void PushHistory(Dictionary<string, List<float>> dict, string key, float value)
