@@ -5,7 +5,8 @@ using System.Globalization;
 using HidSharp;
 
 using LcdDriver.TrofeoVision;
-
+using MacStatDisplay.Monitor;
+using MacStatDisplay.Settings;
 using MacStatDisplay.Widgets;
 
 using SkiaSharp;

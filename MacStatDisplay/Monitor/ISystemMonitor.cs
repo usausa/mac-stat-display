@@ -1,4 +1,4 @@
-namespace MacStatDisplay;
+namespace MacStatDisplay.Monitor;
 
 internal interface ISystemMonitor
 {

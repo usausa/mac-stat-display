@@ -1,4 +1,4 @@
-namespace MacStatDisplay;
+namespace MacStatDisplay.Settings;
 
 internal sealed record DisplaySettings
 {

@@ -1,5 +1,6 @@
 namespace MacStatDisplay.Widgets;
 
+using MacStatDisplay.Monitor;
 using SkiaSharp;
 
 /// <summary>Text widget for CPU temperature.</summary>

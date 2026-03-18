@@ -1,5 +1,6 @@
 namespace MacStatDisplay.Widgets;
 
+using MacStatDisplay.Monitor;
 using SkiaSharp;
 
 /// <summary>Bar gauge widget for disk capacity.</summary>

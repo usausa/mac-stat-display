@@ -1,5 +1,6 @@
 namespace MacStatDisplay.Widgets;
 
+using MacStatDisplay.Monitor;
 using SkiaSharp;
 
 /// <summary>Text widget for network download speed (with upload as detail).</summary>

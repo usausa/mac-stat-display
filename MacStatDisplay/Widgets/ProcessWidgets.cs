@@ -1,7 +1,7 @@
 namespace MacStatDisplay.Widgets;
 
 using System.Globalization;
-
+using MacStatDisplay.Monitor;
 using SkiaSharp;
 
 /// <summary>Text widget for process count.</summary>

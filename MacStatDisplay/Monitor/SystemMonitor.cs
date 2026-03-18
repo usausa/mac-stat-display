@@ -1,4 +1,4 @@
-namespace MacStatDisplay;
+namespace MacStatDisplay.Monitor;
 
 using MacDotNet.SystemInfo;
 

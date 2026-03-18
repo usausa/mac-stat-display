@@ -1,5 +1,6 @@
 namespace MacStatDisplay.Widgets;
 
+using MacStatDisplay.Monitor;
 using SkiaSharp;
 
 /// <summary>Ring gauge widget for CPU usage.</summary>
