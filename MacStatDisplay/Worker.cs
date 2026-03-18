@@ -25,7 +25,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using var drawHelper = new DrawHelper();
+        DrawHelper.Initialize();
         using var surface = SKSurface.Create(new SKImageInfo(ImageWidth, ImageHeight));
         var canvas = surface.Canvas;
         var placements = BuildLayout();
@@ -49,7 +49,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
         {
             // Initial render
             monitor.Update();
-            RenderDashboard(canvas, placements, drawHelper);
+            RenderDashboard(canvas, placements);
             var jpegBytes = EncodeToJpeg(surface);
             screen?.DrawJpeg(jpegBytes);
 
@@ -64,7 +64,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
                 {
                     tickCount = 0;
                     monitor.Update();
-                    RenderDashboard(canvas, placements, drawHelper);
+                    RenderDashboard(canvas, placements);
                     jpegBytes = EncodeToJpeg(surface);
                 }
 
@@ -73,38 +73,39 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
         }
         finally
         {
+            DrawHelper.Shutdown();
             screen?.Dispose();
         }
     }
 
     private static WidgetPlacement[] BuildLayout() =>
     [
-        // Row 0-1: CPU (1×2), Memory (1×2), Filesystem (1×2), Disk I/O (1×2)
+        // Row 0-1: CPU (1×2), Memory (1×2), Filesystem (1×2), Network (1×2)
         new(new CpuUsageWidget(), 0, 0, 1, 2),
         new(new MemoryUsageWidget(), 1, 0, 1, 2),
         new(new FileSystemWidget(), 2, 0, 1, 2),
-        new(new DiskIoWidget(), 3, 0, 1, 2),
-        // Row 2: GPU, Clock, Network, Power
-        new(new GpuUsageWidget(), 0, 2),
-        new(new CpuClockWidget(), 1, 2),
-        new(new NetworkWidget(), 2, 2),
-        new(new PowerWidget(), 3, 2),
-        // Row 3: FAN (2×1), Load Average (2×1)
-        new(new FanWidget(), 0, 3, 2, 1),
-        new(new LoadAverageWidget(), 2, 3, 2, 1),
+        new(new NetworkWidget(), 3, 0, 1, 2),
+        // Row 2-3: Load, GPU (1×2), DiskIO (1×2), FAN
+        new(new LoadAverageWidget(), 0, 2),
+        new(new GpuUsageWidget(), 1, 2, 1, 2),
+        new(new DiskIoWidget(), 2, 2, 1, 2),
+        new(new FanWidget(), 3, 2),
+        // Row 3: Clock, Power
+        new(new CpuClockWidget(), 0, 3),
+        new(new PowerWidget(), 3, 3),
     ];
 
-    private void RenderDashboard(SKCanvas canvas, WidgetPlacement[] placements, DrawHelper drawHelper)
+    private void RenderDashboard(SKCanvas canvas, WidgetPlacement[] placements)
     {
         DrawHelper.DrawBackground(canvas, ImageWidth, ImageHeight);
 
         var headerRect = new SKRect(OuterPadding, OuterPadding, ImageWidth - OuterPadding, OuterPadding + HeaderHeight);
-        titleBarWidget.Draw(canvas, headerRect, monitor, drawHelper);
+        titleBarWidget.Draw(canvas, headerRect, monitor);
 
-        DrawWidgets(canvas, placements, drawHelper);
+        DrawWidgets(canvas, placements);
     }
 
-    private void DrawWidgets(SKCanvas canvas, WidgetPlacement[] placements, DrawHelper drawHelper)
+    private void DrawWidgets(SKCanvas canvas, WidgetPlacement[] placements)
     {
         var gridTop = OuterPadding + HeaderHeight + ContentGap;
         var gridHeight = ImageHeight - gridTop - OuterPadding;
@@ -119,7 +120,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
             var h = (cellHeight * placement.RowSpan) + (ContentGap * (placement.RowSpan - 1));
             var rect = new SKRect(x, y, x + w, y + h);
 
-            placement.Widget.Draw(canvas, rect, monitor, drawHelper);
+            placement.Widget.Draw(canvas, rect, monitor);
         }
     }
 

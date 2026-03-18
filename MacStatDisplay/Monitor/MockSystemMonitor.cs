@@ -82,26 +82,6 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     public IReadOnlyList<GpuEntry> GpuDevices { get; } = [];
     public IReadOnlyList<FanSensorEntry> Fans { get; } = [];
 
-    // Snapshot collections (2 entries each for FS, Disk, Network)
-
-    public IReadOnlyList<FileSystemSnapshot> FileSystemSnapshots { get; } =
-    [
-        new("/", 475, 198, 58),
-        new("/Volumes/Data", 250, 120, 52),
-    ];
-
-    public IReadOnlyList<DiskIoSnapshot> DiskIoSnapshots { get; private set; } =
-    [
-        new("disk0s1", 156_000, 86_000),
-        new("disk0s2", 42_000, 18_000),
-    ];
-
-    public IReadOnlyList<NetworkIfSnapshot> NetworkIfSnapshots { get; private set; } =
-    [
-        new("en0 (Wi-Fi)", 5_500_000, 1_200_000),
-        new("en1 (Ethernet)", 320_000, 95_000),
-    ];
-
     public void Update()
     {
         CpuUsageTotal = Vary(CpuUsageTotal, 5, 95);
@@ -127,18 +107,6 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         PowerCpuW = Vary(PowerCpuW, 5, 50);
         PowerGpuW = Vary(PowerGpuW, 3, 40);
         PowerTotalW = PowerCpuW + PowerGpuW + 4.5;
-
-        DiskIoSnapshots =
-        [
-            new("disk0s1", Vary(156_000, 0, 500_000), Vary(86_000, 0, 300_000)),
-            new("disk0s2", Vary(42_000, 0, 200_000), Vary(18_000, 0, 100_000)),
-        ];
-
-        NetworkIfSnapshots =
-        [
-            new("en0 (Wi-Fi)", NetworkRxBytesPerSec, NetworkTxBytesPerSec),
-            new("en1 (Ethernet)", Vary(320_000, 0, 2_000_000), Vary(95_000, 0, 500_000)),
-        ];
     }
 
     private double Vary(double current, double min, double max)

@@ -3,19 +3,27 @@ namespace MacStatDisplay.Widgets;
 using SkiaSharp;
 
 /// <summary>Provides shared rendering utilities for dashboard widgets.</summary>
-internal sealed class DrawHelper : IDisposable
+internal static class DrawHelper
 {
-    private readonly SKTypeface typeface;
-    private readonly SKTypeface typefaceBold;
+    private static SKTypeface typeface = null!;
+    private static SKTypeface typefaceBold = null!;
 
-    internal DrawHelper()
+    /// <summary>Initializes shared typefaces. Must be called once at startup.</summary>
+    internal static void Initialize()
     {
         typeface = ResolveTypeface(false);
         typefaceBold = ResolveTypeface(true);
     }
 
+    /// <summary>Disposes shared typefaces.</summary>
+    internal static void Shutdown()
+    {
+        typeface?.Dispose();
+        typefaceBold?.Dispose();
+    }
+
     /// <summary>Creates a font with the resolved typeface.</summary>
-    internal SKFont MakeFont(float size, bool bold = false) =>
+    internal static SKFont MakeFont(float size, bool bold = false) =>
         new(bold ? typefaceBold : typeface, size) { Edging = SKFontEdging.SubpixelAntialias };
 
     /// <summary>Creates a fill paint.</summary>
@@ -58,7 +66,7 @@ internal sealed class DrawHelper : IDisposable
     }
 
     /// <summary>Draws a card panel with rounded corners and border.</summary>
-    internal void DrawPanel(SKCanvas canvas, SKRect rect)
+    internal static void DrawPanel(SKCanvas canvas, SKRect rect)
     {
         using var bg = Fill(WidgetTheme.PanelBg);
         canvas.DrawRoundRect(rect, WidgetTheme.PanelRadius, WidgetTheme.PanelRadius, bg);
@@ -68,7 +76,7 @@ internal sealed class DrawHelper : IDisposable
     }
 
     /// <summary>Draws "CATEGORY Title" text at the top-left of a widget.</summary>
-    internal void DrawTitleBlock(SKCanvas canvas, SKRect rect, string category, string title)
+    internal static void DrawTitleBlock(SKCanvas canvas, SKRect rect, string category, string title)
     {
         using var font = MakeFont(WidgetTheme.TitleFontSize, true);
         using var paint = Fill(WidgetTheme.TextPrimary);
@@ -77,7 +85,7 @@ internal sealed class DrawHelper : IDisposable
     }
 
     /// <summary>Draws a right-aligned value in large bold font.</summary>
-    internal void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
+    internal static void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
     {
         using var font = MakeFont(WidgetTheme.ValueLargeFontSize, true);
         using var paint = Fill(color);
@@ -85,7 +93,7 @@ internal sealed class DrawHelper : IDisposable
     }
 
     /// <summary>Draws a centered value in large bold font (for ring gauge interior).</summary>
-    internal void DrawCenteredValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
+    internal static void DrawCenteredValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
     {
         using var font = MakeFont(WidgetTheme.CenterValueFontSize, true);
         using var paint = Fill(color);
@@ -93,54 +101,15 @@ internal sealed class DrawHelper : IDisposable
     }
 
     /// <summary>Draws right-aligned detail text.</summary>
-    internal void DrawRightAlignedDetail(SKCanvas canvas, string text, float rightX, float y)
+    internal static void DrawRightAlignedDetail(SKCanvas canvas, string text, float rightX, float y)
     {
         using var font = MakeFont(WidgetTheme.DetailFontSize);
         using var paint = Fill(WidgetTheme.TextSub);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
-    /// <summary>Draws word-wrapped detail text (up to 2 lines).</summary>
-    internal void DrawWrappedDetail(SKCanvas canvas, string text, float x, float y, float maxWidth)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return;
-        }
-
-        using var font = MakeFont(WidgetTheme.DetailFontSize);
-        using var paint = Fill(WidgetTheme.TextSub);
-
-        var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var line = string.Empty;
-        var lineIndex = 0;
-
-        foreach (var word in words)
-        {
-            var candidate = string.IsNullOrEmpty(line) ? word : $"{line} {word}";
-            if (font.MeasureText(candidate) <= maxWidth)
-            {
-                line = candidate;
-                continue;
-            }
-
-            canvas.DrawText(line, x, y + (lineIndex * 14), font, paint);
-            line = word;
-            lineIndex++;
-            if (lineIndex >= 2)
-            {
-                break;
-            }
-        }
-
-        if (!string.IsNullOrEmpty(line) && lineIndex < 2)
-        {
-            canvas.DrawText(line, x, y + (lineIndex * 14), font, paint);
-        }
-    }
-
     /// <summary>Draws a left-aligned label on one line and a colored value below it.</summary>
-    internal void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float y, SKColor valueColor)
+    internal static void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float y, SKColor valueColor)
     {
         using var labelFont = MakeFont(WidgetTheme.SmallFontSize);
         using var labelPaint = Fill(WidgetTheme.TextSub);
@@ -152,7 +121,7 @@ internal sealed class DrawHelper : IDisposable
     }
 
     /// <summary>Draws a right-aligned label on one line and a colored value below it.</summary>
-    internal void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float y, SKColor valueColor)
+    internal static void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float y, SKColor valueColor)
     {
         using var labelFont = MakeFont(WidgetTheme.SmallFontSize);
         using var labelPaint = Fill(WidgetTheme.TextSub);
@@ -164,7 +133,7 @@ internal sealed class DrawHelper : IDisposable
     }
 
     /// <summary>Draws a 270° ring gauge (open at bottom).</summary>
-    internal void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
+    internal static void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
     {
         using var trackPaint = new SKPaint
         {
@@ -189,22 +158,55 @@ internal sealed class DrawHelper : IDisposable
         canvas.DrawArc(ringRect, WidgetTheme.RingStartAngle, WidgetTheme.RingArcDegrees * percentage / 100f, false, valuePaint);
     }
 
-    /// <summary>Draws a horizontal bar gauge at the bottom of a card.</summary>
-    internal void DrawBarGauge(SKCanvas canvas, SKRect cardRect, float percentage, SKColor color)
+    /// <summary>Draws a sparkline area chart in the given rectangle.</summary>
+    internal static void DrawSparkline(SKCanvas canvas, SKRect rect, IReadOnlyList<float> values, float maxValue, SKColor color)
     {
-        var barRect = new SKRect(
-            cardRect.Left + WidgetTheme.PadX,
-            cardRect.Bottom - WidgetTheme.BarHeight - WidgetTheme.PadY,
-            cardRect.Right - WidgetTheme.PadX,
-            cardRect.Bottom - WidgetTheme.PadY);
+        if (values.Count < 2)
+        {
+            return;
+        }
 
-        using var trackPaint = Fill(WidgetTheme.TrackColor);
-        canvas.DrawRoundRect(barRect, WidgetTheme.BarRadius, WidgetTheme.BarRadius, trackPaint);
+        if (maxValue <= 0)
+        {
+            maxValue = 1;
+        }
 
-        var fillWidth = barRect.Width * percentage / 100f;
-        var fillRect = new SKRect(barRect.Left, barRect.Top, barRect.Left + fillWidth, barRect.Bottom);
-        using var fillPaint = Fill(color);
-        canvas.DrawRoundRect(fillRect, WidgetTheme.BarRadius, WidgetTheme.BarRadius, fillPaint);
+        var stepX = rect.Width / Math.Max(values.Count - 1, 1);
+
+        // Filled area
+        using var areaPath = new SKPath();
+        areaPath.MoveTo(rect.Left, rect.Bottom);
+        for (var i = 0; i < values.Count; i++)
+        {
+            var x = rect.Left + (i * stepX);
+            var y = rect.Bottom - (Math.Clamp(values[i] / maxValue, 0, 1) * rect.Height);
+            areaPath.LineTo(x, y);
+        }
+
+        areaPath.LineTo(rect.Left + ((values.Count - 1) * stepX), rect.Bottom);
+        areaPath.Close();
+
+        using var fillPaint = new SKPaint { Color = color.WithAlpha(30), IsAntialias = true, Style = SKPaintStyle.Fill };
+        canvas.DrawPath(areaPath, fillPaint);
+
+        // Line on top
+        using var linePath = new SKPath();
+        for (var i = 0; i < values.Count; i++)
+        {
+            var x = rect.Left + (i * stepX);
+            var y = rect.Bottom - (Math.Clamp(values[i] / maxValue, 0, 1) * rect.Height);
+            if (i == 0)
+            {
+                linePath.MoveTo(x, y);
+            }
+            else
+            {
+                linePath.LineTo(x, y);
+            }
+        }
+
+        using var linePaint = new SKPaint { Color = color.WithAlpha(100), IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
+        canvas.DrawPath(linePath, linePaint);
     }
 
     private static SKTypeface ResolveTypeface(bool bold)
@@ -232,11 +234,5 @@ internal sealed class DrawHelper : IDisposable
         return bold
             ? SKTypeface.FromFamilyName(SKTypeface.Default.FamilyName, SKFontStyle.Bold)
             : SKTypeface.Default;
-    }
-
-    public void Dispose()
-    {
-        typeface.Dispose();
-        typefaceBold.Dispose();
     }
 }

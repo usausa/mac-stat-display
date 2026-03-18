@@ -81,22 +81,6 @@ internal interface ISystemMonitor
 
     double FanSpeedRpm => Fans.Count > 0 ? Fans[0].ActualRpm : 0;
 
-    // Snapshot collections (default: computed from device collections)
-
-    IReadOnlyList<FileSystemSnapshot> FileSystemSnapshots =>
-        FileSystems.Select(static e => new FileSystemSnapshot(
-            e.MountPoint,
-            e.TotalSize / (1024.0 * 1024.0 * 1024.0),
-            e.FreeSize / (1024.0 * 1024.0 * 1024.0),
-            e.TotalSize > 0 ? (double)(e.TotalSize - e.FreeSize) / e.TotalSize * 100.0 : 0)).ToList();
-
-    IReadOnlyList<DiskIoSnapshot> DiskIoSnapshots =>
-        DiskDevices.Select(static e => new DiskIoSnapshot(e.Name, e.ReadBytesPerSec, e.WriteBytesPerSec)).ToList();
-
-    IReadOnlyList<NetworkIfSnapshot> NetworkIfSnapshots =>
-        NetworkInterfaces.Select(static e => new NetworkIfSnapshot(
-            e.DisplayName ?? e.Name, e.RxBytesPerSec, e.TxBytesPerSec)).ToList();
-
     // Update
 
     void Update();

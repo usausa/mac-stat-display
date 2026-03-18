@@ -6,10 +6,12 @@ using MacStatDisplay.Monitor;
 
 using SkiaSharp;
 
-/// <summary>Header widget that displays title, uptime, clock, and process/thread counts horizontally.</summary>
+/// <summary>Header widget with fixed-position grid: title, PROC/THR, UPTIME, TIME.</summary>
 internal sealed class TitleBarWidget : IWidget
 {
-    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
+    private const int GridColumns = 5;
+
+    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         // Panel
         using var bg = DrawHelper.Fill(WidgetTheme.PanelBg);
@@ -18,50 +20,35 @@ internal sealed class TitleBarWidget : IWidget
         canvas.DrawRoundRect(rect, WidgetTheme.HeaderRadius, WidgetTheme.HeaderRadius, border);
 
         var cy = rect.MidY;
+        var colWidth = rect.Width / GridColumns;
 
-        // Title
-        using var titleFont = helper.MakeFont(WidgetTheme.HeaderTitleFontSize, true);
+        // Column 0-1: Title
+        using var titleFont = DrawHelper.MakeFont(WidgetTheme.HeaderTitleFontSize, true);
         using var titlePaint = DrawHelper.Fill(WidgetTheme.TextPrimary);
         canvas.DrawText("SYSTEM MONITOR", rect.Left + 16, cy + (titleFont.Size * 0.35f), titleFont, titlePaint);
 
-        // Horizontal metrics laid out from right: PROC/THR, TIME, UPTIME
-        using var labelFont = helper.MakeFont(WidgetTheme.HeaderLabelFontSize);
+        using var labelFont = DrawHelper.MakeFont(WidgetTheme.HeaderLabelFontSize);
         using var labelPaint = DrawHelper.Fill(WidgetTheme.AccentCyan);
-        using var valFont = helper.MakeFont(WidgetTheme.HeaderValueFontSize, true);
+        using var valFont = DrawHelper.MakeFont(WidgetTheme.HeaderValueFontSize, true);
         using var valPaint = DrawHelper.Fill(WidgetTheme.TextPrimary);
 
-        var uptime = monitor.Uptime;
-        var uptimeText = $"{(int)uptime.TotalDays}d {uptime.Hours:D2}h {uptime.Minutes:D2}m";
-        var clockText = DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
-        var procText = $"{monitor.ProcessCount} / THR {monitor.ThreadCount}";
-
         var baseline = cy + (valFont.Size * 0.35f);
-        var x = rect.Right - 16f;
+        var labelOffsetX = 60f;
 
-        // PROC / THR (right-most)
-        DrawLabelValue(canvas, "PROC ", procText, ref x, baseline, labelFont, labelPaint, valFont, valPaint);
-        x -= 20f;
+        // Column 2: PROC / THR
+        var col2X = rect.Left + (2 * colWidth);
+        canvas.DrawText("PROC", col2X, baseline, labelFont, labelPaint);
+        canvas.DrawText($"{monitor.ProcessCount} / THR {monitor.ThreadCount}", col2X + labelOffsetX, baseline, valFont, valPaint);
 
-        // TIME
-        DrawLabelValue(canvas, "TIME ", clockText, ref x, baseline, labelFont, labelPaint, valFont, valPaint);
-        x -= 20f;
+        // Column 3: UPTIME
+        var col3X = rect.Left + (3 * colWidth);
+        var uptime = monitor.Uptime;
+        canvas.DrawText("UPTIME", col3X, baseline, labelFont, labelPaint);
+        canvas.DrawText($"{(int)uptime.TotalDays}d {uptime.Hours:D2}h {uptime.Minutes:D2}m", col3X + labelOffsetX, baseline, valFont, valPaint);
 
-        // UPTIME
-        DrawLabelValue(canvas, "UPTIME ", uptimeText, ref x, baseline, labelFont, labelPaint, valFont, valPaint);
-    }
-
-    private static void DrawLabelValue(
-        SKCanvas canvas, string label, string value,
-        ref float x, float y,
-        SKFont labelFont, SKPaint labelPaint,
-        SKFont valFont, SKPaint valPaint)
-    {
-        var valW = valFont.MeasureText(value);
-        x -= valW;
-        canvas.DrawText(value, x, y, valFont, valPaint);
-
-        var lblW = labelFont.MeasureText(label);
-        x -= lblW;
-        canvas.DrawText(label, x, y, labelFont, labelPaint);
+        // Column 4: TIME
+        var col4X = rect.Left + (4 * colWidth);
+        canvas.DrawText("TIME", col4X, baseline, labelFont, labelPaint);
+        canvas.DrawText(DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture), col4X + labelOffsetX, baseline, valFont, valPaint);
     }
 }

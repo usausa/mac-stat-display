@@ -60,6 +60,8 @@ internal static class WidgetTheme
     internal const float PadX = 10f;
     internal const float PadY = 6f;
     internal const float TitleOffsetY = 20f;
-    internal const float BarHeight = 10f;
-    internal const float BarRadius = 4f;
+    internal const float BarHeight = 14f;
+    internal const float BarRadius = 5f;
+    internal const float SubItemSpacing = 80f;
+    internal const int SparklineCapacity = 60;
 }
