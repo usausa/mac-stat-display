@@ -49,7 +49,7 @@ internal sealed class NetworkWidget : IWidget
         List<float> rHist, List<float> tHist)
     {
         // Name label at entry top
-        using var nameFont = DrawHelper.MakeFont(WidgetTheme.SmallFontSize);
+        using var nameFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
         using var namePaint = DrawHelper.Fill(WidgetTheme.TextSub);
         canvas.DrawText(name, leftX, entryTop + 14, nameFont, namePaint);
 
@@ -60,28 +60,32 @@ internal sealed class NetworkWidget : IWidget
         var valueWidth = 85f;
         var graphRight = rightX - valueWidth;
 
-        using var labelFont = DrawHelper.MakeFont(WidgetTheme.SmallFontSize);
-        using var valFont = DrawHelper.MakeFont(WidgetTheme.DetailFontSize, true);
+        using var labelFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
+        using var valFont = DrawHelper.MakeFont(WidgetTheme.SubValueFontSize, true);
         using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSub);
+
+        // Use shared max so Upload and Download graphs share the same scale
+        var sharedMax = Math.Max(
+            tHist.Count > 0 ? tHist.Max() : 0f,
+            rHist.Count > 0 ? rHist.Max() : 0f);
+        sharedMax = Math.Max(sharedMax, 1f);
 
         // Upper half: TX (upload) sparkline (upward from center)
         var txGraphRect = new SKRect(leftX, graphAreaTop, graphRight - 4, centerY - 1);
-        var txMax = tHist.Count > 0 ? Math.Max(tHist.Max(), 1f) : 1f;
-        DrawHelper.DrawSparkline(canvas, txGraphRect, tHist, txMax, WidgetTheme.NetworkAccent);
+        DrawHelper.DrawSparkline(canvas, txGraphRect, tHist, sharedMax, WidgetTheme.NetworkUploadAccent);
 
         canvas.DrawText("Upload", rightX - labelFont.MeasureText("Upload"), centerY - 20, labelFont, statLabelPaint);
         var txText = DrawHelper.FormatSpeed(txBps);
-        using var txValPaint = DrawHelper.Fill(WidgetTheme.NetworkAccent);
+        using var txValPaint = DrawHelper.Fill(WidgetTheme.NetworkUploadAccent);
         canvas.DrawText(txText, rightX - valFont.MeasureText(txText), centerY - 4, valFont, txValPaint);
 
         // Lower half: RX (download) sparkline (inverted, downward from center)
         var rxGraphRect = new SKRect(leftX, centerY + 1, graphRight - 4, graphAreaBottom);
-        var rxMax = rHist.Count > 0 ? Math.Max(rHist.Max(), 1f) : 1f;
-        DrawHelper.DrawSparklineInverted(canvas, rxGraphRect, rHist, rxMax, WidgetTheme.NetworkRxAccent);
+        DrawHelper.DrawSparklineInverted(canvas, rxGraphRect, rHist, sharedMax, WidgetTheme.NetworkDownloadAccent);
 
         canvas.DrawText("Download", rightX - labelFont.MeasureText("Download"), centerY + 14, labelFont, statLabelPaint);
         var rxText = DrawHelper.FormatSpeed(rxBps);
-        using var rxValPaint = DrawHelper.Fill(WidgetTheme.NetworkRxAccent);
+        using var rxValPaint = DrawHelper.Fill(WidgetTheme.NetworkDownloadAccent);
         canvas.DrawText(rxText, rightX - valFont.MeasureText(rxText), centerY + 30, valFont, rxValPaint);
     }
 

@@ -25,7 +25,7 @@ internal sealed class GpuUsageWidget : IWidget
         var cy = contentTop + (contentH / 2f) + (radius * 0.147f);
 
         DrawHelper.DrawRingGauge(canvas, cx, cy, radius, usage, WidgetTheme.GpuAccent);
-        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (WidgetTheme.CenterValueFontSize * 0.35f), WidgetTheme.GpuAccent);
+        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (WidgetTheme.GaugeValueFontSize * 0.35f), WidgetTheme.GpuAccent);
 
         // GPU temperature below center value
         var temp = monitor.GpuTemperature;
@@ -34,7 +34,7 @@ internal sealed class GpuUsageWidget : IWidget
             using var tempFont = DrawHelper.MakeFont(WidgetTheme.TemperatureFontSize);
             using var tempPaint = DrawHelper.Fill(WidgetTheme.TemperatureAccent);
             var tempText = $"{temp.Value:0}\u00b0C";
-            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (WidgetTheme.CenterValueFontSize * 0.35f) + 22, tempFont, tempPaint);
+            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (WidgetTheme.GaugeValueFontSize * 0.35f) + 22, tempFont, tempPaint);
         }
 
         // Left side: Renderer / Tiler utilization from first GPU entry

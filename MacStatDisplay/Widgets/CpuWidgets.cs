@@ -24,7 +24,7 @@ internal sealed class CpuUsageWidget : IWidget
         var cy = contentTop + (contentH / 2f) + (radius * 0.147f);
 
         DrawHelper.DrawRingGauge(canvas, cx, cy, radius, usage, WidgetTheme.CpuUsageAccent);
-        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (WidgetTheme.CenterValueFontSize * 0.35f), WidgetTheme.CpuUsageAccent);
+        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (WidgetTheme.GaugeValueFontSize * 0.35f), WidgetTheme.CpuUsageAccent);
 
         // CPU temperature below center value inside the ring
         var cpuTemp = monitor.CpuTemperature;
@@ -33,7 +33,7 @@ internal sealed class CpuUsageWidget : IWidget
             using var tempFont = DrawHelper.MakeFont(WidgetTheme.TemperatureFontSize);
             using var tempPaint = DrawHelper.Fill(WidgetTheme.TemperatureAccent);
             var tempText = $"{cpuTemp.Value:0}\u00b0C";
-            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (WidgetTheme.CenterValueFontSize * 0.35f) + 22, tempFont, tempPaint);
+            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (WidgetTheme.GaugeValueFontSize * 0.35f) + 22, tempFont, tempPaint);
         }
 
         // Left: E-Core / P-Core usage

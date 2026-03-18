@@ -56,7 +56,7 @@ internal sealed class FileSystemWidget : IWidget
         canvas.DrawRoundRect(fillRect, WidgetTheme.BarRadius, WidgetTheme.BarRadius, fillPaint);
 
         // Left side: mount point (line 1) and GB (line 2)
-        using var mountFont = DrawHelper.MakeFont(WidgetTheme.SmallFontSize);
+        using var mountFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
         using var subPaint = DrawHelper.Fill(WidgetTheme.TextSub);
         canvas.DrawText(mount, leftX, centerY - 18, mountFont, subPaint);
 
@@ -64,7 +64,7 @@ internal sealed class FileSystemWidget : IWidget
         canvas.DrawText(gbText, leftX, centerY - 2, mountFont, subPaint);
 
         // Right side: usage percentage, large font, vertically centered with the two text lines
-        using var pctFont = DrawHelper.MakeFont(WidgetTheme.ValueLargeFontSize, true);
+        using var pctFont = DrawHelper.MakeFont(WidgetTheme.PrimaryValueFontSize, true);
         using var valPaint = DrawHelper.Fill(WidgetTheme.TextPrimary);
         var pctText = $"{usagePct:0}%";
         canvas.DrawText(pctText, rightX - pctFont.MeasureText(pctText), centerY - 2, pctFont, valPaint);
@@ -117,7 +117,7 @@ internal sealed class DiskIoWidget : IWidget
         List<float> rHist, List<float> wHist)
     {
         // Name label at entry top
-        using var nameFont = DrawHelper.MakeFont(WidgetTheme.SmallFontSize);
+        using var nameFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
         using var namePaint = DrawHelper.Fill(WidgetTheme.TextSub);
         canvas.DrawText(name, leftX, entryTop + 14, nameFont, namePaint);
 
@@ -128,28 +128,32 @@ internal sealed class DiskIoWidget : IWidget
         var valueWidth = 85f;
         var graphRight = rightX - valueWidth;
 
-        using var labelFont = DrawHelper.MakeFont(WidgetTheme.SmallFontSize);
-        using var valFont = DrawHelper.MakeFont(WidgetTheme.DetailFontSize, true);
+        using var labelFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
+        using var valFont = DrawHelper.MakeFont(WidgetTheme.SubValueFontSize, true);
         using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSub);
+
+        // Use shared max so Write and Read graphs share the same scale
+        var sharedMax = Math.Max(
+            wHist.Count > 0 ? wHist.Max() : 0f,
+            rHist.Count > 0 ? rHist.Max() : 0f);
+        sharedMax = Math.Max(sharedMax, 1f);
 
         // Upper half: Write sparkline (upward from center)
         var wGraphRect = new SKRect(leftX, graphAreaTop, graphRight - 4, centerY - 1);
-        var wMax = wHist.Count > 0 ? Math.Max(wHist.Max(), 1f) : 1f;
-        DrawHelper.DrawSparkline(canvas, wGraphRect, wHist, wMax, WidgetTheme.DiskIoAccent);
+        DrawHelper.DrawSparkline(canvas, wGraphRect, wHist, sharedMax, WidgetTheme.DiskWriteAccent);
 
         canvas.DrawText("Write", rightX - labelFont.MeasureText("Write"), centerY - 20, labelFont, statLabelPaint);
         var wText = DrawHelper.FormatSpeed(writeBps);
-        using var wValPaint = DrawHelper.Fill(WidgetTheme.DiskIoAccent);
+        using var wValPaint = DrawHelper.Fill(WidgetTheme.DiskWriteAccent);
         canvas.DrawText(wText, rightX - valFont.MeasureText(wText), centerY - 4, valFont, wValPaint);
 
         // Lower half: Read sparkline (inverted, downward from center)
         var rGraphRect = new SKRect(leftX, centerY + 1, graphRight - 4, graphAreaBottom);
-        var rMax = rHist.Count > 0 ? Math.Max(rHist.Max(), 1f) : 1f;
-        DrawHelper.DrawSparklineInverted(canvas, rGraphRect, rHist, rMax, WidgetTheme.DiskIoReadAccent);
+        DrawHelper.DrawSparklineInverted(canvas, rGraphRect, rHist, sharedMax, WidgetTheme.DiskReadAccent);
 
         canvas.DrawText("Read", rightX - labelFont.MeasureText("Read"), centerY + 14, labelFont, statLabelPaint);
         var rText = DrawHelper.FormatSpeed(readBps);
-        using var rValPaint = DrawHelper.Fill(WidgetTheme.DiskIoReadAccent);
+        using var rValPaint = DrawHelper.Fill(WidgetTheme.DiskReadAccent);
         canvas.DrawText(rText, rightX - valFont.MeasureText(rText), centerY + 30, valFont, rValPaint);
     }
 

@@ -78,7 +78,7 @@ internal static class DrawHelper
     /// <summary>Draws "CATEGORY Title" text at the top-left of a widget.</summary>
     internal static void DrawTitleBlock(SKCanvas canvas, SKRect rect, string category, string title)
     {
-        using var font = MakeFont(WidgetTheme.TitleFontSize, true);
+        using var font = MakeFont(WidgetTheme.WidgetTitleFontSize, true);
         using var paint = Fill(WidgetTheme.TextPrimary);
         var label = string.IsNullOrWhiteSpace(category) ? title : $"{category} {title}";
         canvas.DrawText(label, rect.Left + WidgetTheme.PadX, rect.Top + WidgetTheme.TitleOffsetY, font, paint);
@@ -87,7 +87,7 @@ internal static class DrawHelper
     /// <summary>Draws a right-aligned value in large bold font.</summary>
     internal static void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
     {
-        using var font = MakeFont(WidgetTheme.ValueLargeFontSize, true);
+        using var font = MakeFont(WidgetTheme.PrimaryValueFontSize, true);
         using var paint = Fill(color);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
@@ -95,7 +95,7 @@ internal static class DrawHelper
     /// <summary>Draws a centered value in large bold font (for ring gauge interior).</summary>
     internal static void DrawCenteredValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
     {
-        using var font = MakeFont(WidgetTheme.CenterValueFontSize, true);
+        using var font = MakeFont(WidgetTheme.GaugeValueFontSize, true);
         using var paint = Fill(color);
         canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, font, paint);
     }
@@ -103,7 +103,7 @@ internal static class DrawHelper
     /// <summary>Draws right-aligned detail text.</summary>
     internal static void DrawRightAlignedDetail(SKCanvas canvas, string text, float rightX, float y)
     {
-        using var font = MakeFont(WidgetTheme.DetailFontSize);
+        using var font = MakeFont(WidgetTheme.SubValueFontSize);
         using var paint = Fill(WidgetTheme.TextSub);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
@@ -111,11 +111,11 @@ internal static class DrawHelper
     /// <summary>Draws a left-aligned label on one line and a colored value below it.</summary>
     internal static void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float y, SKColor valueColor)
     {
-        using var labelFont = MakeFont(WidgetTheme.SmallFontSize);
+        using var labelFont = MakeFont(WidgetTheme.SubLabelFontSize);
         using var labelPaint = Fill(WidgetTheme.TextSub);
         canvas.DrawText(label, x, y, labelFont, labelPaint);
 
-        using var valueFont = MakeFont(WidgetTheme.DetailFontSize, true);
+        using var valueFont = MakeFont(WidgetTheme.SubValueFontSize, true);
         using var valuePaint = Fill(valueColor);
         canvas.DrawText(value, x, y + 18, valueFont, valuePaint);
     }
@@ -123,11 +123,11 @@ internal static class DrawHelper
     /// <summary>Draws a right-aligned label on one line and a colored value below it.</summary>
     internal static void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float y, SKColor valueColor)
     {
-        using var labelFont = MakeFont(WidgetTheme.SmallFontSize);
+        using var labelFont = MakeFont(WidgetTheme.SubLabelFontSize);
         using var labelPaint = Fill(WidgetTheme.TextSub);
         canvas.DrawText(label, rightX - labelFont.MeasureText(label), y, labelFont, labelPaint);
 
-        using var valueFont = MakeFont(WidgetTheme.DetailFontSize, true);
+        using var valueFont = MakeFont(WidgetTheme.SubValueFontSize, true);
         using var valuePaint = Fill(valueColor);
         canvas.DrawText(value, rightX - valueFont.MeasureText(value), y + 18, valueFont, valuePaint);
     }

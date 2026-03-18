@@ -25,7 +25,7 @@ internal sealed class MemoryUsageWidget : IWidget
         var cy = contentTop + (contentH / 2f) + (radius * 0.147f);
 
         DrawHelper.DrawRingGauge(canvas, cx, cy, radius, usage, WidgetTheme.MemoryAccent);
-        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (WidgetTheme.CenterValueFontSize * 0.35f), WidgetTheme.MemoryAccent);
+        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (WidgetTheme.GaugeValueFontSize * 0.35f), WidgetTheme.MemoryAccent);
 
         // Left: Swap
         var leftX = rect.Left + WidgetTheme.PadX;

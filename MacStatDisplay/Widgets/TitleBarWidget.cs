@@ -28,7 +28,7 @@ internal sealed class TitleBarWidget : IWidget
         canvas.DrawText("SYSTEM MONITOR", rect.Left + 16, cy + (titleFont.Size * 0.35f), titleFont, titlePaint);
 
         using var labelFont = DrawHelper.MakeFont(WidgetTheme.HeaderLabelFontSize);
-        using var labelPaint = DrawHelper.Fill(WidgetTheme.AccentCyan);
+        using var labelPaint = DrawHelper.Fill(WidgetTheme.HeaderLabelColor);
         using var valFont = DrawHelper.MakeFont(WidgetTheme.HeaderValueFontSize, true);
         using var valPaint = DrawHelper.Fill(WidgetTheme.TextPrimary);
 
