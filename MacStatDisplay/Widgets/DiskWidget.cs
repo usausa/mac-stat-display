@@ -11,7 +11,7 @@ internal sealed class FileSystemWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitleBlock(canvas, rect, "FS", "Disk Usage");
 
-        var entries = monitor.FileSystemDisplayEntries;
+        var entries = monitor.FileSystems;
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
         var contentBottom = rect.Bottom - WidgetTheme.PadY;
         var contentH = contentBottom - contentTop;
@@ -27,7 +27,10 @@ internal sealed class FileSystemWidget : IWidget
         for (var i = 0; i < entries.Count; i++)
         {
             var e = entries[i];
-            DrawEntry(canvas, rect, e.MountPoint, e.TotalGb, e.FreeGb, e.UsagePercent,
+            var totalGb = e.TotalSize / (1024.0 * 1024.0 * 1024.0);
+            var freeGb = e.FreeSize / (1024.0 * 1024.0 * 1024.0);
+            var usagePct = e.TotalSize > 0 ? (double)(e.TotalSize - e.FreeSize) / e.TotalSize * 100.0 : 0;
+            DrawEntry(canvas, rect, e.MountPoint, totalGb, freeGb, usagePct,
                 contentTop + (i * entryH), entryH);
         }
     }
@@ -58,16 +61,16 @@ internal sealed class FileSystemWidget : IWidget
         // Left side: mount point (line 1) and GB (line 2)
         using var mountFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
         using var subPaint = DrawHelper.Fill(WidgetTheme.TextSub);
+        using var accentPaint = DrawHelper.Fill(WidgetTheme.FileSystemAccent);
         canvas.DrawText(mount, leftX, centerY - 18, mountFont, subPaint);
 
         var gbText = $"{usedGb:0.0} / {totalGb:0.0} GB";
-        canvas.DrawText(gbText, leftX, centerY - 2, mountFont, subPaint);
+        canvas.DrawText(gbText, leftX, centerY - 2, mountFont, accentPaint);
 
         // Right side: usage percentage, large font, vertically centered with the two text lines
         using var pctFont = DrawHelper.MakeFont(WidgetTheme.PrimaryValueFontSize, true);
-        using var valPaint = DrawHelper.Fill(WidgetTheme.TextPrimary);
         var pctText = $"{usagePct:0}%";
-        canvas.DrawText(pctText, rightX - pctFont.MeasureText(pctText), centerY - 2, pctFont, valPaint);
+        canvas.DrawText(pctText, rightX - pctFont.MeasureText(pctText), centerY - 2, pctFont, accentPaint);
     }
 }
 
@@ -82,7 +85,7 @@ internal sealed class DiskIoWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitleBlock(canvas, rect, "DISK", "I/O");
 
-        var entries = monitor.DiskIoDisplayEntries;
+        var entries = monitor.DiskDevices;
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
         var contentBottom = rect.Bottom - WidgetTheme.PadY;
         var contentH = contentBottom - contentTop;

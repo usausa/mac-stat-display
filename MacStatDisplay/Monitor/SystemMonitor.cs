@@ -2,7 +2,7 @@ namespace MacStatDisplay.Monitor;
 
 using MacDotNet.SystemInfo;
 
-public sealed class DiskDeviceEntry
+internal sealed class DiskDeviceEntry : IDiskDeviceEntry
 {
 #pragma warning disable SA1401
     internal readonly DiskDeviceStat Stat;
@@ -32,7 +32,7 @@ public sealed class DiskDeviceEntry
     }
 }
 
-public sealed class FileSystemMonitorEntry
+internal sealed class FileSystemMonitorEntry : IFileSystemEntry
 {
 #pragma warning disable SA1401
     internal readonly FileSystemEntry Entry;
@@ -54,7 +54,7 @@ public sealed class FileSystemMonitorEntry
     }
 }
 
-public sealed class NetworkIfEntry
+internal sealed class NetworkIfEntry : INetworkIfEntry
 {
 #pragma warning disable SA1401
     internal readonly NetworkStatEntry Stat;
@@ -85,7 +85,7 @@ public sealed class NetworkIfEntry
     }
 }
 
-public sealed class GpuEntry
+internal sealed class GpuEntry : IGpuEntry
 {
 #pragma warning disable SA1401
     internal readonly GpuDevice Device;
@@ -101,7 +101,7 @@ public sealed class GpuEntry
     internal GpuEntry(GpuDevice gpuDevice) => Device = gpuDevice;
 }
 
-public sealed class FanSensorEntry
+internal sealed class FanSensorEntry : IFanEntry
 {
     private readonly FanSensor sensor;
 
@@ -246,17 +246,17 @@ internal sealed class SystemMonitor : ISystemMonitor
 
     // Disk
 
-    public IReadOnlyList<DiskDeviceEntry> DiskDevices => diskEntries;
+    public IReadOnlyList<IDiskDeviceEntry> DiskDevices => diskEntries;
 
-    public IReadOnlyList<FileSystemMonitorEntry> FileSystems => fileSystemEntries;
+    public IReadOnlyList<IFileSystemEntry> FileSystems => fileSystemEntries;
 
     // Network
 
-    public IReadOnlyList<NetworkIfEntry> NetworkInterfaces => networkEntries;
+    public IReadOnlyList<INetworkIfEntry> NetworkInterfaces => networkEntries;
 
     // GPU
 
-    public IReadOnlyList<GpuEntry> GpuDevices => gpuEntries;
+    public IReadOnlyList<IGpuEntry> GpuDevices => gpuEntries;
 
     // Temperature
 
@@ -281,7 +281,7 @@ internal sealed class SystemMonitor : ISystemMonitor
 
     // Power
 
-    public IReadOnlyList<FanSensorEntry> Fans => fanEntries;
+    public IReadOnlyList<IFanEntry> Fans => fanEntries;
 
     // Power Consumption
 
@@ -292,100 +292,9 @@ internal sealed class SystemMonitor : ISystemMonitor
     public double PowerPciW => powerPciW;
     public double PowerTotalW => powerCpuW + powerGpuW + powerAneW + powerRamW + powerPciW;
 
-    // Disk (aggregate)
-
-    public double DiskUsagePercent
-    {
-        get
-        {
-            var root = fileSystemEntries.Find(static e => e.MountPoint == "/");
-            return root is not null && root.TotalSize > 0
-                ? (double)(root.TotalSize - root.FreeSize) / root.TotalSize * 100.0
-                : 0;
-        }
-    }
-
-    public double DiskTotalGb
-    {
-        get
-        {
-            var root = fileSystemEntries.Find(static e => e.MountPoint == "/");
-            return root is not null ? root.TotalSize / (1024.0 * 1024.0 * 1024.0) : 0;
-        }
-    }
-
-    public double DiskFreeGb
-    {
-        get
-        {
-            var root = fileSystemEntries.Find(static e => e.MountPoint == "/");
-            return root is not null ? root.FreeSize / (1024.0 * 1024.0 * 1024.0) : 0;
-        }
-    }
-
-    public double DiskReadBytesPerSec
-    {
-        get
-        {
-            var sum = 0.0;
-            for (var i = 0; i < diskEntries.Count; i++)
-            {
-                sum += diskEntries[i].ReadBytesPerSec;
-            }
-
-            return sum;
-        }
-    }
-
-    public double DiskWriteBytesPerSec
-    {
-        get
-        {
-            var sum = 0.0;
-            for (var i = 0; i < diskEntries.Count; i++)
-            {
-                sum += diskEntries[i].WriteBytesPerSec;
-            }
-
-            return sum;
-        }
-    }
-
     // Network (aggregate)
 
-    public double NetworkRxBytesPerSec
-    {
-        get
-        {
-            var sum = 0.0;
-            for (var i = 0; i < networkEntries.Count; i++)
-            {
-                sum += networkEntries[i].RxBytesPerSec;
-            }
-
-            return sum;
-        }
-    }
-
-    public double NetworkTxBytesPerSec
-    {
-        get
-        {
-            var sum = 0.0;
-            for (var i = 0; i < networkEntries.Count; i++)
-            {
-                sum += networkEntries[i].TxBytesPerSec;
-            }
-
-            return sum;
-        }
-    }
-
-    // GPU Temperature
-
-    public double? GpuTemperature => gpuEntries.Count > 0 ? gpuEntries[0].Temperature : null;
-
-    //--------------------------------------------------------------------------------
+    //
     // Constructor
     //--------------------------------------------------------------------------------
 

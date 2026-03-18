@@ -14,7 +14,7 @@ internal sealed class NetworkWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitleBlock(canvas, rect, "NET", "Traffic");
 
-        var entries = monitor.NetworkIfDisplayEntries;
+        var entries = monitor.NetworkInterfaces;
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
         var contentBottom = rect.Bottom - WidgetTheme.PadY;
         var contentH = contentBottom - contentTop;
@@ -35,11 +35,12 @@ internal sealed class NetworkWidget : IWidget
         for (var i = 0; i < entries.Count; i++)
         {
             var e = entries[i];
-            PushHistory(rxHistory, e.Name, (float)e.RxBytesPerSec);
-            PushHistory(txHistory, e.Name, (float)e.TxBytesPerSec);
-            DrawIfEntry(canvas, e.Name, e.RxBytesPerSec, e.TxBytesPerSec,
+            var displayName = e.DisplayName ?? e.Name;
+            PushHistory(rxHistory, displayName, (float)e.RxBytesPerSec);
+            PushHistory(txHistory, displayName, (float)e.TxBytesPerSec);
+            DrawIfEntry(canvas, displayName, e.RxBytesPerSec, e.TxBytesPerSec,
                 leftX, rightX, contentTop + (i * entryH), entryH,
-                rxHistory[e.Name], txHistory[e.Name]);
+                rxHistory[displayName], txHistory[displayName]);
         }
     }
 
