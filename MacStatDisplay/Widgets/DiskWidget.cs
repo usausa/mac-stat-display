@@ -74,8 +74,8 @@ internal sealed class FileSystemWidget : IWidget
 /// <summary>Disk I/O widget with sparkline graphs using display entries. Separate R/W sparklines per entry.</summary>
 internal sealed class DiskIoWidget : IWidget
 {
-    private readonly Dictionary<string, List<float>> readHistory = [];
-    private readonly Dictionary<string, List<float>> writeHistory = [];
+    private readonly Dictionary<string, SparklineBuffer> readHistory = [];
+    private readonly Dictionary<string, SparklineBuffer> writeHistory = [];
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
@@ -114,7 +114,7 @@ internal sealed class DiskIoWidget : IWidget
     private static void DrawIoEntry(
         SKCanvas canvas, string name, double readBps, double writeBps,
         float leftX, float rightX, float entryTop, float entryH,
-        List<float> rHist, List<float> wHist)
+        SparklineBuffer rHist, SparklineBuffer wHist)
     {
         // Name label at entry top
         using var nameFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
@@ -133,10 +133,7 @@ internal sealed class DiskIoWidget : IWidget
         using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSub);
 
         // Use shared max so Write and Read graphs share the same scale
-        var sharedMax = Math.Max(
-            wHist.Count > 0 ? wHist.Max() : 0f,
-            rHist.Count > 0 ? rHist.Max() : 0f);
-        sharedMax = Math.Max(sharedMax, 1f);
+        var sharedMax = Math.Max(Math.Max(wHist.Max(), rHist.Max()), 1f);
 
         // Upper half: Write sparkline (upward from center)
         var wGraphRect = new SKRect(leftX, graphAreaTop, graphRight - 4, centerY - 1);
@@ -157,19 +154,14 @@ internal sealed class DiskIoWidget : IWidget
         canvas.DrawText(rText, rightX - valFont.MeasureText(rText), centerY + 30, valFont, rValPaint);
     }
 
-    private static void PushHistory(Dictionary<string, List<float>> dict, string key, float value)
+    private static void PushHistory(Dictionary<string, SparklineBuffer> dict, string key, float value)
     {
-        if (!dict.TryGetValue(key, out var list))
+        if (!dict.TryGetValue(key, out var buf))
         {
-            list = new List<float>(WidgetTheme.SparklineCapacity);
-            dict[key] = list;
+            buf = new SparklineBuffer(WidgetTheme.SparklineCapacity);
+            dict[key] = buf;
         }
 
-        if (list.Count >= WidgetTheme.SparklineCapacity)
-        {
-            list.RemoveAt(0);
-        }
-
-        list.Add(value);
+        buf.Push(value);
     }
 }

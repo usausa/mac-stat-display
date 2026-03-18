@@ -77,5 +77,5 @@ internal static class WidgetTheme
     internal const float TitleOffsetY = 20f;
     internal const float BarHeight = 14f;
     internal const float BarRadius = 5f;
-    internal const int SparklineCapacity = 60;
+    internal const int SparklineCapacity = 100;
 }

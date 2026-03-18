@@ -6,8 +6,8 @@ using SkiaSharp;
 /// <summary>Network traffic widget with sparkline graphs using display entries. Separate TX/RX sparklines per entry.</summary>
 internal sealed class NetworkWidget : IWidget
 {
-    private readonly Dictionary<string, List<float>> rxHistory = [];
-    private readonly Dictionary<string, List<float>> txHistory = [];
+    private readonly Dictionary<string, SparklineBuffer> rxHistory = [];
+    private readonly Dictionary<string, SparklineBuffer> txHistory = [];
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
@@ -46,7 +46,7 @@ internal sealed class NetworkWidget : IWidget
     private static void DrawIfEntry(
         SKCanvas canvas, string name, double rxBps, double txBps,
         float leftX, float rightX, float entryTop, float entryH,
-        List<float> rHist, List<float> tHist)
+        SparklineBuffer rHist, SparklineBuffer tHist)
     {
         // Name label at entry top
         using var nameFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
@@ -65,10 +65,7 @@ internal sealed class NetworkWidget : IWidget
         using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSub);
 
         // Use shared max so Upload and Download graphs share the same scale
-        var sharedMax = Math.Max(
-            tHist.Count > 0 ? tHist.Max() : 0f,
-            rHist.Count > 0 ? rHist.Max() : 0f);
-        sharedMax = Math.Max(sharedMax, 1f);
+        var sharedMax = Math.Max(Math.Max(tHist.Max(), rHist.Max()), 1f);
 
         // Upper half: TX (upload) sparkline (upward from center)
         var txGraphRect = new SKRect(leftX, graphAreaTop, graphRight - 4, centerY - 1);
@@ -89,19 +86,14 @@ internal sealed class NetworkWidget : IWidget
         canvas.DrawText(rxText, rightX - valFont.MeasureText(rxText), centerY + 30, valFont, rxValPaint);
     }
 
-    private static void PushHistory(Dictionary<string, List<float>> dict, string key, float value)
+    private static void PushHistory(Dictionary<string, SparklineBuffer> dict, string key, float value)
     {
-        if (!dict.TryGetValue(key, out var list))
+        if (!dict.TryGetValue(key, out var buf))
         {
-            list = new List<float>(WidgetTheme.SparklineCapacity);
-            dict[key] = list;
+            buf = new SparklineBuffer(WidgetTheme.SparklineCapacity);
+            dict[key] = buf;
         }
 
-        if (list.Count >= WidgetTheme.SparklineCapacity)
-        {
-            list.RemoveAt(0);
-        }
-
-        list.Add(value);
+        buf.Push(value);
     }
 }
