@@ -53,7 +53,7 @@ internal sealed class TitleBarWidget : IWidget
 
         // Column 5: TIME (right-aligned within column)
         var col5Right = rect.Right - colPad;
-        DrawRightAlignedLabelValue(canvas, "TIME ", DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture),
+        DrawRightAlignedLabelValue(canvas, "TIME ", DateTime.Now.ToString("HH:mm", CultureInfo.InvariantCulture),
             col5Right, baseline, labelFont, labelPaint, valFont, valPaint);
     }
 
