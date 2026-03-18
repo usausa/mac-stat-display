@@ -2,22 +2,9 @@ namespace MacStatDisplay.Widgets;
 
 using SkiaSharp;
 
-/// <summary>Provides shared rendering utilities for Draw4-style dashboard widgets.</summary>
+/// <summary>Provides shared rendering utilities for dashboard widgets.</summary>
 internal sealed class DrawHelper : IDisposable
 {
-    // Draw4 color palette
-    internal static readonly SKColor GradientStart = new(15, 20, 28);
-    internal static readonly SKColor GradientEnd = new(8, 10, 16);
-    internal static readonly SKColor PanelBg = new(18, 24, 34, 235);
-    internal static readonly SKColor PanelBorder = new(255, 255, 255, 20);
-    internal static readonly SKColor TrackColor = new(42, 48, 61);
-    internal static readonly SKColor TextSub = new(148, 163, 184);
-    internal static readonly SKColor HeaderSubtitle = new(151, 161, 176);
-    internal static readonly SKColor AccentCyan = new(127, 225, 255);
-
-    private const float PanelRadius = 16f;
-    internal const float HeaderRadius = 18f;
-
     private readonly SKTypeface typeface;
     private readonly SKTypeface typefaceBold;
 
@@ -43,6 +30,17 @@ internal sealed class DrawHelper : IDisposable
         StrokeWidth = width,
     };
 
+    /// <summary>Formats bytes/sec into a human-readable speed string.</summary>
+    internal static string FormatSpeed(double bytesPerSec)
+    {
+        if (bytesPerSec >= 1024 * 1024)
+        {
+            return $"{bytesPerSec / (1024.0 * 1024.0):0.0} MB/s";
+        }
+
+        return $"{bytesPerSec / 1024.0:0} KB/s";
+    }
+
     /// <summary>Draws the full-screen gradient background.</summary>
     internal static void DrawBackground(SKCanvas canvas, int width, int height)
     {
@@ -51,7 +49,7 @@ internal sealed class DrawHelper : IDisposable
             Shader = SKShader.CreateLinearGradient(
                 new SKPoint(0, 0),
                 new SKPoint(width, height),
-                [GradientStart, GradientEnd],
+                [WidgetTheme.GradientStart, WidgetTheme.GradientEnd],
                 null,
                 SKShaderTileMode.Clamp),
             IsAntialias = true,
@@ -62,47 +60,47 @@ internal sealed class DrawHelper : IDisposable
     /// <summary>Draws a card panel with rounded corners and border.</summary>
     internal void DrawPanel(SKCanvas canvas, SKRect rect)
     {
-        using var bg = Fill(PanelBg);
-        canvas.DrawRoundRect(rect, PanelRadius, PanelRadius, bg);
+        using var bg = Fill(WidgetTheme.PanelBg);
+        canvas.DrawRoundRect(rect, WidgetTheme.PanelRadius, WidgetTheme.PanelRadius, bg);
 
-        using var border = Stroke(PanelBorder, 1);
-        canvas.DrawRoundRect(rect, PanelRadius, PanelRadius, border);
+        using var border = Stroke(WidgetTheme.PanelBorder, 1);
+        canvas.DrawRoundRect(rect, WidgetTheme.PanelRadius, WidgetTheme.PanelRadius, border);
     }
 
     /// <summary>Draws "CATEGORY Title" text at the top-left of a widget.</summary>
     internal void DrawTitleBlock(SKCanvas canvas, SKRect rect, string category, string title)
     {
-        using var font = MakeFont(16f, true);
-        using var paint = Fill(SKColors.White);
+        using var font = MakeFont(WidgetTheme.TitleFontSize, true);
+        using var paint = Fill(WidgetTheme.TextPrimary);
         var label = string.IsNullOrWhiteSpace(category) ? title : $"{category} {title}";
-        canvas.DrawText(label, rect.Left + 14, rect.Top + 24, font, paint);
+        canvas.DrawText(label, rect.Left + WidgetTheme.PadX, rect.Top + WidgetTheme.TitleOffsetY, font, paint);
     }
 
-    /// <summary>Draws a right-aligned value in 32pt bold.</summary>
+    /// <summary>Draws a right-aligned value in large bold font.</summary>
     internal void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
     {
-        using var font = MakeFont(32f, true);
+        using var font = MakeFont(WidgetTheme.ValueLargeFontSize, true);
         using var paint = Fill(color);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
-    /// <summary>Draws a centered value in 38pt bold (for ring gauge interior).</summary>
+    /// <summary>Draws a centered value in large bold font (for ring gauge interior).</summary>
     internal void DrawCenteredValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
     {
-        using var font = MakeFont(38f, true);
+        using var font = MakeFont(WidgetTheme.CenterValueFontSize, true);
         using var paint = Fill(color);
         canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, font, paint);
     }
 
-    /// <summary>Draws right-aligned detail text in 12pt.</summary>
+    /// <summary>Draws right-aligned detail text.</summary>
     internal void DrawRightAlignedDetail(SKCanvas canvas, string text, float rightX, float y)
     {
-        using var font = MakeFont(12f);
-        using var paint = Fill(TextSub);
+        using var font = MakeFont(WidgetTheme.DetailFontSize);
+        using var paint = Fill(WidgetTheme.TextSub);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
-    /// <summary>Draws word-wrapped detail text in 12pt (up to 2 lines).</summary>
+    /// <summary>Draws word-wrapped detail text (up to 2 lines).</summary>
     internal void DrawWrappedDetail(SKCanvas canvas, string text, float x, float y, float maxWidth)
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -110,8 +108,8 @@ internal sealed class DrawHelper : IDisposable
             return;
         }
 
-        using var font = MakeFont(12f);
-        using var paint = Fill(TextSub);
+        using var font = MakeFont(WidgetTheme.DetailFontSize);
+        using var paint = Fill(WidgetTheme.TextSub);
 
         var words = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var line = string.Empty;
@@ -141,15 +139,39 @@ internal sealed class DrawHelper : IDisposable
         }
     }
 
+    /// <summary>Draws a left-aligned label on one line and a colored value below it.</summary>
+    internal void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float y, SKColor valueColor)
+    {
+        using var labelFont = MakeFont(WidgetTheme.SmallFontSize);
+        using var labelPaint = Fill(WidgetTheme.TextSub);
+        canvas.DrawText(label, x, y, labelFont, labelPaint);
+
+        using var valueFont = MakeFont(WidgetTheme.DetailFontSize, true);
+        using var valuePaint = Fill(valueColor);
+        canvas.DrawText(value, x, y + 16, valueFont, valuePaint);
+    }
+
+    /// <summary>Draws a right-aligned label on one line and a colored value below it.</summary>
+    internal void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float y, SKColor valueColor)
+    {
+        using var labelFont = MakeFont(WidgetTheme.SmallFontSize);
+        using var labelPaint = Fill(WidgetTheme.TextSub);
+        canvas.DrawText(label, rightX - labelFont.MeasureText(label), y, labelFont, labelPaint);
+
+        using var valueFont = MakeFont(WidgetTheme.DetailFontSize, true);
+        using var valuePaint = Fill(valueColor);
+        canvas.DrawText(value, rightX - valueFont.MeasureText(value), y + 16, valueFont, valuePaint);
+    }
+
     /// <summary>Draws a 270° ring gauge (open at bottom).</summary>
     internal void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
     {
         using var trackPaint = new SKPaint
         {
-            Color = TrackColor,
+            Color = WidgetTheme.TrackColor,
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 10,
+            StrokeWidth = WidgetTheme.RingStrokeWidth,
             StrokeCap = SKStrokeCap.Round,
         };
 
@@ -158,27 +180,31 @@ internal sealed class DrawHelper : IDisposable
             Color = color,
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 10,
+            StrokeWidth = WidgetTheme.RingStrokeWidth,
             StrokeCap = SKStrokeCap.Round,
         };
 
         var ringRect = new SKRect(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
-        canvas.DrawArc(ringRect, 135, 270, false, trackPaint);
-        canvas.DrawArc(ringRect, 135, 270f * percentage / 100f, false, valuePaint);
+        canvas.DrawArc(ringRect, WidgetTheme.RingStartAngle, WidgetTheme.RingArcDegrees, false, trackPaint);
+        canvas.DrawArc(ringRect, WidgetTheme.RingStartAngle, WidgetTheme.RingArcDegrees * percentage / 100f, false, valuePaint);
     }
 
     /// <summary>Draws a horizontal bar gauge at the bottom of a card.</summary>
     internal void DrawBarGauge(SKCanvas canvas, SKRect cardRect, float percentage, SKColor color)
     {
-        var barRect = new SKRect(cardRect.Left + 16, cardRect.Bottom - 26, cardRect.Right - 16, cardRect.Bottom - 16);
+        var barRect = new SKRect(
+            cardRect.Left + WidgetTheme.PadX,
+            cardRect.Bottom - WidgetTheme.BarHeight - WidgetTheme.PadY,
+            cardRect.Right - WidgetTheme.PadX,
+            cardRect.Bottom - WidgetTheme.PadY);
 
-        using var trackPaint = Fill(TrackColor);
-        canvas.DrawRoundRect(barRect, 5, 5, trackPaint);
+        using var trackPaint = Fill(WidgetTheme.TrackColor);
+        canvas.DrawRoundRect(barRect, WidgetTheme.BarRadius, WidgetTheme.BarRadius, trackPaint);
 
         var fillWidth = barRect.Width * percentage / 100f;
         var fillRect = new SKRect(barRect.Left, barRect.Top, barRect.Left + fillWidth, barRect.Bottom);
         using var fillPaint = Fill(color);
-        canvas.DrawRoundRect(fillRect, 5, 5, fillPaint);
+        canvas.DrawRoundRect(fillRect, WidgetTheme.BarRadius, WidgetTheme.BarRadius, fillPaint);
     }
 
     private static SKTypeface ResolveTypeface(bool bold)

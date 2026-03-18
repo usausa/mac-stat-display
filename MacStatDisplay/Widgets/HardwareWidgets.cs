@@ -3,48 +3,40 @@ namespace MacStatDisplay.Widgets;
 using MacStatDisplay.Monitor;
 using SkiaSharp;
 
-/// <summary>Text widget for CPU temperature.</summary>
-internal sealed class CpuTemperatureWidget : IWidget
+/// <summary>Text widget for total system power with CPU/GPU breakdown side by side.</summary>
+internal sealed class PowerWidget : IWidget
 {
-    private static readonly SKColor Accent = new(251, 146, 60);
-
-    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
-    {
-        helper.DrawPanel(canvas, rect);
-        helper.DrawTitleBlock(canvas, rect, string.Empty, "CPU Temp");
-
-        var temp = monitor.CpuTemperature ?? 0;
-        helper.DrawValue(canvas, $"{temp:0} C", rect.Right - 16, rect.MidY + 8, Accent);
-        helper.DrawWrappedDetail(canvas, $"Power {monitor.PowerCpuW:0.0} W", rect.Left + 16, rect.MidY + 8, rect.Width - 32);
-    }
-}
-
-/// <summary>Text widget for GPU temperature.</summary>
-internal sealed class GpuTemperatureWidget : IWidget
-{
-    private static readonly SKColor Accent = new(96, 165, 250);
-
-    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
-    {
-        helper.DrawPanel(canvas, rect);
-        helper.DrawTitleBlock(canvas, rect, string.Empty, "GPU Temp");
-
-        var temp = monitor.GpuTemperature ?? 0;
-        helper.DrawValue(canvas, $"{temp:0} C", rect.Right - 16, rect.MidY + 8, Accent);
-        helper.DrawWrappedDetail(canvas, $"Power {monitor.PowerGpuW:0.0} W", rect.Left + 16, rect.MidY + 8, rect.Width - 32);
-    }
-}
-
-/// <summary>Text widget for total system power.</summary>
-internal sealed class PowerTotalWidget : IWidget
-{
-    private static readonly SKColor Accent = new(250, 204, 21);
-
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
     {
         helper.DrawPanel(canvas, rect);
         helper.DrawTitleBlock(canvas, rect, "POWER", "System");
 
-        helper.DrawValue(canvas, $"{monitor.PowerTotalW:0.0} W", rect.Right - 16, rect.MidY + 8, Accent);
+        // Total power bottom-right
+        helper.DrawValue(canvas, $"{monitor.PowerTotalW:0.0} W", rect.Right - WidgetTheme.PadX, rect.Bottom - WidgetTheme.PadY, WidgetTheme.PowerAccent);
+
+        // CPU and GPU side by side near the top
+        var leftX = rect.Left + WidgetTheme.PadX;
+        var midX = rect.MidX;
+        var topY = rect.Top + WidgetTheme.TitleOffsetY + 10;
+        helper.DrawStackedLabelValue(canvas, "CPU", $"{monitor.PowerCpuW:0.0}W", leftX, topY, WidgetTheme.PowerAccent);
+        helper.DrawStackedLabelValue(canvas, "GPU", $"{monitor.PowerGpuW:0.0}W", midX, topY, WidgetTheme.PowerAccent);
+    }
+}
+
+/// <summary>Text widget for fan speed percentage and RPM.</summary>
+internal sealed class FanWidget : IWidget
+{
+    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
+    {
+        helper.DrawPanel(canvas, rect);
+        helper.DrawTitleBlock(canvas, rect, string.Empty, "FAN");
+
+        // Fan speed percentage bottom-right
+        helper.DrawValue(canvas, $"{monitor.FanSpeedPercent:0}%", rect.Right - WidgetTheme.PadX, rect.Bottom - WidgetTheme.PadY, WidgetTheme.FanAccent);
+
+        // RPM detail on left
+        var leftX = rect.Left + WidgetTheme.PadX;
+        var topY = rect.Top + WidgetTheme.TitleOffsetY + 10;
+        helper.DrawStackedLabelValue(canvas, "Speed", $"{monitor.FanSpeedRpm:0} rpm", leftX, topY, WidgetTheme.FanAccent);
     }
 }

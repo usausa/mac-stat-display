@@ -3,20 +3,40 @@ namespace MacStatDisplay.Widgets;
 using MacStatDisplay.Monitor;
 using SkiaSharp;
 
-/// <summary>Text widget for network download speed (with upload as detail).</summary>
-internal sealed class NetworkDownloadWidget : IWidget
+/// <summary>Text widget for network speeds (download/upload) showing the first interface.</summary>
+internal sealed class NetworkWidget : IWidget
 {
-    private static readonly SKColor Accent = new(94, 234, 212);
-
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
     {
         helper.DrawPanel(canvas, rect);
-        helper.DrawTitleBlock(canvas, rect, "NET", "Download");
+        helper.DrawTitleBlock(canvas, rect, "NET", "Traffic");
 
-        var dlMbps = monitor.NetworkRxBytesPerSec / (1024.0 * 1024.0);
-        var ulMbps = monitor.NetworkTxBytesPerSec / (1024.0 * 1024.0);
+        var rightX = rect.Right - WidgetTheme.PadX;
+        var leftX = rect.Left + WidgetTheme.PadX;
+        var bottomY = rect.Bottom - WidgetTheme.PadY;
 
-        helper.DrawValue(canvas, $"{dlMbps:0.00} MB/s", rect.Right - 16, rect.MidY + 8, Accent);
-        helper.DrawWrappedDetail(canvas, $"Upload {ulMbps:0.00} MB/s", rect.Left + 16, rect.MidY + 8, rect.Width - 32);
+        // Use first entry if available, otherwise aggregate
+        var entries = monitor.NetworkIfSnapshots;
+        double rx, tx;
+        if (entries.Count > 0)
+        {
+            var first = entries[0];
+            rx = first.RxBytesPerSec;
+            tx = first.TxBytesPerSec;
+
+            using var nameFont = helper.MakeFont(WidgetTheme.SmallFontSize);
+            using var namePaint = DrawHelper.Fill(WidgetTheme.TextSub);
+            canvas.DrawText(first.Name, leftX, rect.Top + WidgetTheme.TitleOffsetY + 18, nameFont, namePaint);
+        }
+        else
+        {
+            rx = monitor.NetworkRxBytesPerSec;
+            tx = monitor.NetworkTxBytesPerSec;
+        }
+
+        var dlText = $"\u2193 {DrawHelper.FormatSpeed(rx)}";
+        var ulText = $"\u2191 {DrawHelper.FormatSpeed(tx)}";
+        helper.DrawValue(canvas, ulText, rightX, bottomY, WidgetTheme.NetworkAccent);
+        helper.DrawValue(canvas, dlText, rightX, bottomY - WidgetTheme.ValueLargeFontSize - 2, WidgetTheme.NetworkAccent);
     }
 }

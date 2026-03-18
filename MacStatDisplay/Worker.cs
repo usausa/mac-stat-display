@@ -1,7 +1,5 @@
 namespace MacStatDisplay;
 
-using System.Globalization;
-
 using HidSharp;
 
 using LcdDriver.TrofeoVision;
@@ -15,11 +13,13 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
 {
     private const int ImageWidth = 1280;
     private const int ImageHeight = 480;
-    private const int OuterPadding = 18;
-    private const int HeaderHeight = 76;
-    private const int ContentGap = 12;
+    private const int OuterPadding = 10;
+    private const int HeaderHeight = 48;
+    private const int ContentGap = 8;
     private const int GridColumns = 4;
     private const int GridRows = 4;
+
+    private readonly TitleBarWidget titleBarWidget = new();
 
     private record struct WidgetPlacement(IWidget Widget, int Column, int Row, int ColumnSpan = 1, int RowSpan = 1);
 
@@ -79,67 +79,29 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
 
     private static WidgetPlacement[] BuildLayout() =>
     [
+        // Row 0-1: CPU (1×2), Memory (1×2), Filesystem (1×2), Disk I/O (1×2)
         new(new CpuUsageWidget(), 0, 0, 1, 2),
         new(new MemoryUsageWidget(), 1, 0, 1, 2),
-        new(new LoadAverageWidget(), 2, 0),
-        new(new CpuClockWidget(), 3, 0),
-        new(new DiskCapacityWidget(), 2, 1),
-        new(new NetworkDownloadWidget(), 3, 1),
-        new(new MemoryAppWidget(), 0, 2),
-        new(new MemorySwapWidget(), 1, 2),
-        new(new DiskReadWidget(), 2, 2),
-        new(new DiskWriteWidget(), 3, 2),
-        new(new ProcessCountWidget(), 0, 3),
-        new(new CpuTemperatureWidget(), 1, 3),
-        new(new GpuTemperatureWidget(), 2, 3),
-        new(new PowerTotalWidget(), 3, 3),
+        new(new FileSystemWidget(), 2, 0, 1, 2),
+        new(new DiskIoWidget(), 3, 0, 1, 2),
+        // Row 2: GPU, Clock, Network, Power
+        new(new GpuUsageWidget(), 0, 2),
+        new(new CpuClockWidget(), 1, 2),
+        new(new NetworkWidget(), 2, 2),
+        new(new PowerWidget(), 3, 2),
+        // Row 3: FAN (2×1), Load Average (2×1)
+        new(new FanWidget(), 0, 3, 2, 1),
+        new(new LoadAverageWidget(), 2, 3, 2, 1),
     ];
 
     private void RenderDashboard(SKCanvas canvas, WidgetPlacement[] placements, DrawHelper drawHelper)
     {
         DrawHelper.DrawBackground(canvas, ImageWidth, ImageHeight);
-        DrawHeader(canvas, drawHelper);
-        DrawWidgets(canvas, placements, drawHelper);
-    }
 
-    private void DrawHeader(SKCanvas canvas, DrawHelper drawHelper)
-    {
         var headerRect = new SKRect(OuterPadding, OuterPadding, ImageWidth - OuterPadding, OuterPadding + HeaderHeight);
+        titleBarWidget.Draw(canvas, headerRect, monitor, drawHelper);
 
-        using var panelBg = DrawHelper.Fill(DrawHelper.PanelBg);
-        canvas.DrawRoundRect(headerRect, DrawHelper.HeaderRadius, DrawHelper.HeaderRadius, panelBg);
-
-        using var panelBorder = DrawHelper.Stroke(DrawHelper.PanelBorder, 1);
-        canvas.DrawRoundRect(headerRect, DrawHelper.HeaderRadius, DrawHelper.HeaderRadius, panelBorder);
-
-        // Title
-        using var titleFont = drawHelper.MakeFont(26f, true);
-        using var titlePaint = DrawHelper.Fill(SKColors.White);
-        canvas.DrawText("SYSTEM MONITOR", headerRect.Left + 20, headerRect.Top + 30, titleFont, titlePaint);
-
-        // Subtitle
-        using var subtitleFont = drawHelper.MakeFont(13f);
-        using var subtitlePaint = DrawHelper.Fill(DrawHelper.HeaderSubtitle);
-        canvas.DrawText("Realtime System Monitor", headerRect.Left + 20, headerRect.Top + 52, subtitleFont, subtitlePaint);
-
-        // Header metrics
-        using var labelFont = drawHelper.MakeFont(16f, true);
-        using var labelPaint = DrawHelper.Fill(DrawHelper.AccentCyan);
-        using var valueFont = drawHelper.MakeFont(18f, true);
-        using var valuePaint = DrawHelper.Fill(SKColors.White);
-
-        // Uptime
-        var uptime = monitor.Uptime;
-        var uptimeText = $"{(int)uptime.TotalDays}d {uptime.Hours:D2}h {uptime.Minutes:D2}m";
-        var uptimeX = ImageWidth - 420f;
-        canvas.DrawText("UPTIME", uptimeX, headerRect.Top + 24, labelFont, labelPaint);
-        canvas.DrawText(uptimeText, uptimeX, headerRect.Top + 48, valueFont, valuePaint);
-
-        // Time
-        var clock = DateTime.Now.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
-        var timeX = ImageWidth - 250f;
-        canvas.DrawText("TIME", timeX, headerRect.Top + 24, labelFont, labelPaint);
-        canvas.DrawText(clock, timeX, headerRect.Top + 48, valueFont, valuePaint);
+        DrawWidgets(canvas, placements, drawHelper);
     }
 
     private void DrawWidgets(SKCanvas canvas, WidgetPlacement[] placements, DrawHelper drawHelper)

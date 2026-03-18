@@ -3,56 +3,35 @@ namespace MacStatDisplay.Widgets;
 using MacStatDisplay.Monitor;
 using SkiaSharp;
 
-/// <summary>Ring gauge widget for memory usage.</summary>
+/// <summary>Ring gauge widget for memory usage with Active/Wired detail and Swap on the left.</summary>
 internal sealed class MemoryUsageWidget : IWidget
 {
-    private static readonly SKColor Accent = new(180, 120, 255);
-
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
     {
         helper.DrawPanel(canvas, rect);
         helper.DrawTitleBlock(canvas, rect, "MEM", "Usage");
 
-        var usage = monitor.MemoryUsagePercent;
-        var center = new SKPoint(rect.MidX, rect.MidY + 12);
-        const float radius = 50;
+        var usage = (float)Math.Clamp(monitor.MemoryUsagePercent, 0, 100);
 
-        helper.DrawRingGauge(canvas, center.X, center.Y, radius, (float)Math.Clamp(usage, 0, 100), Accent);
-        helper.DrawCenteredValue(canvas, $"{usage:0}%", center.X, center.Y + 12, Accent);
+        // Larger ring – push center down so the 270° arc bottom aligns with the widget bottom
+        var contentH = rect.Height - WidgetTheme.TitleOffsetY - WidgetTheme.PadY;
+        var maxRadiusH = contentH / 1.71f;
+        var maxRadiusW = (rect.Width - 160f) / 2f;
+        var radius = Math.Min(maxRadiusH, maxRadiusW);
+        var cx = rect.MidX;
+        var cy = rect.Bottom - WidgetTheme.PadY - (radius * 0.71f);
 
-        var detailX = rect.Right - 18;
-        var detailTop = rect.Top + 54;
-        helper.DrawRightAlignedDetail(canvas, $"Active {monitor.MemoryActivePercent:0.0}%", detailX, detailTop);
-        helper.DrawRightAlignedDetail(canvas, $"Wired {monitor.MemoryWiredPercent:0.0}%", detailX, detailTop + 18);
-        helper.DrawRightAlignedDetail(canvas, $"Swap {monitor.SwapUsagePercent:0.0}%", detailX, detailTop + 36);
-    }
-}
+        helper.DrawRingGauge(canvas, cx, cy, radius, usage, WidgetTheme.MemoryAccent);
+        helper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (WidgetTheme.CenterValueFontSize * 0.35f), WidgetTheme.MemoryAccent);
 
-/// <summary>Text widget for application memory.</summary>
-internal sealed class MemoryAppWidget : IWidget
-{
-    private static readonly SKColor Accent = new(255, 214, 102);
+        // Left: Swap
+        var leftX = rect.Left + WidgetTheme.PadX;
+        var sideTop = cy - radius + 8;
+        helper.DrawStackedLabelValue(canvas, "Swap", $"{monitor.SwapUsagePercent:0.0}%", leftX, sideTop, WidgetTheme.MemoryAccent);
 
-    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
-    {
-        helper.DrawPanel(canvas, rect);
-        helper.DrawTitleBlock(canvas, rect, "MEM", "App Memory");
-
-        helper.DrawValue(canvas, $"{monitor.MemoryActivePercent:0.0}%", rect.Right - 16, rect.MidY + 8, Accent);
-        helper.DrawWrappedDetail(canvas, $"Wired {monitor.MemoryWiredPercent:0.0}%", rect.Left + 16, rect.MidY + 8, rect.Width - 32);
-    }
-}
-
-/// <summary>Text widget for swap usage.</summary>
-internal sealed class MemorySwapWidget : IWidget
-{
-    private static readonly SKColor Accent = new(255, 214, 102);
-
-    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor, DrawHelper helper)
-    {
-        helper.DrawPanel(canvas, rect);
-        helper.DrawTitleBlock(canvas, rect, "MEM", "Swap");
-
-        helper.DrawValue(canvas, $"{monitor.SwapUsagePercent:0.0}%", rect.Right - 16, rect.MidY + 8, Accent);
+        // Right: Active, Wired
+        var rightX = rect.Right - WidgetTheme.PadX;
+        helper.DrawStackedLabelValueRight(canvas, "Active", $"{monitor.MemoryActivePercent:0.0}%", rightX, sideTop, WidgetTheme.MemoryAccent);
+        helper.DrawStackedLabelValueRight(canvas, "Wired", $"{monitor.MemoryWiredPercent:0.0}%", rightX, sideTop + 40, WidgetTheme.MemoryAccent);
     }
 }
