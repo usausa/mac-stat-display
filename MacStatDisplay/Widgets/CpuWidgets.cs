@@ -1,11 +1,16 @@
 namespace MacStatDisplay.Widgets;
 
 using MacStatDisplay.Monitor;
+
 using SkiaSharp;
 
-/// <summary>Ring gauge widget for CPU usage with E/P-core and System/User/Idle breakdown, plus CPU temperature.</summary>
+// Ring gauge widget for CPU usage with E/P-core and System/User/Idle breakdown, plus CPU temperature.
 internal sealed class CpuUsageWidget : IWidget
 {
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
+
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
@@ -50,9 +55,13 @@ internal sealed class CpuUsageWidget : IWidget
     }
 }
 
-/// <summary>Text widget for CPU clock frequency. P-Core/E-Core stacked vertically, bottom-aligned with main value.</summary>
+// Text widget for CPU clock frequency. P-Core/E-Core stacked vertically, bottom-aligned with main value.
 internal sealed class CpuClockWidget : IWidget
 {
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
+
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
@@ -75,9 +84,13 @@ internal sealed class CpuClockWidget : IWidget
     }
 }
 
-/// <summary>Text widget for load average. 5m/15m stacked vertically, bottom-aligned with main value.</summary>
+// Text widget for load average. 5m/15m stacked vertically, bottom-aligned with main value.
 internal sealed class LoadAverageWidget : IWidget
 {
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
+
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);

@@ -32,6 +32,6 @@ internal sealed record WidgetEntry
 
     public int RowSpan { get; init; } = 1;
 
-    /// <summary>Optional widget-specific parameters (e.g. threshold, label overrides).</summary>
+    // Optional widget-specific parameters (e.g. threshold, label overrides).
     public Dictionary<string, string> Parameters { get; init; } = [];
 }

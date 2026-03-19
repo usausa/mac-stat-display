@@ -6,10 +6,14 @@ using MacStatDisplay.Monitor;
 
 using SkiaSharp;
 
-/// <summary>Header widget with 6-column grid: title | Process | Thread | UPTIME | TIME (right-aligned per column).</summary>
+// Header widget with 6-column grid: title | Process | Thread | UPTIME | TIME (right-aligned per column).
 internal sealed class TitleBarWidget : IWidget
 {
     private const int GridColumns = 6;
+
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {

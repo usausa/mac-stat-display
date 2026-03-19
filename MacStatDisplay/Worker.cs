@@ -19,7 +19,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
 
     private readonly TitleBarWidget titleBarWidget = new();
 
-    /// <summary>A widget paired with its pre-computed drawing rectangle.</summary>
+    // A widget paired with its pre-computed drawing rectangle.
     private record struct WidgetPlacement(IWidget Widget, SKRect Rect);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -59,7 +59,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
         }
     }
 
-    /// <summary>Acquires the LCD device and runs the display loop until error or cancellation.</summary>
+    // Acquires the LCD device and runs the display loop until error or cancellation.
     private async Task RunDeviceSessionAsync(
         SKCanvas canvas, SKSurface surface, WidgetPlacement[] placements, CancellationToken stoppingToken)
     {
@@ -100,7 +100,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
         }
     }
 
-    /// <summary>Builds the widget layout from settings, pre-computing each widget's drawing rectangle.</summary>
+    // Builds the widget layout from settings, pre-computing each widget's drawing rectangle.
     private WidgetPlacement[] BuildLayout()
     {
         if (settings.Widgets.Count == 0)

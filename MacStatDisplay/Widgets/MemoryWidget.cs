@@ -1,11 +1,16 @@
 namespace MacStatDisplay.Widgets;
 
 using MacStatDisplay.Monitor;
+
 using SkiaSharp;
 
-/// <summary>Ring gauge widget for memory usage with Active/Wired detail and Swap on the left.</summary>
+// Ring gauge widget for memory usage with Active/Wired detail and Swap on the left.
 internal sealed class MemoryUsageWidget : IWidget
 {
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
+
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);

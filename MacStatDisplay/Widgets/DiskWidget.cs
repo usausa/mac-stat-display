@@ -1,11 +1,16 @@
 namespace MacStatDisplay.Widgets;
 
 using MacStatDisplay.Monitor;
+
 using SkiaSharp;
 
-/// <summary>Bar gauge widget for filesystem disk usage using display entries.</summary>
+// Bar gauge widget for filesystem disk usage using display entries.
 internal sealed class FileSystemWidget : IWidget
 {
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
+
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
@@ -67,11 +72,15 @@ internal sealed class FileSystemWidget : IWidget
     }
 }
 
-/// <summary>Disk I/O widget with sparkline graphs using display entries. Separate R/W sparklines per entry.</summary>
+// Disk I/O widget with sparkline graphs using display entries. Separate R/W sparklines per entry.
 internal sealed class DiskIoWidget : IWidget
 {
     private readonly Dictionary<string, SparklineBuffer> readHistory = [];
     private readonly Dictionary<string, SparklineBuffer> writeHistory = [];
+
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {

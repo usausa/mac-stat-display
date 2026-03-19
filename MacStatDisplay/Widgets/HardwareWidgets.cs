@@ -3,9 +3,13 @@ namespace MacStatDisplay.Widgets;
 using MacStatDisplay.Monitor;
 using SkiaSharp;
 
-/// <summary>Text widget for total system power. CPU/GPU stacked vertically, bottom-aligned with main value.</summary>
+// Text widget for total system power. CPU/GPU stacked vertically, bottom-aligned with main value.
 internal sealed class PowerWidget : IWidget
 {
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
+
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
@@ -24,9 +28,13 @@ internal sealed class PowerWidget : IWidget
     }
 }
 
-/// <summary>Text widget for fan speed percentage and RPM. Speed sub-item bottom-aligned with main value.</summary>
+// Text widget for fan speed percentage and RPM. Speed sub-item bottom-aligned with main value.
 internal sealed class FanWidget : IWidget
 {
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
+
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);

@@ -2,34 +2,34 @@ namespace MacStatDisplay.Widgets;
 
 using SkiaSharp;
 
-/// <summary>Provides shared rendering utilities for dashboard widgets.</summary>
+// Provides shared rendering utilities for dashboard widgets.
 internal static class DrawHelper
 {
     private static SKTypeface typeface = null!;
     private static SKTypeface typefaceBold = null!;
 
-    /// <summary>Initializes shared typefaces. Must be called once at startup.</summary>
+    // Initializes shared typefaces. Must be called once at startup.
     internal static void Initialize()
     {
         typeface = ResolveTypeface(false);
         typefaceBold = ResolveTypeface(true);
     }
 
-    /// <summary>Disposes shared typefaces.</summary>
+    // Disposes shared typefaces.
     internal static void Shutdown()
     {
         typeface?.Dispose();
         typefaceBold?.Dispose();
     }
 
-    /// <summary>Creates a font with the resolved typeface.</summary>
+    // Creates a font with the resolved typeface.
     internal static SKFont MakeFont(float size, bool bold = false) =>
         new(bold ? typefaceBold : typeface, size) { Edging = SKFontEdging.SubpixelAntialias };
 
-    /// <summary>Creates a fill paint.</summary>
+    // Creates a fill paint.
     internal static SKPaint Fill(SKColor color) => new() { Color = color, IsAntialias = true };
 
-    /// <summary>Creates a stroke paint.</summary>
+    // Creates a stroke paint.
     internal static SKPaint Stroke(SKColor color, float width) => new()
     {
         Color = color,
@@ -38,7 +38,7 @@ internal static class DrawHelper
         StrokeWidth = width,
     };
 
-    /// <summary>Formats bytes/sec into a human-readable speed string.</summary>
+    // Formats bytes/sec into a human-readable speed string.
     internal static string FormatSpeed(double bytesPerSec)
     {
         if (bytesPerSec >= 1024 * 1024)
@@ -49,7 +49,7 @@ internal static class DrawHelper
         return $"{bytesPerSec / 1024.0:0} KB/s";
     }
 
-    /// <summary>Draws the full-screen gradient background.</summary>
+    // Draws the full-screen gradient background.
     internal static void DrawBackground(SKCanvas canvas, int width, int height)
     {
         using var paint = new SKPaint
@@ -65,7 +65,7 @@ internal static class DrawHelper
         canvas.DrawRect(0, 0, width, height, paint);
     }
 
-    /// <summary>Draws a card panel with rounded corners and border.</summary>
+    // Draws a card panel with rounded corners and border.
     internal static void DrawPanel(SKCanvas canvas, SKRect rect)
     {
         using var bg = Fill(WidgetTheme.PanelBg);
@@ -75,7 +75,7 @@ internal static class DrawHelper
         canvas.DrawRoundRect(rect, WidgetTheme.PanelRadius, WidgetTheme.PanelRadius, border);
     }
 
-    /// <summary>Draws "CATEGORY Title" text at the top-left of a widget.</summary>
+    // Draws "CATEGORY Title" text at the top-left of a widget.
     internal static void DrawTitleBlock(SKCanvas canvas, SKRect rect, string category, string title)
     {
         using var font = MakeFont(WidgetTheme.WidgetTitleFontSize, true);
@@ -84,7 +84,7 @@ internal static class DrawHelper
         canvas.DrawText(label, rect.Left + WidgetTheme.PadX, rect.Top + WidgetTheme.TitleOffsetY, font, paint);
     }
 
-    /// <summary>Draws a right-aligned value in large bold font.</summary>
+    // Draws a right-aligned value in large bold font.
     internal static void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
     {
         using var font = MakeFont(WidgetTheme.PrimaryValueFontSize, true);
@@ -92,7 +92,7 @@ internal static class DrawHelper
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
-    /// <summary>Draws a centered value in large bold font (for ring gauge interior).</summary>
+    // Draws a centered value in large bold font (for ring gauge interior).
     internal static void DrawCenteredValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
     {
         using var font = MakeFont(WidgetTheme.GaugeValueFontSize, true);
@@ -100,7 +100,7 @@ internal static class DrawHelper
         canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, font, paint);
     }
 
-    /// <summary>Draws right-aligned detail text.</summary>
+    // Draws right-aligned detail text.
     internal static void DrawRightAlignedDetail(SKCanvas canvas, string text, float rightX, float y)
     {
         using var font = MakeFont(WidgetTheme.SubValueFontSize);
@@ -108,7 +108,7 @@ internal static class DrawHelper
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
-    /// <summary>Draws a left-aligned label on one line and a colored value below it.</summary>
+    // Draws a left-aligned label on one line and a colored value below it.
     internal static void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float y, SKColor valueColor)
     {
         using var labelFont = MakeFont(WidgetTheme.SubLabelFontSize);
@@ -120,7 +120,7 @@ internal static class DrawHelper
         canvas.DrawText(value, x, y + 18, valueFont, valuePaint);
     }
 
-    /// <summary>Draws a right-aligned label on one line and a colored value below it.</summary>
+    // Draws a right-aligned label on one line and a colored value below it.
     internal static void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float y, SKColor valueColor)
     {
         using var labelFont = MakeFont(WidgetTheme.SubLabelFontSize);
@@ -132,7 +132,7 @@ internal static class DrawHelper
         canvas.DrawText(value, rightX - valueFont.MeasureText(value), y + 18, valueFont, valuePaint);
     }
 
-    /// <summary>Draws a 270° ring gauge (open at bottom).</summary>
+    // Draws a 270° ring gauge (open at bottom).
     internal static void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
     {
         using var trackPaint = new SKPaint
@@ -158,7 +158,7 @@ internal static class DrawHelper
         canvas.DrawArc(ringRect, WidgetTheme.RingStartAngle, WidgetTheme.RingArcDegrees * percentage / 100f, false, valuePaint);
     }
 
-    /// <summary>Draws a sparkline area chart in the given rectangle (value 0 at bottom, growing upward).</summary>
+    // Draws a sparkline area chart in the given rectangle (value 0 at bottom, growing upward).
     internal static void DrawSparkline(SKCanvas canvas, SKRect rect, SparklineBuffer buffer, float maxValue, SKColor color)
     {
         if (maxValue <= 0)
@@ -199,7 +199,7 @@ internal static class DrawHelper
         canvas.DrawPath(linePath, linePaint);
     }
 
-    /// <summary>Draws an inverted sparkline area chart (value 0 at top, growing downward).</summary>
+    // Draws an inverted sparkline area chart (value 0 at top, growing downward).
     internal static void DrawSparklineInverted(SKCanvas canvas, SKRect rect, SparklineBuffer buffer, float maxValue, SKColor color)
     {
         if (maxValue <= 0)

@@ -2,7 +2,7 @@ namespace MacStatDisplay.Widgets;
 
 using SkiaSharp;
 
-/// <summary>Centralized color, font-size and layout constants for all widgets.</summary>
+// Centralized color, font-size and layout constants for all widgets.
 internal static class WidgetTheme
 {
     // ── Background & Panel ──────────────────────────────────────────────
@@ -42,22 +42,22 @@ internal static class WidgetTheme
 
     // ── Font Sizes ──────────────────────────────────────────────────────
 
-    /// <summary>Widget title block (e.g. "CPU Usage").</summary>
+    // Widget title block (e.g. "CPU Usage").
     internal const float WidgetTitleFontSize = 14f;
 
-    /// <summary>Primary metric value in 1×1 widgets (bottom-right large text).</summary>
+    // Primary metric value in 1×1 widgets (bottom-right large text).
     internal const float PrimaryValueFontSize = 34f;
 
-    /// <summary>Ring gauge center value (CPU/MEM/GPU %).</summary>
+    // Ring gauge center value (CPU/MEM/GPU %).
     internal const float GaugeValueFontSize = 40f;
 
-    /// <summary>Temperature display inside ring gauges.</summary>
+    // Temperature display inside ring gauges.
     internal const float TemperatureFontSize = 20f;
 
-    /// <summary>Value part of stacked label-value pairs; stat speed values.</summary>
+    // Value part of stacked label-value pairs; stat speed values.
     internal const float SubValueFontSize = 16f;
 
-    /// <summary>Label part of stacked label-value pairs; device/entry names in stat widgets.</summary>
+    // Label part of stacked label-value pairs; device/entry names in stat widgets.
     internal const float SubLabelFontSize = 13f;
 
     internal const float HeaderTitleFontSize = 22f;

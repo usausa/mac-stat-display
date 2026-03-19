@@ -25,11 +25,16 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     private readonly Random random = new();
     private readonly DateTime startTime = DateTime.UtcNow;
 
-    private double diskRead1 = 156_000, diskWrite1 = 86_000;
-    private double diskRead2 = 42_000, diskWrite2 = 18_000;
-    private double netRx1 = 5_500_000, netTx1 = 1_200_000;
-    private double netRx2 = 320_000, netTx2 = 95_000;
-    private double gpuUtil = 45, gpuTemp = 55;
+    private double diskRead1 = 156_000;
+    private double diskWrite1 = 86_000;
+    private double diskRead2 = 42_000;
+    private double diskWrite2 = 18_000;
+    private double netRx1 = 5_500_000;
+    private double netTx1 = 1_200_000;
+    private double netRx2 = 320_000;
+    private double netTx2 = 95_000;
+    private double gpuUtil = 45;
+    private double gpuTemp = 55;
     private double fanRpm = 3200;
 
     // ── CPU ───────────────────────────────────────────────────────────────
@@ -162,10 +167,11 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         ];
     }
 
+#pragma warning disable CA5394
     private double Vary(double current, double min, double max)
     {
         var delta = (random.NextDouble() - 0.5) * (max - min) * 0.1;
         return Math.Clamp(current + delta, min, max);
     }
+#pragma warning restore CA5394
 }
-

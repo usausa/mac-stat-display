@@ -1,13 +1,18 @@
 namespace MacStatDisplay.Widgets;
 
 using MacStatDisplay.Monitor;
+
 using SkiaSharp;
 
-/// <summary>Network traffic widget with sparkline graphs using display entries. Separate TX/RX sparklines per entry.</summary>
+// Network traffic widget with sparkline graphs using display entries. Separate TX/RX sparklines per entry.
 internal sealed class NetworkWidget : IWidget
 {
     private readonly Dictionary<string, SparklineBuffer> rxHistory = [];
     private readonly Dictionary<string, SparklineBuffer> txHistory = [];
+
+    public void Initialize(IReadOnlyDictionary<string, string> parameters)
+    {
+    }
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {

@@ -73,4 +73,3 @@ internal interface ISystemMonitor
 
     void Update();
 }
-
