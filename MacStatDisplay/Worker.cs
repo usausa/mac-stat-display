@@ -3,12 +3,15 @@ namespace MacStatDisplay;
 using HidSharp;
 
 using LcdDriver.TrofeoVision;
+
 using MacStatDisplay.Monitor;
 using MacStatDisplay.Settings;
 using MacStatDisplay.Widgets;
 
 using SkiaSharp;
 
+// TODO
+#pragma warning disable CA1848
 internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, DisplaySettings settings) : BackgroundService
 {
     private const int ImageWidth = 1280;
@@ -33,6 +36,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+#pragma warning disable CA1031
                 try
                 {
                     await RunDeviceSessionAsync(canvas, surface, placements, stoppingToken);
@@ -45,10 +49,10 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
                 {
                     logger.LogError(ex, "Device session failed");
                 }
+#pragma warning restore CA1031
 
                 if (!stoppingToken.IsCancellationRequested)
                 {
-                    logger.LogInformation("Retrying device connection in {Delay}s", settings.DeviceRetrySeconds);
                     await Task.Delay(TimeSpan.FromSeconds(settings.DeviceRetrySeconds), stoppingToken);
                 }
             }
