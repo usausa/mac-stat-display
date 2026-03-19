@@ -149,7 +149,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
             "Network"     => new NetworkWidget(),
             "Fan"         => new FanWidget(),
             "Power"       => new PowerWidget(),
-            _ => throw new InvalidOperationException($"Unknown widget type: '{type}'"),
+            _ => throw new InvalidOperationException($"Unknown widget type: '{type}'")
         };
 
     private void RenderDashboard(SKCanvas canvas, WidgetPlacement[] placements)

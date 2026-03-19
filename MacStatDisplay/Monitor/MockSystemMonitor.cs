@@ -88,29 +88,29 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     public IReadOnlyList<IFileSystemEntry> FileSystems { get; } =
     [
         new MockFileSystemEntry("/",             "apfs", 475UL * 1024 * 1024 * 1024, 198UL * 1024 * 1024 * 1024, 198UL * 1024 * 1024 * 1024),
-        new MockFileSystemEntry("/Volumes/Data", "apfs", 250UL * 1024 * 1024 * 1024, 120UL * 1024 * 1024 * 1024, 120UL * 1024 * 1024 * 1024),
+        new MockFileSystemEntry("/Volumes/Data", "apfs", 250UL * 1024 * 1024 * 1024, 120UL * 1024 * 1024 * 1024, 120UL * 1024 * 1024 * 1024)
     ];
 
     public IReadOnlyList<IDiskDeviceEntry> DiskDevices { get; private set; } =
     [
         new MockDiskDeviceEntry("disk0s1", 156_000, 86_000),
-        new MockDiskDeviceEntry("disk0s2", 42_000,  18_000),
+        new MockDiskDeviceEntry("disk0s2", 42_000,  18_000)
     ];
 
     public IReadOnlyList<INetworkIfEntry> NetworkInterfaces { get; private set; } =
     [
         new MockNetworkIfEntry("en0", "en0 (Wi-Fi)",    5_500_000, 1_200_000),
-        new MockNetworkIfEntry("en1", "en1 (Ethernet)",   320_000,    95_000),
+        new MockNetworkIfEntry("en1", "en1 (Ethernet)",   320_000,    95_000)
     ];
 
     public IReadOnlyList<IGpuEntry> GpuDevices { get; private set; } =
     [
-        new MockGpuEntry("Apple M2 GPU", 45, 36, 50, 55),
+        new MockGpuEntry("Apple M2 GPU", 45, 36, 50, 55)
     ];
 
     public IReadOnlyList<IFanEntry> Fans { get; private set; } =
     [
-        new MockFanEntry(0, 3200, 1200, 4500),
+        new MockFanEntry(0, 3200, 1200, 4500)
     ];
 
     // ── Update ────────────────────────────────────────────────────────────
@@ -140,7 +140,7 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         DiskDevices =
         [
             new MockDiskDeviceEntry("disk0s1", diskRead1, diskWrite1),
-            new MockDiskDeviceEntry("disk0s2", diskRead2, diskWrite2),
+            new MockDiskDeviceEntry("disk0s2", diskRead2, diskWrite2)
         ];
 
         netRx1 = Vary(netRx1, 0, 20_000_000);
@@ -150,20 +150,20 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         NetworkInterfaces =
         [
             new MockNetworkIfEntry("en0", "en0 (Wi-Fi)",    netRx1, netTx1),
-            new MockNetworkIfEntry("en1", "en1 (Ethernet)", netRx2, netTx2),
+            new MockNetworkIfEntry("en1", "en1 (Ethernet)", netRx2, netTx2)
         ];
 
         gpuUtil = Vary(gpuUtil, 5, 95);
         gpuTemp = Vary(gpuTemp, 35, 85);
         GpuDevices =
         [
-            new MockGpuEntry("Apple M2 GPU", (long)gpuUtil, (long)(gpuUtil * 0.8), (long)(gpuUtil * 1.1), (int)gpuTemp),
+            new MockGpuEntry("Apple M2 GPU", (long)gpuUtil, (long)(gpuUtil * 0.8), (long)(gpuUtil * 1.1), (int)gpuTemp)
         ];
 
         fanRpm = Vary(fanRpm, 1200, 4500);
         Fans =
         [
-            new MockFanEntry(0, fanRpm, 1200, 4500),
+            new MockFanEntry(0, fanRpm, 1200, 4500)
         ];
     }
 

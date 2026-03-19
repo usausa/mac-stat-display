@@ -35,7 +35,7 @@ internal static class DrawHelper
         Color = color,
         IsAntialias = true,
         Style = SKPaintStyle.Stroke,
-        StrokeWidth = width,
+        StrokeWidth = width
     };
 
     // Formats bytes/sec into a human-readable speed string.
@@ -60,7 +60,7 @@ internal static class DrawHelper
                 [WidgetTheme.GradientStart, WidgetTheme.GradientEnd],
                 null,
                 SKShaderTileMode.Clamp),
-            IsAntialias = true,
+            IsAntialias = true
         };
         canvas.DrawRect(0, 0, width, height, paint);
     }
@@ -141,7 +141,7 @@ internal static class DrawHelper
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = WidgetTheme.RingStrokeWidth,
-            StrokeCap = SKStrokeCap.Round,
+            StrokeCap = SKStrokeCap.Round
         };
 
         using var valuePaint = new SKPaint
@@ -150,7 +150,7 @@ internal static class DrawHelper
             IsAntialias = true,
             Style = SKPaintStyle.Stroke,
             StrokeWidth = WidgetTheme.RingStrokeWidth,
-            StrokeCap = SKStrokeCap.Round,
+            StrokeCap = SKStrokeCap.Round
         };
 
         var ringRect = new SKRect(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
@@ -272,7 +272,7 @@ internal static class DrawHelper
         [
             "Yu Gothic UI", "Meiryo", "MS Gothic",
             "Hiragino Sans", "Hiragino Kaku Gothic ProN",
-            "Noto Sans CJK JP", "Noto Sans JP",
+            "Noto Sans CJK JP", "Noto Sans JP"
         ];
 
         var style = bold ? SKFontStyle.Bold : SKFontStyle.Normal;
