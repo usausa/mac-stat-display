@@ -1,6 +1,7 @@
 using MacStatDisplay;
 using MacStatDisplay.Monitor;
 using MacStatDisplay.Settings;
+
 using Serilog;
 
 // Builder

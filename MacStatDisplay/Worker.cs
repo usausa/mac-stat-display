@@ -10,10 +10,9 @@ using MacStatDisplay.Widgets;
 
 using SkiaSharp;
 
-// TODO
-#pragma warning disable CA1848
 internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, DisplaySettings settings) : BackgroundService
 {
+    // TODO
     private const int ImageWidth = 1280;
     private const int ImageHeight = 480;
     private const int OuterPadding = 10;
@@ -109,8 +108,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
     {
         if (settings.Widgets.Count == 0)
         {
-            throw new InvalidOperationException(
-                "No widgets configured. Add entries to Display.Widgets in appsettings.json.");
+            return [];
         }
 
         var gridColumns = settings.Grid.Columns;
@@ -156,7 +154,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
             _ => throw new InvalidOperationException($"Unknown widget type: '{type}'")
         };
 
-    private void RenderDashboard(SKCanvas canvas, WidgetPlacement[] placements)
+    private void RenderDashboard(SKCanvas canvas, IEnumerable<WidgetPlacement> placements)
     {
         DrawHelper.DrawBackground(canvas, ImageWidth, ImageHeight);
 

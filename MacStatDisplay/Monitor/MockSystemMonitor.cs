@@ -114,8 +114,8 @@ internal sealed class MockSystemMonitor : ISystemMonitor
 
     public double? CpuTemperature { get; private set; } = 62;
     public double? NandTemperature { get; private set; } = 52.0;
-    public double? SsdTemperature { get; } = null;
-    public double? MainboardTemperature { get; } = null;
+    public double? SsdTemperature { get; private set; } = 48.0;
+    public double? MainboardTemperature { get; private set; } = 45.0;
 
     // Voltage
 
@@ -163,8 +163,10 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         ProcessCount        = (int)Vary(ProcessCount, 300, 500);
         ThreadCount         = (int)Vary(ThreadCount, 1500, 2500);
         MemoryUsagePercent  = Vary(MemoryUsagePercent, 30, 95);
-        CpuTemperature      = Vary(CpuTemperature ?? 62, 40, 90);
-        NandTemperature     = Vary(NandTemperature ?? 52, 40, 80);
+        CpuTemperature         = Vary(CpuTemperature ?? 62, 40, 90);
+        NandTemperature         = Vary(NandTemperature ?? 52, 40, 80);
+        SsdTemperature          = Vary(SsdTemperature ?? 48, 35, 70);
+        MainboardTemperature    = Vary(MainboardTemperature ?? 45, 30, 65);
         PowerCpuW           = Vary(PowerCpuW, 5, 50);
         PowerGpuW           = Vary(PowerGpuW, 3, 40);
         PowerAneW           = Vary(PowerAneW, 0.5, 8);

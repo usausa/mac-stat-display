@@ -1,6 +1,7 @@
 namespace MacStatDisplay.Widgets;
 
 using MacStatDisplay.Monitor;
+
 using SkiaSharp;
 
 internal interface IWidget

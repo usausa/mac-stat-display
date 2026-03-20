@@ -18,7 +18,7 @@ internal static class DrawHelper
     // Disposes shared typefaces.
     internal static void Shutdown()
     {
-        typeface?.Dispose();
+        typeface.Dispose();
         typefaceBold?.Dispose();
     }
 
@@ -52,16 +52,14 @@ internal static class DrawHelper
     // Draws the full-screen gradient background.
     internal static void DrawBackground(SKCanvas canvas, int width, int height)
     {
-        using var paint = new SKPaint
-        {
-            Shader = SKShader.CreateLinearGradient(
-                new SKPoint(0, 0),
-                new SKPoint(width, height),
-                [WidgetTheme.GradientStart, WidgetTheme.GradientEnd],
-                null,
-                SKShaderTileMode.Clamp),
-            IsAntialias = true
-        };
+        using var paint = new SKPaint();
+        paint.Shader = SKShader.CreateLinearGradient(
+            new SKPoint(0, 0),
+            new SKPoint(width, height),
+            [WidgetTheme.GradientStart, WidgetTheme.GradientEnd],
+            null,
+            SKShaderTileMode.Clamp);
+        paint.IsAntialias = true;
         canvas.DrawRect(0, 0, width, height, paint);
     }
 
@@ -135,23 +133,19 @@ internal static class DrawHelper
     // Draws a 270° ring gauge (open at bottom).
     internal static void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
     {
-        using var trackPaint = new SKPaint
-        {
-            Color = WidgetTheme.TrackColor,
-            IsAntialias = true,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = WidgetTheme.RingStrokeWidth,
-            StrokeCap = SKStrokeCap.Round
-        };
+        using var trackPaint = new SKPaint();
+        trackPaint.Color = WidgetTheme.TrackColor;
+        trackPaint.IsAntialias = true;
+        trackPaint.Style = SKPaintStyle.Stroke;
+        trackPaint.StrokeWidth = WidgetTheme.RingStrokeWidth;
+        trackPaint.StrokeCap = SKStrokeCap.Round;
 
-        using var valuePaint = new SKPaint
-        {
-            Color = color,
-            IsAntialias = true,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = WidgetTheme.RingStrokeWidth,
-            StrokeCap = SKStrokeCap.Round
-        };
+        using var valuePaint = new SKPaint();
+        valuePaint.Color = color;
+        valuePaint.IsAntialias = true;
+        valuePaint.Style = SKPaintStyle.Stroke;
+        valuePaint.StrokeWidth = WidgetTheme.RingStrokeWidth;
+        valuePaint.StrokeCap = SKStrokeCap.Round;
 
         var ringRect = new SKRect(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
         canvas.DrawArc(ringRect, WidgetTheme.RingStartAngle, WidgetTheme.RingArcDegrees, false, trackPaint);
@@ -182,7 +176,10 @@ internal static class DrawHelper
         areaPath.LineTo(rect.Right, rect.Bottom);
         areaPath.Close();
 
-        using var fillPaint = new SKPaint { Color = color.WithAlpha(30), IsAntialias = true, Style = SKPaintStyle.Fill };
+        using var fillPaint = new SKPaint();
+        fillPaint.Color = color.WithAlpha(30);
+        fillPaint.IsAntialias = true;
+        fillPaint.Style = SKPaintStyle.Fill;
         canvas.DrawPath(areaPath, fillPaint);
 
         // Line on top
@@ -195,7 +192,11 @@ internal static class DrawHelper
             linePath.LineTo(x, y);
         }
 
-        using var linePaint = new SKPaint { Color = color.WithAlpha(100), IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
+        using var linePaint = new SKPaint();
+        linePaint.Color = color.WithAlpha(100);
+        linePaint.IsAntialias = true;
+        linePaint.Style = SKPaintStyle.Stroke;
+        linePaint.StrokeWidth = 1.5f;
         canvas.DrawPath(linePath, linePaint);
     }
 
@@ -223,7 +224,10 @@ internal static class DrawHelper
         areaPath.LineTo(rect.Right, rect.Top);
         areaPath.Close();
 
-        using var fillPaint = new SKPaint { Color = color.WithAlpha(30), IsAntialias = true, Style = SKPaintStyle.Fill };
+        using var fillPaint = new SKPaint();
+        fillPaint.Color = color.WithAlpha(30);
+        fillPaint.IsAntialias = true;
+        fillPaint.Style = SKPaintStyle.Fill;
         canvas.DrawPath(areaPath, fillPaint);
 
         // Line on edge
@@ -236,7 +240,11 @@ internal static class DrawHelper
             linePath.LineTo(x, y);
         }
 
-        using var linePaint = new SKPaint { Color = color.WithAlpha(100), IsAntialias = true, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f };
+        using var linePaint = new SKPaint();
+        linePaint.Color = color.WithAlpha(100);
+        linePaint.IsAntialias = true;
+        linePaint.Style = SKPaintStyle.Stroke;
+        linePaint.StrokeWidth = 1.5f;
         canvas.DrawPath(linePath, linePaint);
     }
 
