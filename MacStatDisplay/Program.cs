@@ -20,14 +20,7 @@ var displaySettings = builder.Configuration.GetSection("Display").Get<DisplaySet
 builder.Services.AddSingleton(displaySettings);
 
 // System monitor
-if (displaySettings.UseMock)
-{
-    builder.Services.AddSingleton<ISystemMonitor, MockSystemMonitor>();
-}
-else
-{
-    builder.Services.AddSingleton<ISystemMonitor, SystemMonitor>();
-}
+builder.Services.AddSingleton(SystemMonitorFactory.Create(displaySettings.Monitor));
 
 // Display driver
 #pragma warning disable CA2000

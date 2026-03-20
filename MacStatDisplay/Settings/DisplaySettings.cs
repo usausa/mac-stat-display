@@ -2,7 +2,7 @@ namespace MacStatDisplay.Settings;
 
 internal sealed record DisplaySettings
 {
-    public bool UseMock { get; init; }
+    public string Monitor { get; init; } = default!;
 
     public string Driver { get; init; } = default!;
 
