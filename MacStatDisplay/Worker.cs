@@ -1,24 +1,14 @@
 namespace MacStatDisplay;
 
-using HidSharp;
-
-using LcdDriver.TrofeoVision;
-
+using MacStatDisplay.Display;
 using MacStatDisplay.Monitor;
 using MacStatDisplay.Settings;
 using MacStatDisplay.Widgets;
 
 using SkiaSharp;
 
-internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISystemMonitor monitor) : BackgroundService
+internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISystemMonitor monitor, IDisplayDriver displayDriver) : BackgroundService
 {
-    // TODO
-    private const int ImageWidth = 1280;
-    private const int ImageHeight = 480;
-    private const int OuterPadding = 10;
-    private const int HeaderHeight = 48;
-    private const int ContentGap = 8;
-
     private readonly TitleBarWidget titleBarWidget = new();
 
     // A widget paired with its pre-computed drawing rectangle.
@@ -27,9 +17,11 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         DrawHelper.Initialize();
-        using var surface = SKSurface.Create(new SKImageInfo(ImageWidth, ImageHeight));
+        var imageWidth = displayDriver.Width;
+        var imageHeight = displayDriver.Height;
+        using var surface = SKSurface.Create(new SKImageInfo(imageWidth, imageHeight));
         var canvas = surface.Canvas;
-        var placements = BuildLayout();
+        var placements = BuildLayout(imageWidth, imageHeight);
 
         try
         {
@@ -38,7 +30,7 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
 #pragma warning disable CA1031
                 try
                 {
-                    await RunDeviceSessionAsync(canvas, surface, placements, stoppingToken);
+                    await RunDisplayLoopAsync(canvas, surface, imageWidth, imageHeight, placements, stoppingToken);
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
@@ -62,46 +54,60 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         }
     }
 
-    // Acquires the LCD device and runs the display loop until error or cancellation.
-    private async Task RunDeviceSessionAsync(
-        SKCanvas canvas, SKSurface surface, WidgetPlacement[] placements, CancellationToken stoppingToken)
+    /// <summary>
+    /// Initializes the display driver and runs the rendering loop until error or cancellation.
+    /// </summary>
+    private async Task RunDisplayLoopAsync(
+        SKCanvas canvas, SKSurface surface, int imageWidth, int imageHeight,
+        WidgetPlacement[] placements, CancellationToken stoppingToken)
     {
-        var hidDevice = DeviceList.Local
-            .GetHidDevices(ScreenDevice.VendorId, ScreenDevice.ProductId)
-            .FirstOrDefault();
-        if (hidDevice is null)
+        if (!displayDriver.Initialize())
         {
             return;
         }
 
-        using var screen = new ScreenDevice(hidDevice);
-
+        // Initial render immediately after monitor update.
         monitor.Update();
-        RenderDashboard(canvas, placements);
-        var jpegBytes = EncodeToJpeg(surface);
-        screen.DrawJpeg(jpegBytes);
+        RenderDashboard(canvas, imageWidth, imageHeight, placements);
+        displayDriver.Draw(surface);
 
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(1));
-        var tickCount = 0;
+        var refreshInterval = displayDriver.RefreshIntervalSeconds;
 
-        while (await timer.WaitForNextTickAsync(stoppingToken))
+        if (refreshInterval <= 0)
         {
-            tickCount++;
-
-            if (tickCount >= settings.UpdatePeriod)
+            // No periodic refresh — only redraw on monitor updates.
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(settings.UpdatePeriod));
+            while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                tickCount = 0;
                 monitor.Update();
-                RenderDashboard(canvas, placements);
-                jpegBytes = EncodeToJpeg(surface);
+                RenderDashboard(canvas, imageWidth, imageHeight, placements);
+                displayDriver.Draw(surface);
             }
+        }
+        else
+        {
+            // Periodic refresh with monitor updates at the configured period.
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(refreshInterval));
+            var tickCount = 0;
 
-            screen.DrawJpeg(jpegBytes);
+            while (await timer.WaitForNextTickAsync(stoppingToken))
+            {
+                tickCount += refreshInterval;
+
+                if (tickCount >= settings.UpdatePeriod)
+                {
+                    tickCount = 0;
+                    monitor.Update();
+                    RenderDashboard(canvas, imageWidth, imageHeight, placements);
+                }
+
+                displayDriver.Draw(surface);
+            }
         }
     }
 
     // Builds the widget layout from settings, pre-computing each widget's drawing rectangle.
-    private WidgetPlacement[] BuildLayout()
+    private WidgetPlacement[] BuildLayout(int imageWidth, int imageHeight)
     {
         if (settings.Widgets.Count == 0)
         {
@@ -111,22 +117,22 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         var gridColumns = settings.Grid.Columns;
         var gridRows = settings.Grid.Rows;
 
-        var gridTop = OuterPadding + HeaderHeight + ContentGap;
-        var gridHeight = ImageHeight - gridTop - OuterPadding;
-        var cellWidth = (ImageWidth - (OuterPadding * 2) - (ContentGap * (gridColumns - 1))) / (float)gridColumns;
-        var cellHeight = (gridHeight - (ContentGap * (gridRows - 1))) / (float)gridRows;
+        var gridTop = WidgetTheme.OuterPadding + WidgetTheme.HeaderHeight + WidgetTheme.ContentGap;
+        var gridHeight = imageHeight - gridTop - WidgetTheme.OuterPadding;
+        var cellWidth = (imageWidth - (WidgetTheme.OuterPadding * 2) - (WidgetTheme.ContentGap * (gridColumns - 1))) / (float)gridColumns;
+        var cellHeight = (gridHeight - (WidgetTheme.ContentGap * (gridRows - 1))) / (float)gridRows;
 
         var placements = new WidgetPlacement[settings.Widgets.Count];
         for (var i = 0; i < settings.Widgets.Count; i++)
         {
             var entry = settings.Widgets[i];
-            var widget = CreateWidget(entry.Type);
+            var widget = WidgetFactory.Create(entry.Type);
             widget.Initialize(entry.Parameters);
 
-            var x = OuterPadding + (entry.Column * (cellWidth + ContentGap));
-            var y = gridTop + (entry.Row * (cellHeight + ContentGap));
-            var w = (cellWidth * entry.ColumnSpan) + (ContentGap * (entry.ColumnSpan - 1));
-            var h = (cellHeight * entry.RowSpan) + (ContentGap * (entry.RowSpan - 1));
+            var x = WidgetTheme.OuterPadding + (entry.Column * (cellWidth + WidgetTheme.ContentGap));
+            var y = gridTop + (entry.Row * (cellHeight + WidgetTheme.ContentGap));
+            var w = (cellWidth * entry.ColumnSpan) + (WidgetTheme.ContentGap * (entry.ColumnSpan - 1));
+            var h = (cellHeight * entry.RowSpan) + (WidgetTheme.ContentGap * (entry.RowSpan - 1));
 
             placements[i] = new WidgetPlacement(widget, new SKRect(x, y, x + w, y + h));
         }
@@ -134,39 +140,16 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         return placements;
     }
 
-    private static IWidget CreateWidget(string type) =>
-        type switch
-        {
-            "CpuUsage"    => new CpuUsageWidget(),
-            "CpuClock"    => new CpuClockWidget(),
-            "LoadAverage" => new LoadAverageWidget(),
-            "MemoryUsage" => new MemoryUsageWidget(),
-            "GpuUsage"    => new GpuUsageWidget(),
-            "FileSystem"  => new FileSystemWidget(),
-            "DiskIo"      => new DiskIoWidget(),
-            "Network"     => new NetworkWidget(),
-            "Fan"         => new FanWidget(),
-            "Power"       => new PowerWidget(),
-            _ => throw new InvalidOperationException($"Unknown widget type: '{type}'")
-        };
-
-    private void RenderDashboard(SKCanvas canvas, IEnumerable<WidgetPlacement> placements)
+    private void RenderDashboard(SKCanvas canvas, int imageWidth, int imageHeight, IEnumerable<WidgetPlacement> placements)
     {
-        DrawHelper.DrawBackground(canvas, ImageWidth, ImageHeight);
+        DrawHelper.DrawBackground(canvas, imageWidth, imageHeight);
 
-        var headerRect = new SKRect(OuterPadding, OuterPadding, ImageWidth - OuterPadding, OuterPadding + HeaderHeight);
+        var headerRect = new SKRect(WidgetTheme.OuterPadding, WidgetTheme.OuterPadding, imageWidth - WidgetTheme.OuterPadding, WidgetTheme.OuterPadding + WidgetTheme.HeaderHeight);
         titleBarWidget.Draw(canvas, headerRect, monitor);
 
         foreach (var placement in placements)
         {
             placement.Widget.Draw(canvas, placement.Rect, monitor);
         }
-    }
-
-    private static byte[] EncodeToJpeg(SKSurface surface)
-    {
-        using var image = surface.Snapshot();
-        using var data = image.Encode(SKEncodedImageFormat.Jpeg, 90);
-        return data.ToArray();
     }
 }

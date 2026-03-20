@@ -4,6 +4,8 @@ internal sealed record DisplaySettings
 {
     public bool UseMock { get; init; }
 
+    public string Driver { get; init; } = default!;
+
     public int UpdatePeriod { get; init; } = 3;
 
     public int DeviceRetrySeconds { get; init; } = 5;

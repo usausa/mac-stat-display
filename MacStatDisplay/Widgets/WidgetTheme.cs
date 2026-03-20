@@ -5,6 +5,12 @@ using SkiaSharp;
 // Centralized color, font-size and layout constants for all widgets.
 internal static class WidgetTheme
 {
+    // ── Dashboard Layout ────────────────────────────────────────────────
+
+    internal const int OuterPadding = 10;
+    internal const int HeaderHeight = 48;
+    internal const int ContentGap = 8;
+
     // ── Background & Panel ──────────────────────────────────────────────
 
     internal static readonly SKColor GradientStart = new(15, 20, 28);
@@ -70,7 +76,7 @@ internal static class WidgetTheme
     internal const float RingArcDegrees = 270f;
     internal const float RingStartAngle = 135f;
 
-    // ── Layout ──────────────────────────────────────────────────────────
+    // ── Widget Layout ───────────────────────────────────────────────────
 
     internal const float PadX = 10f;
     internal const float PadY = 6f;

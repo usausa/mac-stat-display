@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 
 using MacStatDisplay;
+using MacStatDisplay.Display;
 using MacStatDisplay.Monitor;
 using MacStatDisplay.Settings;
 
@@ -27,6 +28,11 @@ else
 {
     builder.Services.AddSingleton<ISystemMonitor, SystemMonitor>();
 }
+
+// Display driver
+#pragma warning disable CA2000
+builder.Services.AddSingleton(DisplayDriverFactory.Create(displaySettings.Driver));
+#pragma warning restore CA2000
 
 // Worker
 builder.Services.AddHostedService<Worker>();
