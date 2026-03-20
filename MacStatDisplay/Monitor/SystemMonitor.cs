@@ -15,7 +15,7 @@ internal sealed class DiskDeviceEntry : IDiskDeviceEntry
 #pragma warning restore SA1401
 
     // Delegation properties
-    public string Name => Stat.Name;
+    public string Name => Stat.BsdName;
     public DiskBusType BusType => Stat.BusType;
     public ulong DiskSize => Stat.DiskSize;
 
@@ -128,6 +128,7 @@ internal sealed class SystemMonitor : ISystemMonitor
     private readonly DiskStat diskStat;
     private readonly NetworkStat networkStat;
     private readonly ProcessSummary processSummary;
+    private readonly FileHandleStat fileHandleStat;
     private readonly PowerStat powerStat;
     private readonly SmcMonitor smcMonitor;
     private readonly FileSystemStat fileSystemStat;
@@ -228,11 +229,6 @@ internal sealed class SystemMonitor : ISystemMonitor
     public double LoadAverage5 => loadAverage.Average5;
     public double LoadAverage15 => loadAverage.Average15;
 
-    // Process
-
-    public int ProcessCount => processSummary.ProcessCount;
-    public int ThreadCount => processSummary.ThreadCount;
-
     // Memory
 
     public double MemoryUsagePercent => memoryUsagePercent;
@@ -253,6 +249,16 @@ internal sealed class SystemMonitor : ISystemMonitor
     // Network
 
     public IReadOnlyList<INetworkIfEntry> NetworkInterfaces => networkEntries;
+
+    // Process
+
+    public int ProcessCount => processSummary.ProcessCount;
+    public int ThreadCount => processSummary.ThreadCount;
+
+    // Handle
+
+    public int HandleOpenFiles => fileHandleStat.OpenFiles;
+    public int HandleOpenVnodes => fileHandleStat.OpenVnodes;
 
     // GPU
 
@@ -279,7 +285,7 @@ internal sealed class SystemMonitor : ISystemMonitor
 
     public double? TotalSystemPower => sensorTotalSystemPower?.Value;
 
-    // Power
+    // Fan
 
     public IReadOnlyList<IFanEntry> Fans => fanEntries;
 
@@ -290,11 +296,8 @@ internal sealed class SystemMonitor : ISystemMonitor
     public double PowerAneW => powerAneW;
     public double PowerRamW => powerRamW;
     public double PowerPciW => powerPciW;
-    public double PowerTotalW => powerCpuW + powerGpuW + powerAneW + powerRamW + powerPciW;
 
-    // Network (aggregate)
-
-    //
+    //--------------------------------------------------------------------------------
     // Constructor
     //--------------------------------------------------------------------------------
 
@@ -311,6 +314,7 @@ internal sealed class SystemMonitor : ISystemMonitor
         diskStat = PlatformProvider.GetDiskStat();
         networkStat = PlatformProvider.GetNetworkStat();
         processSummary = PlatformProvider.GetProcessSummary();
+        fileHandleStat = PlatformProvider.GetFileHandleStat();
         powerStat = PlatformProvider.GetPowerStat();
         smcMonitor = PlatformProvider.GetSmcMonitor();
         fileSystemStat = PlatformProvider.GetFileSystemStat();

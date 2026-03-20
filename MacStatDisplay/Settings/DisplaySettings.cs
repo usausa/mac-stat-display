@@ -2,9 +2,9 @@ namespace MacStatDisplay.Settings;
 
 internal sealed record DisplaySettings
 {
-    public int UpdatePeriod { get; init; } = 3;
-
     public bool UseMock { get; init; }
+
+    public int UpdatePeriod { get; init; } = 3;
 
     public int DeviceRetrySeconds { get; init; } = 5;
 
@@ -22,7 +22,7 @@ internal sealed record GridSettings
 
 internal sealed record WidgetEntry
 {
-    public string Type { get; init; } = string.Empty;
+    public string Type { get; init; } = default!;
 
     public int Column { get; init; }
 
@@ -32,6 +32,6 @@ internal sealed record WidgetEntry
 
     public int RowSpan { get; init; } = 1;
 
-    // Optional widget-specific parameters (e.g. threshold, label overrides).
+    // ReSharper disable once CollectionNeverUpdated.Global
     public Dictionary<string, string> Parameters { get; init; } = [];
 }

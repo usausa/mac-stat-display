@@ -2,14 +2,14 @@ namespace MacStatDisplay.Monitor;
 
 internal sealed class MockSystemMonitor : ISystemMonitor
 {
-    // ── Private mock entry types ──────────────────────────────────────────
+    // Entry
+
+    private sealed record MockDiskDeviceEntry(string Name, double ReadBytesPerSec, double WriteBytesPerSec)
+        : IDiskDeviceEntry;
 
     private sealed record MockFileSystemEntry(
         string MountPoint, string FileSystem, ulong TotalSize, ulong FreeSize, ulong AvailableSize)
         : IFileSystemEntry;
-
-    private sealed record MockDiskDeviceEntry(string Name, double ReadBytesPerSec, double WriteBytesPerSec)
-        : IDiskDeviceEntry;
 
     private sealed record MockNetworkIfEntry(string Name, string? DisplayName, double RxBytesPerSec, double TxBytesPerSec)
         : INetworkIfEntry;
@@ -20,7 +20,7 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     private sealed record MockFanEntry(int Index, double ActualRpm, double MinRpm, double MaxRpm)
         : IFanEntry;
 
-    // ── State ─────────────────────────────────────────────────────────────
+    // Filed
 
     private readonly Random random = new();
     private readonly DateTime startTime = DateTime.UtcNow;
@@ -37,7 +37,7 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     private double gpuTemp = 55;
     private double fanRpm = 3200;
 
-    // ── CPU ───────────────────────────────────────────────────────────────
+    // CPU Usage
 
     public double CpuUsageTotal { get; private set; } = 35;
     public double CpuUsageEfficiency { get; private set; } = 28;
@@ -45,51 +45,33 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     public double CpuUserPercent { get; private set; } = 29.8;
     public double CpuSystemPercent { get; private set; } = 5.2;
 
-    // ── CPU Frequency ─────────────────────────────────────────────────────
+    // CPU Frequency
 
     public double CpuFrequencyAllHz { get; private set; } = 3_200_000_000;
     public double CpuFrequencyEfficiencyHz { get; private set; } = 2_400_000_000;
-    public double CpuFrequencyPerformanceHz { get; private set; } = 3_800_000_000;
+    public double CpuFrequencyPerformanceHz { get; private set; } = 3_500_000_000;
 
-    // ── Uptime ────────────────────────────────────────────────────────────
+    // Uptime
 
     public TimeSpan Uptime => DateTime.UtcNow - startTime + TimeSpan.FromDays(3);
 
-    // ── Load ──────────────────────────────────────────────────────────────
+    // Load
 
     public double LoadAverage1 { get; private set; } = 1.52;
     public double LoadAverage5 { get; private set; } = 1.28;
     public double LoadAverage15 { get; private set; } = 0.95;
 
-    // ── Process ───────────────────────────────────────────────────────────
-
-    public int ProcessCount { get; private set; } = 352;
-    public int ThreadCount { get; private set; } = 1847;
-
-    // ── Memory ────────────────────────────────────────────────────────────
+    // Memory
 
     public double MemoryUsagePercent { get; private set; } = 72;
-    public double MemoryActivePercent { get; private set; } = 48;
-    public double MemoryWiredPercent { get; private set; } = 18;
-    public double SwapUsagePercent { get; private set; } = 12;
+    public double MemoryActivePercent { get; } = 48;
+    public double MemoryWiredPercent { get; } = 18;
 
-    // ── Temperature ───────────────────────────────────────────────────────
+    // Swap
 
-    public double? CpuTemperature { get; private set; } = 62;
+    public double SwapUsagePercent { get; } = 12;
 
-    // ── Power ─────────────────────────────────────────────────────────────
-
-    public double PowerCpuW { get; private set; } = 28.2;
-    public double PowerGpuW { get; private set; } = 15.8;
-    public double PowerTotalW { get; private set; } = 48.5;
-
-    // ── Device collections ────────────────────────────────────────────────
-
-    public IReadOnlyList<IFileSystemEntry> FileSystems { get; } =
-    [
-        new MockFileSystemEntry("/",             "apfs", 475UL * 1024 * 1024 * 1024, 198UL * 1024 * 1024 * 1024, 198UL * 1024 * 1024 * 1024),
-        new MockFileSystemEntry("/Volumes/Data", "apfs", 250UL * 1024 * 1024 * 1024, 120UL * 1024 * 1024 * 1024, 120UL * 1024 * 1024 * 1024)
-    ];
+    // Disk
 
     public IReadOnlyList<IDiskDeviceEntry> DiskDevices { get; private set; } =
     [
@@ -97,29 +79,82 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         new MockDiskDeviceEntry("disk0s2", 42_000,  18_000)
     ];
 
+    public IReadOnlyList<IFileSystemEntry> FileSystems { get; } =
+    [
+        new MockFileSystemEntry("/",             "apfs", 475UL * 1024 * 1024 * 1024, 198UL * 1024 * 1024 * 1024, 198UL * 1024 * 1024 * 1024),
+        new MockFileSystemEntry("/Volumes/Data", "apfs", 250UL * 1024 * 1024 * 1024, 120UL * 1024 * 1024 * 1024, 120UL * 1024 * 1024 * 1024)
+    ];
+
+    // Network
+
     public IReadOnlyList<INetworkIfEntry> NetworkInterfaces { get; private set; } =
     [
         new MockNetworkIfEntry("en0", "en0 (Wi-Fi)",    5_500_000, 1_200_000),
         new MockNetworkIfEntry("en1", "en1 (Ethernet)",   320_000,    95_000)
     ];
 
+    // Process
+
+    public int ProcessCount { get; private set; } = 352;
+    public int ThreadCount { get; private set; } = 1847;
+
+    // Handle
+
+    public int HandleOpenFiles { get; } = 512;
+    public int HandleOpenVnodes { get; } = 824;
+
+    // GPU
+
     public IReadOnlyList<IGpuEntry> GpuDevices { get; private set; } =
     [
         new MockGpuEntry("Apple M2 GPU", 45, 36, 50, 55)
     ];
+
+    // Temperature
+
+    public double? CpuTemperature { get; private set; } = 62;
+    public double? NandTemperature { get; private set; } = 52.0;
+    public double? SsdTemperature { get; } = null;
+    public double? MainboardTemperature { get; } = null;
+
+    // Voltage
+
+    public double? DcInVoltage { get; } = 20.0;
+
+    // Current
+
+    public double? DcInCurrent { get; } = 2.4;
+
+    // Power
+
+    public double? DcInPower { get; } = 48.0;
+    public double? TotalSystemPower { get; private set; } = 48.5;
+
+    // Fan
 
     public IReadOnlyList<IFanEntry> Fans { get; private set; } =
     [
         new MockFanEntry(0, 3200, 1200, 4500)
     ];
 
-    // ── Update ────────────────────────────────────────────────────────────
+    // Power Consumption
+
+    public double PowerCpuW { get; private set; } = 28.2;
+    public double PowerGpuW { get; private set; } = 15.8;
+    public double PowerAneW { get; private set; } = 2.1;
+    public double PowerRamW { get; private set; } = 1.8;
+    public double PowerPciW { get; private set; } = 0.8;
+
+    // Update
 
     public void Update()
     {
-        CpuUsageTotal       = Vary(CpuUsageTotal, 5, 95);
-        CpuUsageEfficiency  = Vary(CpuUsageEfficiency, 5, 95);
-        CpuUsagePerformance = Vary(CpuUsagePerformance, 5, 95);
+        CpuUsageTotal            = Vary(CpuUsageTotal, 5, 95);
+        CpuUsageEfficiency        = Vary(CpuUsageEfficiency, 5, 95);
+        CpuUsagePerformance       = Vary(CpuUsagePerformance, 5, 95);
+        CpuFrequencyEfficiencyHz  = Vary(CpuFrequencyEfficiencyHz,  1_000_000_000, 2_600_000_000);
+        CpuFrequencyPerformanceHz = Vary(CpuFrequencyPerformanceHz, 1_000_000_000, 3_500_000_000);
+        CpuFrequencyAllHz         = (CpuFrequencyEfficiencyHz + CpuFrequencyPerformanceHz) / 2.0;
         CpuUserPercent      = Vary(CpuUserPercent, 1, 80);
         CpuSystemPercent    = Vary(CpuSystemPercent, 1, 30);
         LoadAverage1        = Vary(LoadAverage1, 0.1, 10);
@@ -129,9 +164,13 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         ThreadCount         = (int)Vary(ThreadCount, 1500, 2500);
         MemoryUsagePercent  = Vary(MemoryUsagePercent, 30, 95);
         CpuTemperature      = Vary(CpuTemperature ?? 62, 40, 90);
+        NandTemperature     = Vary(NandTemperature ?? 52, 40, 80);
         PowerCpuW           = Vary(PowerCpuW, 5, 50);
         PowerGpuW           = Vary(PowerGpuW, 3, 40);
-        PowerTotalW         = PowerCpuW + PowerGpuW + 4.5;
+        PowerAneW           = Vary(PowerAneW, 0.5, 8);
+        PowerRamW           = Vary(PowerRamW, 0.5, 5);
+        PowerPciW           = Vary(PowerPciW, 0.1, 3);
+        TotalSystemPower    = PowerCpuW + PowerGpuW + PowerAneW + PowerRamW + PowerPciW;
 
         diskRead1  = Vary(diskRead1,  0, 500_000);
         diskWrite1 = Vary(diskWrite1, 0, 300_000);

@@ -16,7 +16,9 @@ internal sealed class GpuUsageWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitleBlock(canvas, rect, "GPU", "Usage");
 
-        var usage = (float)Math.Clamp(monitor.GpuUsagePercent, 0, 100);
+        var gpu = monitor.GpuDevices.Count > 0 ? monitor.GpuDevices[0] : null;
+
+        var usage = (float)Math.Clamp(gpu?.DeviceUtilization ?? 0, 0, 100);
 
         // Content area below title
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
@@ -32,22 +34,20 @@ internal sealed class GpuUsageWidget : IWidget
         DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (WidgetTheme.GaugeValueFontSize * 0.35f), WidgetTheme.GpuAccent);
 
         // GPU temperature below center value
-        var temp = monitor.GpuTemperature;
+        var temp = gpu?.Temperature;
         if (temp.HasValue)
         {
             using var tempFont = DrawHelper.MakeFont(WidgetTheme.TemperatureFontSize);
             using var tempPaint = DrawHelper.Fill(WidgetTheme.TemperatureAccent);
-            var tempText = $"{temp.Value:0}\u00b0C";
+            var tempText = $"{temp.Value:0} C";
             canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (WidgetTheme.GaugeValueFontSize * 0.35f) + 22, tempFont, tempPaint);
         }
 
         // Left side: Renderer / Tiler utilization from first GPU entry
         var leftX = rect.Left + WidgetTheme.PadX;
         var sideTop = cy - radius + 8;
-        var gpuDevices = monitor.GpuDevices;
-        if (gpuDevices.Count > 0)
+        if (gpu is not null)
         {
-            var gpu = gpuDevices[0];
             DrawHelper.DrawStackedLabelValue(canvas, "Renderer", $"{gpu.RendererUtilization}%", leftX, sideTop, WidgetTheme.GpuAccent);
             DrawHelper.DrawStackedLabelValue(canvas, "Tiler", $"{gpu.TilerUtilization}%", leftX, sideTop + 44, WidgetTheme.GpuAccent);
         }

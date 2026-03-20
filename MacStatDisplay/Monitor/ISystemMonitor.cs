@@ -1,8 +1,49 @@
 namespace MacStatDisplay.Monitor;
 
+internal interface IDiskDeviceEntry
+{
+    string Name { get; }
+    double ReadBytesPerSec { get; }
+    double WriteBytesPerSec { get; }
+}
+
+internal interface IFileSystemEntry
+{
+    string MountPoint { get; }
+    string FileSystem { get; }
+    ulong TotalSize { get; }
+    ulong FreeSize { get; }
+    ulong AvailableSize { get; }
+}
+
+internal interface INetworkIfEntry
+{
+    string Name { get; }
+    string? DisplayName { get; }
+    double RxBytesPerSec { get; }
+    double TxBytesPerSec { get; }
+}
+
+internal interface IGpuEntry
+{
+    string Name { get; }
+    long DeviceUtilization { get; }
+    long RendererUtilization { get; }
+    long TilerUtilization { get; }
+    int Temperature { get; }
+}
+
+internal interface IFanEntry
+{
+    int Index { get; }
+    double ActualRpm { get; }
+    double MinRpm { get; }
+    double MaxRpm { get; }
+}
+
 internal interface ISystemMonitor
 {
-    // ── CPU ──────────────────────────────────────────────────────────────
+    // CPU Usage
 
     double CpuUsageTotal { get; }
     double CpuUsageEfficiency { get; }
@@ -10,66 +51,90 @@ internal interface ISystemMonitor
     double CpuUserPercent { get; }
     double CpuSystemPercent { get; }
 
-    // ── CPU Frequency ────────────────────────────────────────────────────
+    // CPU Frequency
 
     double CpuFrequencyAllHz { get; }
     double CpuFrequencyEfficiencyHz { get; }
     double CpuFrequencyPerformanceHz { get; }
 
-    // ── Uptime ───────────────────────────────────────────────────────────
+    // Uptime
 
     TimeSpan Uptime { get; }
 
-    // ── Load ─────────────────────────────────────────────────────────────
+    // Load
 
     double LoadAverage1 { get; }
     double LoadAverage5 { get; }
     double LoadAverage15 { get; }
 
-    // ── Process ──────────────────────────────────────────────────────────
-
-    int ProcessCount { get; }
-    int ThreadCount { get; }
-
-    // ── Memory ───────────────────────────────────────────────────────────
+    // Memory
 
     double MemoryUsagePercent { get; }
     double MemoryActivePercent { get; }
     double MemoryWiredPercent { get; }
+
+    // Swap
+
     double SwapUsagePercent { get; }
 
-    // ── Temperature ──────────────────────────────────────────────────────
+    // Disk
+
+    IReadOnlyList<IDiskDeviceEntry> DiskDevices { get; }
+
+    IReadOnlyList<IFileSystemEntry> FileSystems { get; }
+
+    // Network
+
+    IReadOnlyList<INetworkIfEntry> NetworkInterfaces { get; }
+
+    // Process
+
+    int ProcessCount { get; }
+    int ThreadCount { get; }
+
+    // Handle
+
+    int HandleOpenFiles { get; }
+    int HandleOpenVnodes { get; }
+
+    // GPU
+
+    IReadOnlyList<IGpuEntry> GpuDevices { get; }
+
+    // Temperature
 
     double? CpuTemperature { get; }
+    double? NandTemperature { get; }
+    double? SsdTemperature { get; }
+    double? MainboardTemperature { get; }
 
-    // ── Power ────────────────────────────────────────────────────────────
+    // Voltage
+
+    double? DcInVoltage { get; }
+
+    // Current
+
+    double? DcInCurrent { get; }
+
+    // Power
+
+    double? DcInPower { get; }
+
+    double? TotalSystemPower { get; }
+
+    // Fan
+
+    IReadOnlyList<IFanEntry> Fans { get; }
+
+    // Power Consumption
 
     double PowerCpuW { get; }
     double PowerGpuW { get; }
-    double PowerTotalW { get; }
+    double PowerAneW { get; }
+    double PowerRamW { get; }
+    double PowerPciW { get; }
 
-    // ── Device collections ───────────────────────────────────────────────
-
-    IReadOnlyList<IFileSystemEntry> FileSystems { get; }
-    IReadOnlyList<IDiskDeviceEntry> DiskDevices { get; }
-    IReadOnlyList<INetworkIfEntry> NetworkInterfaces { get; }
-    IReadOnlyList<IGpuEntry> GpuDevices { get; }
-    IReadOnlyList<IFanEntry> Fans { get; }
-
-    // ── GPU aggregate (default: computed from GpuDevices) ─────────────────
-
-    double GpuUsagePercent => GpuDevices.Count > 0 ? GpuDevices[0].DeviceUtilization : 0;
-
-    double? GpuTemperature => GpuDevices.Count > 0 ? GpuDevices[0].Temperature : null;
-
-    // ── Fan aggregate (default: computed from Fans) ───────────────────────
-
-    double FanSpeedPercent => Fans.Count > 0 && Fans[0].MaxRpm > 0
-        ? Fans[0].ActualRpm / Fans[0].MaxRpm * 100.0 : 0;
-
-    double FanSpeedRpm => Fans.Count > 0 ? Fans[0].ActualRpm : 0;
-
-    // ── Update ────────────────────────────────────────────────────────────
+    // Update
 
     void Update();
 }

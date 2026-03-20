@@ -37,7 +37,7 @@ internal sealed class CpuUsageWidget : IWidget
         {
             using var tempFont = DrawHelper.MakeFont(WidgetTheme.TemperatureFontSize);
             using var tempPaint = DrawHelper.Fill(WidgetTheme.TemperatureAccent);
-            var tempText = $"{cpuTemp.Value:0}\u00b0C";
+            var tempText = $"{cpuTemp.Value:0} C";
             canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (WidgetTheme.GaugeValueFontSize * 0.35f) + 22, tempFont, tempPaint);
         }
 
@@ -52,59 +52,5 @@ internal sealed class CpuUsageWidget : IWidget
         DrawHelper.DrawStackedLabelValueRight(canvas, "System", $"{monitor.CpuSystemPercent:0.0}%", rightX, sideTop, WidgetTheme.CpuUsageAccent);
         DrawHelper.DrawStackedLabelValueRight(canvas, "User", $"{monitor.CpuUserPercent:0.0}%", rightX, sideTop + 40, WidgetTheme.CpuUsageAccent);
         DrawHelper.DrawStackedLabelValueRight(canvas, "Idle", $"{100 - monitor.CpuUsageTotal:0.0}%", rightX, sideTop + 80, WidgetTheme.CpuUsageAccent);
-    }
-}
-
-// Text widget for CPU clock frequency. P-Core/E-Core stacked vertically, bottom-aligned with main value.
-internal sealed class CpuClockWidget : IWidget
-{
-    public void Initialize(IReadOnlyDictionary<string, string> parameters)
-    {
-    }
-
-    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
-    {
-        DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "CPU", "Clock");
-
-        var mhz = monitor.CpuFrequencyAllHz / 1_000_000.0;
-        var pMhz = monitor.CpuFrequencyPerformanceHz / 1_000_000.0;
-        var eMhz = monitor.CpuFrequencyEfficiencyHz / 1_000_000.0;
-
-        // Main value bottom-right
-        DrawHelper.DrawValue(canvas, $"{mhz:0} MHz", rect.Right - WidgetTheme.PadX, rect.Bottom - WidgetTheme.PadY, WidgetTheme.CpuClockAccent);
-
-        // P-Core / E-Core stacked vertically, bottom-aligned with main value
-        var leftX = rect.Left + WidgetTheme.PadX;
-        var mainBottom = rect.Bottom - WidgetTheme.PadY;
-        var y2 = mainBottom - 18;
-        var y1 = y2 - 36;
-        DrawHelper.DrawStackedLabelValue(canvas, "P-Core", $"{pMhz:0}", leftX, y1, WidgetTheme.CpuClockAccent);
-        DrawHelper.DrawStackedLabelValue(canvas, "E-Core", $"{eMhz:0}", leftX, y2, WidgetTheme.CpuClockAccent);
-    }
-}
-
-// Text widget for load average. 5m/15m stacked vertically, bottom-aligned with main value.
-internal sealed class LoadAverageWidget : IWidget
-{
-    public void Initialize(IReadOnlyDictionary<string, string> parameters)
-    {
-    }
-
-    public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
-    {
-        DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "CPU", "Load");
-
-        // Main value (1m) bottom-right
-        DrawHelper.DrawValue(canvas, $"{monitor.LoadAverage1:0.00}", rect.Right - WidgetTheme.PadX, rect.Bottom - WidgetTheme.PadY, WidgetTheme.CpuLoadAccent);
-
-        // 5m / 15m stacked vertically, bottom-aligned with main value
-        var leftX = rect.Left + WidgetTheme.PadX;
-        var mainBottom = rect.Bottom - WidgetTheme.PadY;
-        var y2 = mainBottom - 18;
-        var y1 = y2 - 36;
-        DrawHelper.DrawStackedLabelValue(canvas, "5m", $"{monitor.LoadAverage5:0.00}", leftX, y1, WidgetTheme.CpuLoadAccent);
-        DrawHelper.DrawStackedLabelValue(canvas, "15m", $"{monitor.LoadAverage15:0.00}", leftX, y2, WidgetTheme.CpuLoadAccent);
     }
 }
