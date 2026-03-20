@@ -10,7 +10,7 @@ using MacStatDisplay.Widgets;
 
 using SkiaSharp;
 
-internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, DisplaySettings settings) : BackgroundService
+internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISystemMonitor monitor) : BackgroundService
 {
     // TODO
     private const int ImageWidth = 1280;
@@ -46,7 +46,7 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Device session failed");
+                    log.ErrorUnknownException(ex);
                 }
 #pragma warning restore CA1031
 
@@ -69,14 +69,11 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
         var hidDevice = DeviceList.Local
             .GetHidDevices(ScreenDevice.VendorId, ScreenDevice.ProductId)
             .FirstOrDefault();
-
         if (hidDevice is null)
         {
-            logger.LogWarning("LCD device not found");
             return;
         }
 
-        logger.LogInformation("LCD device found");
         using var screen = new ScreenDevice(hidDevice);
 
         monitor.Update();
@@ -134,7 +131,6 @@ internal sealed class Worker(ILogger<Worker> logger, ISystemMonitor monitor, Dis
             placements[i] = new WidgetPlacement(widget, new SKRect(x, y, x + w, y + h));
         }
 
-        logger.LogInformation("Layout built: {Count} widgets on {Cols}×{Rows} grid", placements.Length, gridColumns, gridRows);
         return placements;
     }
 

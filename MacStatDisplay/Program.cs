@@ -4,6 +4,8 @@ using MacStatDisplay.Settings;
 
 using Serilog;
 
+using System.Runtime.InteropServices;
+
 // Builder
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 var builder = Host.CreateApplicationBuilder(args);
@@ -31,5 +33,11 @@ builder.Services.AddHostedService<Worker>();
 
 // Build
 var host = builder.Build();
+
+// Startup
+var log = host.Services.GetRequiredService<ILogger<Program>>();
+log.InfoServiceStart();
+log.InfoServiceSettingsRuntime(RuntimeInformation.OSDescription, RuntimeInformation.FrameworkDescription, RuntimeInformation.RuntimeIdentifier);
+log.InfoServiceSettingsEnvironment(typeof(Program).Assembly.GetName().Version, Environment.CurrentDirectory);
 
 host.Run();

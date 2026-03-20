@@ -19,7 +19,7 @@ internal static class DrawHelper
     internal static void Shutdown()
     {
         typeface.Dispose();
-        typefaceBold?.Dispose();
+        typefaceBold.Dispose();
     }
 
     // Creates a font with the resolved typeface.
