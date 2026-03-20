@@ -1,10 +1,10 @@
+using System.Runtime.InteropServices;
+
 using MacStatDisplay;
 using MacStatDisplay.Monitor;
 using MacStatDisplay.Settings;
 
 using Serilog;
-
-using System.Runtime.InteropServices;
 
 // Builder
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
