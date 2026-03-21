@@ -1,8 +1,5 @@
 namespace MacStatDisplay.Widgets;
 
-/// <summary>
-/// Creates widget instances from configuration type names.
-/// </summary>
 internal static class WidgetFactory
 {
     internal static IWidget Create(string type) =>
