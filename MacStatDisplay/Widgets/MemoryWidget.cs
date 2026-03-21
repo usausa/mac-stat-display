@@ -17,28 +17,27 @@ internal sealed class MemoryUsageWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitleBlock(canvas, rect, "Memory Usage");
 
-        // TODO
         var usage = (float)Math.Clamp(monitor.MemoryUsagePercent, 0, 100);
 
-        // Content area below title
+        // Calculate
         var contentTop = rect.Top + Layout.TitleOffsetY + Layout.ContentTopGap;
         var contentH = rect.Bottom - Layout.PaddingY - contentTop;
-        var sideMargin = Layout.RingSideMargin;
         var maxRadiusH = contentH / Layout.RingHeightRatio;
-        var maxRadiusW = (rect.Width - (2 * sideMargin)) / 2f;
+        var maxRadiusW = (rect.Width - (2 * Layout.RingSideMargin)) / 2f;
         var radius = Math.Min(maxRadiusH, maxRadiusW);
         var cx = rect.MidX;
         var cy = contentTop + (contentH / 2f) + (radius * Layout.RingCenterOffsetRatio);
 
+        // Gauge
         DrawHelper.DrawRingGauge(canvas, cx, cy, radius, usage, Colors.MemoryAccent);
         DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (FontSize.GaugeValue * Layout.BaselineRatio), Colors.MemoryAccent);
 
-        // Left: Swap
+        // Left
         var leftX = rect.Left + Layout.PaddingX;
         var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
         DrawHelper.DrawStackedLabelValue(canvas, "Swap", $"{monitor.SwapUsagePercent:0.0}%", leftX, sideStartY, Colors.MemoryAccent);
 
-        // Right: Active, Wired, Compressor
+        // Right
         var rightX = rect.Right - Layout.PaddingX;
         var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
         DrawHelper.DrawStackedLabelValueRight(canvas, "Active", $"{monitor.MemoryActivePercent:0.0}%", rightX, sideStartY, Colors.MemoryAccent);

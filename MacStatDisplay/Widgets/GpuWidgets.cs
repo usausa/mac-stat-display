@@ -16,39 +16,37 @@ internal sealed class GpuUsageWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitleBlock(canvas, rect, "GPU Usage");
 
-        // TODO
         var gpu = monitor.GpuDevices.Count > 0 ? monitor.GpuDevices[0] : null;
         var usage = (float)Math.Clamp(gpu?.DeviceUtilization ?? 0, 0, 100);
 
-        // Content area below title
+        // Calculate
         var contentTop = rect.Top + Layout.TitleOffsetY + Layout.ContentTopGap;
         var contentH = rect.Bottom - Layout.PaddingY - contentTop;
-        var sideMargin = Layout.RingSideMargin;
         var maxRadiusH = contentH / Layout.RingHeightRatio;
-        var maxRadiusW = (rect.Width - (2 * sideMargin)) / 2f;
+        var maxRadiusW = (rect.Width - (2 * Layout.RingSideMargin)) / 2f;
         var radius = Math.Min(maxRadiusH, maxRadiusW);
         var cx = rect.MidX;
         var cy = contentTop + (contentH / 2f) + (radius * Layout.RingCenterOffsetRatio);
 
+        // Gauge
         DrawHelper.DrawRingGauge(canvas, cx, cy, radius, usage, Colors.GpuAccent);
         DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (FontSize.GaugeValue * Layout.BaselineRatio), Colors.GpuAccent);
 
-        // GPU temperature below center value
-        var temp = gpu?.Temperature;
-        if (temp.HasValue)
+        // Temperature
+        if (gpu is not null)
         {
             using var tempFont = DrawHelper.MakeFont(FontSize.Temperature);
             using var tempPaint = DrawHelper.Fill(Colors.TemperatureAccent);
-            var tempText = $"{temp.Value:0}\u00b0C";
+            var tempText = $"{gpu.Temperature:0}\u00b0C";
             canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + (radius * Layout.TemperatureOffsetRatio), tempFont, tempPaint);
         }
 
-        // Left side: Renderer / Tiler utilization from first GPU entry
-        var leftX = rect.Left + Layout.PaddingX;
-        var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
-        var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
+        // Left
         if (gpu is not null)
         {
+            var leftX = rect.Left + Layout.PaddingX;
+            var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
+            var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
             DrawHelper.DrawStackedLabelValue(canvas, "Renderer", $"{gpu.RendererUtilization}%", leftX, sideStartY, Colors.GpuAccent);
             DrawHelper.DrawStackedLabelValue(canvas, "Tiler", $"{gpu.TilerUtilization}%", leftX, sideStartY + itemSpacing, Colors.GpuAccent);
         }
