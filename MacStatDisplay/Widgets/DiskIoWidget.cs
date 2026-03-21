@@ -18,7 +18,7 @@ internal sealed class DiskIoWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "Disk I/O");
+        DrawHelper.DrawTitle(canvas, rect, "Disk I/O");
 
         var entries = monitor.DiskDevices;
         if (entries.Count == 0)
@@ -53,7 +53,7 @@ internal sealed class DiskIoWidget : IWidget
     {
         // Name
         using var nameFont = DrawHelper.MakeFont(FontSize.SubLabel);
-        using var namePaint = DrawHelper.Fill(Colors.TextSecondary);
+        using var namePaint = DrawHelper.MakeFillPaint(Colors.TextSecondary);
         canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, nameFont, namePaint);
 
         // Calculate
@@ -75,7 +75,7 @@ internal sealed class DiskIoWidget : IWidget
         // Side
         var wText = DrawHelper.FormatSpeed(writeBps);
         var rText = DrawHelper.FormatSpeed(readBps);
-        DrawHelper.DrawSparklineSideValues(
+        DrawHelper.DrawSparklineValues(
             canvas, rightX, graphAreaTop, graphAreaBottom,
             "Write", wText, Colors.DiskWriteAccent,
             "Read", rText, Colors.DiskReadAccent);

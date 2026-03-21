@@ -14,7 +14,7 @@ internal sealed class FileSystemWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "Disk Usage");
+        DrawHelper.DrawTitle(canvas, rect, "Disk Usage");
 
         var entries = monitor.FileSystems;
         if (entries.Count == 0)
@@ -53,18 +53,18 @@ internal sealed class FileSystemWidget : IWidget
         var barBottom = Math.Min(barTop + Layout.BarHeight, entryTop + entryH - Layout.BarGaugeMargin);
         var barRect = new SKRect(leftX, barTop, rightX, barBottom);
 
-        using var trackPaint = DrawHelper.Fill(Colors.TrackColor);
+        using var trackPaint = DrawHelper.MakeFillPaint(Colors.TrackColor);
         canvas.DrawRoundRect(barRect, Layout.BarRadius, Layout.BarRadius, trackPaint);
 
         var fillWidth = barRect.Width * (float)Math.Clamp(usage, 0, 100) / 100f;
         var fillRect = new SKRect(barRect.Left, barRect.Top, barRect.Left + fillWidth, barRect.Bottom);
-        using var fillPaint = DrawHelper.Fill(Colors.FileSystemAccent);
+        using var fillPaint = DrawHelper.MakeFillPaint(Colors.FileSystemAccent);
         canvas.DrawRoundRect(fillRect, Layout.BarRadius, Layout.BarRadius, fillPaint);
 
         // Left
         using var mountFont = DrawHelper.MakeFont(FontSize.SubLabel);
-        using var subPaint = DrawHelper.Fill(Colors.TextSecondary);
-        using var accentPaint = DrawHelper.Fill(Colors.FileSystemAccent);
+        using var subPaint = DrawHelper.MakeFillPaint(Colors.TextSecondary);
+        using var accentPaint = DrawHelper.MakeFillPaint(Colors.FileSystemAccent);
         canvas.DrawText(mount, leftX, centerY + mountFont.Metrics.Ascent - mountFont.Metrics.Descent, mountFont, subPaint);
 
         var gbText = $"{usedGb:0.0} / {totalGb:0.0} GB";

@@ -17,7 +17,7 @@ internal sealed class PowerWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "Power Consumption");
+        DrawHelper.DrawTitle(canvas, rect, "Power Consumption");
 
         // Total
         DrawHelper.DrawValue(canvas, $"{monitor.TotalSystemPower:0.0} W", rect.Right - Layout.PaddingX, rect.Bottom - Layout.PaddingY, Colors.PowerAccent);
@@ -25,7 +25,7 @@ internal sealed class PowerWidget : IWidget
         // CPU / GPU
         var leftX = rect.Left + Layout.PaddingX;
         var y = rect.Bottom - Layout.PaddingY;
-        DrawHelper.DrawStackedLabelValue(canvas, "CPU", $"{monitor.PowerCpuW:0.0}", leftX, y, Colors.PowerAccent);
-        DrawHelper.DrawStackedLabelValue(canvas, "GPU", $"{monitor.PowerGpuW:0.0}", leftX + subValueColumnWidth, y, Colors.PowerAccent);
+        DrawHelper.DrawStackedValue(canvas, "CPU", $"{monitor.PowerCpuW:0.0}", leftX, y, Colors.PowerAccent);
+        DrawHelper.DrawStackedValue(canvas, "GPU", $"{monitor.PowerGpuW:0.0}", leftX + subValueColumnWidth, y, Colors.PowerAccent);
     }
 }

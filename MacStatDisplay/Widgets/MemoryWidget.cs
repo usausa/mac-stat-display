@@ -15,7 +15,7 @@ internal sealed class MemoryUsageWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "Memory Usage");
+        DrawHelper.DrawTitle(canvas, rect, "Memory Usage");
 
         var usage = (float)Math.Clamp(monitor.MemoryUsagePercent, 0, 100);
 
@@ -30,19 +30,19 @@ internal sealed class MemoryUsageWidget : IWidget
 
         // Gauge
         DrawHelper.DrawRingGauge(canvas, cx, cy, radius, usage, Colors.MemoryAccent);
-        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (FontSize.GaugeValue * Layout.BaselineRatio), Colors.MemoryAccent);
+        DrawHelper.DrawCenterValue(canvas, $"{usage:0}%", cx, cy + (FontSize.GaugeValue * Layout.BaselineRatio), Colors.MemoryAccent);
 
         // Left
         var leftX = rect.Left + Layout.PaddingX;
         var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
-        DrawHelper.DrawStackedLabelValue(canvas, "Swap", $"{monitor.SwapUsagePercent:0.0}%", leftX, sideStartY, Colors.MemoryAccent);
+        DrawHelper.DrawStackedValue(canvas, "Swap", $"{monitor.SwapUsagePercent:0.0}%", leftX, sideStartY, Colors.MemoryAccent);
 
         // Right
         var rightX = rect.Right - Layout.PaddingX;
         var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
-        DrawHelper.DrawStackedLabelValueRight(canvas, "Active", $"{monitor.MemoryActivePercent:0.0}%", rightX, sideStartY, Colors.MemoryAccent);
-        DrawHelper.DrawStackedLabelValueRight(canvas, "Wired", $"{monitor.MemoryWiredPercent:0.0}%", rightX, sideStartY + itemSpacing, Colors.MemoryAccent);
-        DrawHelper.DrawStackedLabelValueRight(canvas, "Compr", $"{monitor.MemoryCompressorPercent:0.0}%", rightX, sideStartY + (itemSpacing * 2), Colors.MemoryAccent);
+        DrawHelper.DrawStackedValueRight(canvas, "Active", $"{monitor.MemoryActivePercent:0.0}%", rightX, sideStartY, Colors.MemoryAccent);
+        DrawHelper.DrawStackedValueRight(canvas, "Wired", $"{monitor.MemoryWiredPercent:0.0}%", rightX, sideStartY + itemSpacing, Colors.MemoryAccent);
+        DrawHelper.DrawStackedValueRight(canvas, "Compr", $"{monitor.MemoryCompressorPercent:0.0}%", rightX, sideStartY + (itemSpacing * 2), Colors.MemoryAccent);
     }
     // ReSharper restore StringLiteralTypo
 }

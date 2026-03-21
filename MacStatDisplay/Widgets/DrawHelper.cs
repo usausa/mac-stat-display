@@ -50,46 +50,44 @@ internal static class DrawHelper
         return bold ? SKTypeface.FromFamilyName(SKTypeface.Default.FamilyName, SKFontStyle.Bold) : SKTypeface.Default;
     }
 
-    // Measures the width of the given text using SubLabel font.
-    internal static float MeasureSubLabelWidth(string text)
-    {
-        using var font = MakeFont(FontSize.SubLabel);
-        return font.MeasureText(text);
-    }
+    //--------------------------------------------------------------------------------
+    // Resource
+    //--------------------------------------------------------------------------------
 
-    // Measures the width of the given text using SubValue bold font.
+    internal static SKFont MakeFont(float size, bool bold = false) =>
+        new(bold ? typefaceBold : typeface, size)
+        {
+            Edging = SKFontEdging.SubpixelAntialias
+        };
+
+    internal static SKPaint MakeFillPaint(SKColor color) =>
+        new()
+        {
+            Color = color, IsAntialias = true
+        };
+
+    internal static SKPaint MakeStrokePaint(SKColor color, float width) =>
+        new()
+        {
+            Color = color,
+            IsAntialias = true,
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = width
+        };
+
+    //--------------------------------------------------------------------------------
+    // Measurement
+    //--------------------------------------------------------------------------------
+
     internal static float MeasureSubValueWidth(string text)
     {
         using var font = MakeFont(FontSize.SubValue, true);
         return font.MeasureText(text);
     }
 
-    // Creates a font with the resolved typeface.
-    internal static SKFont MakeFont(float size, bool bold = false) =>
-        new(bold ? typefaceBold : typeface, size) { Edging = SKFontEdging.SubpixelAntialias };
-
-    // Creates a fill paint.
-    internal static SKPaint Fill(SKColor color) => new() { Color = color, IsAntialias = true };
-
-    // Creates a stroke paint.
-    internal static SKPaint Stroke(SKColor color, float width) => new()
-    {
-        Color = color,
-        IsAntialias = true,
-        Style = SKPaintStyle.Stroke,
-        StrokeWidth = width
-    };
-
-    // Formats bytes/sec into a human-readable speed string.
-    internal static string FormatSpeed(double bytesPerSec)
-    {
-        if (bytesPerSec >= 1024 * 1024)
-        {
-            return $"{bytesPerSec / (1024.0 * 1024.0):0.0} MB/s";
-        }
-
-        return $"{bytesPerSec / 1024.0:0} KB/s";
-    }
+    //--------------------------------------------------------------------------------
+    // Background / Panel
+    //--------------------------------------------------------------------------------
 
     // Draws the full-screen gradient background.
     internal static void DrawBackground(SKCanvas canvas, int width, int height)
@@ -108,104 +106,64 @@ internal static class DrawHelper
     // Draws a card panel with rounded corners and border.
     internal static void DrawPanel(SKCanvas canvas, SKRect rect)
     {
-        using var bg = Fill(Colors.PanelBackground);
+        using var bg = MakeFillPaint(Colors.PanelBackground);
         canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, bg);
 
-        using var border = Stroke(Colors.PanelBorder, 1);
+        using var border = MakeStrokePaint(Colors.PanelBorder, 1);
         canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, border);
     }
 
-    // Draws title text at the top-left of a widget.
-    internal static void DrawTitleBlock(SKCanvas canvas, SKRect rect, string title)
+    //--------------------------------------------------------------------------------
+    // Text
+    //--------------------------------------------------------------------------------
+
+    internal static void DrawTitle(SKCanvas canvas, SKRect rect, string title)
     {
         using var font = MakeFont(FontSize.WidgetTitle, true);
-        using var paint = Fill(Colors.TextPrimary);
+        using var paint = MakeFillPaint(Colors.TextPrimary);
         canvas.DrawText(title, rect.Left + Layout.PaddingX, rect.Top + Layout.TitleOffsetY, font, paint);
     }
 
-    // Draws a right-aligned value in large bold font.
     internal static void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
     {
         using var font = MakeFont(FontSize.PrimaryValue, true);
-        using var paint = Fill(color);
+        using var paint = MakeFillPaint(color);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
-    // Draws a centered value in large bold font (for ring gauge interior).
-    internal static void DrawCenteredValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
+    internal static void DrawCenterValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
     {
         using var font = MakeFont(FontSize.GaugeValue, true);
-        using var paint = Fill(color);
+        using var paint = MakeFillPaint(color);
         canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, font, paint);
     }
 
-    // Draws right-aligned detail text.
-    internal static void DrawRightAlignedDetail(SKCanvas canvas, string text, float rightX, float y)
-    {
-        using var font = MakeFont(FontSize.SubValue);
-        using var paint = Fill(Colors.TextSecondary);
-        canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
-    }
-
-    // Draws a left-aligned label above a colored value, bottom-aligned at the given y (value baseline).
-    internal static void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float bottomY, SKColor valueColor)
+    internal static void DrawStackedValue(SKCanvas canvas, string label, string value, float x, float bottomY, SKColor valueColor)
     {
         using var valueFont = MakeFont(FontSize.SubValue, true);
-        using var valuePaint = Fill(valueColor);
+        using var valuePaint = MakeFillPaint(valueColor);
         canvas.DrawText(value, x, bottomY, valueFont, valuePaint);
 
         using var labelFont = MakeFont(FontSize.SubLabel);
-        using var labelPaint = Fill(Colors.TextSecondary);
+        using var labelPaint = MakeFillPaint(Colors.TextSecondary);
         canvas.DrawText(label, x, bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent, labelFont, labelPaint);
     }
 
-    // Draws a right-aligned label above a colored value, bottom-aligned at the given y (value baseline).
-    internal static void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float bottomY, SKColor valueColor)
+    internal static void DrawStackedValueRight(SKCanvas canvas, string label, string value, float rightX, float bottomY, SKColor valueColor)
     {
         using var valueFont = MakeFont(FontSize.SubValue, true);
-        using var valuePaint = Fill(valueColor);
+        using var valuePaint = MakeFillPaint(valueColor);
         canvas.DrawText(value, rightX - valueFont.MeasureText(value), bottomY, valueFont, valuePaint);
 
         using var labelFont = MakeFont(FontSize.SubLabel);
-        using var labelPaint = Fill(Colors.TextSecondary);
+        using var labelPaint = MakeFillPaint(Colors.TextSecondary);
         canvas.DrawText(label, rightX - labelFont.MeasureText(label), bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent, labelFont, labelPaint);
     }
 
-    // Draws two right-aligned label+value pairs for sparkline side values.
-    // Upper pair is drawn upward from the upper anchor, lower pair is drawn downward from the lower anchor.
-    // The center margin (as a ratio of area height) controls the gap between upper and lower sections.
-    internal static void DrawSparklineSideValues(
-        SKCanvas canvas, float rightX, float areaTop, float areaBottom,
-        string upperLabel, string upperValue, SKColor upperColor,
-        string lowerLabel, string lowerValue, SKColor lowerColor)
-    {
-        using var valFont = MakeFont(FontSize.SubValue, true);
-        using var labelFont = MakeFont(FontSize.SubLabel);
-        using var labelPaint = Fill(Colors.TextSecondary);
+    //--------------------------------------------------------------------------------
+    // Gauge
+    //--------------------------------------------------------------------------------
 
-        var areaHeight = areaBottom - areaTop;
-        var halfContent = (1f - Layout.SparklineSideCenterMarginRatio) / 2f;
-
-        // Upper: draw upward from upper anchor (value bottom at anchor, label above value)
-        var upperAnchor = areaTop + (areaHeight * halfContent);
-        var upperValueY = upperAnchor - valFont.Metrics.Descent;
-        var upperLabelY = upperValueY + valFont.Metrics.Ascent - labelFont.Metrics.Descent;
-
-        using var upperPaint = Fill(upperColor);
-        canvas.DrawText(upperLabel, rightX - labelFont.MeasureText(upperLabel), upperLabelY, labelFont, labelPaint);
-        canvas.DrawText(upperValue, rightX - valFont.MeasureText(upperValue), upperValueY, valFont, upperPaint);
-
-        // Lower: draw downward from lower anchor (label top at anchor, value below label)
-        var lowerAnchor = areaBottom - (areaHeight * halfContent);
-        var lowerLabelY = lowerAnchor - labelFont.Metrics.Ascent;
-        var lowerValueY = lowerLabelY + labelFont.Metrics.Descent - valFont.Metrics.Ascent;
-
-        using var lowerPaint = Fill(lowerColor);
-        canvas.DrawText(lowerLabel, rightX - labelFont.MeasureText(lowerLabel), lowerLabelY, labelFont, labelPaint);
-        canvas.DrawText(lowerValue, rightX - valFont.MeasureText(lowerValue), lowerValueY, valFont, lowerPaint);
-    }
-
-    // Draws a 270° ring gauge (open at bottom).
     internal static void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
     {
         using var trackPaint = new SKPaint();
@@ -227,7 +185,10 @@ internal static class DrawHelper
         canvas.DrawArc(ringRect, Layout.RingStartAngle, Layout.RingArcDegrees * percentage / 100f, false, valuePaint);
     }
 
-    // Draws a sparkline area chart in the given rectangle (value 0 at bottom, growing upward).
+    //--------------------------------------------------------------------------------
+    // Sparkline
+    //--------------------------------------------------------------------------------
+
     internal static void DrawSparkline(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
     {
         if (maxValue <= 0)
@@ -238,7 +199,7 @@ internal static class DrawHelper
         var cap = buffer.Capacity;
         var stepX = rect.Width / (cap - 1);
 
-        // Filled area
+        // Fill area
         using var areaPath = new SKPath();
         areaPath.MoveTo(rect.Left, rect.Bottom);
         for (var i = 0; i < cap; i++)
@@ -257,7 +218,7 @@ internal static class DrawHelper
         fillPaint.Style = SKPaintStyle.Fill;
         canvas.DrawPath(areaPath, fillPaint);
 
-        // Line on top
+        // Draw line
         using var linePath = new SKPath();
         linePath.MoveTo(rect.Left, rect.Bottom - (Math.Clamp(buffer[0] / maxValue, 0, 1) * rect.Height));
         for (var i = 1; i < cap; i++)
@@ -275,7 +236,6 @@ internal static class DrawHelper
         canvas.DrawPath(linePath, linePaint);
     }
 
-    // Draws an inverted sparkline
     internal static void DrawSparklineInverted(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
     {
         if (maxValue <= 0)
@@ -286,7 +246,7 @@ internal static class DrawHelper
         var cap = buffer.Capacity;
         var stepX = rect.Width / (cap - 1);
 
-        // Filled area (from top, growing downward)
+        // Fill area
         using var areaPath = new SKPath();
         areaPath.MoveTo(rect.Left, rect.Top);
         for (var i = 0; i < cap; i++)
@@ -305,7 +265,7 @@ internal static class DrawHelper
         fillPaint.Style = SKPaintStyle.Fill;
         canvas.DrawPath(areaPath, fillPaint);
 
-        // Line on edge
+        // Draw line
         using var linePath = new SKPath();
         linePath.MoveTo(rect.Left, rect.Top + (Math.Clamp(buffer[0] / maxValue, 0, 1) * rect.Height));
         for (var i = 1; i < cap; i++)
@@ -321,5 +281,50 @@ internal static class DrawHelper
         linePaint.Style = SKPaintStyle.Stroke;
         linePaint.StrokeWidth = Layout.SparklineStrokeWidth;
         canvas.DrawPath(linePath, linePaint);
+    }
+
+    internal static void DrawSparklineValues(
+        SKCanvas canvas, float rightX, float areaTop, float areaBottom,
+        string upperLabel, string upperValue, SKColor upperColor,
+        string lowerLabel, string lowerValue, SKColor lowerColor)
+    {
+        using var valFont = MakeFont(FontSize.SubValue, true);
+        using var labelFont = MakeFont(FontSize.SubLabel);
+        using var labelPaint = MakeFillPaint(Colors.TextSecondary);
+
+        var areaHeight = areaBottom - areaTop;
+        var halfContent = (1f - Layout.SparklineSideCenterMarginRatio) / 2f;
+
+        // Upper
+        var upperAnchor = areaTop + (areaHeight * halfContent);
+        var upperValueY = upperAnchor - valFont.Metrics.Descent;
+        var upperLabelY = upperValueY + valFont.Metrics.Ascent - labelFont.Metrics.Descent;
+
+        using var upperPaint = MakeFillPaint(upperColor);
+        canvas.DrawText(upperLabel, rightX - labelFont.MeasureText(upperLabel), upperLabelY, labelFont, labelPaint);
+        canvas.DrawText(upperValue, rightX - valFont.MeasureText(upperValue), upperValueY, valFont, upperPaint);
+
+        // Lower
+        var lowerAnchor = areaBottom - (areaHeight * halfContent);
+        var lowerLabelY = lowerAnchor - labelFont.Metrics.Ascent;
+        var lowerValueY = lowerLabelY + labelFont.Metrics.Descent - valFont.Metrics.Ascent;
+
+        using var lowerPaint = MakeFillPaint(lowerColor);
+        canvas.DrawText(lowerLabel, rightX - labelFont.MeasureText(lowerLabel), lowerLabelY, labelFont, labelPaint);
+        canvas.DrawText(lowerValue, rightX - valFont.MeasureText(lowerValue), lowerValueY, valFont, lowerPaint);
+    }
+
+    //--------------------------------------------------------------------------------
+    // Format
+    //--------------------------------------------------------------------------------
+
+    internal static string FormatSpeed(double bytesPerSec)
+    {
+        if (bytesPerSec >= 1024 * 1024)
+        {
+            return $"{bytesPerSec / (1024.0 * 1024.0):0.0} MB/s";
+        }
+
+        return $"{bytesPerSec / 1024.0:0} KB/s";
     }
 }

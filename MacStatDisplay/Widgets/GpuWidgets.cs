@@ -14,7 +14,7 @@ internal sealed class GpuUsageWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "GPU Usage");
+        DrawHelper.DrawTitle(canvas, rect, "GPU Usage");
 
         var gpu = monitor.GpuDevices.Count > 0 ? monitor.GpuDevices[0] : null;
         var usage = (float)Math.Clamp(gpu?.DeviceUtilization ?? 0, 0, 100);
@@ -30,13 +30,13 @@ internal sealed class GpuUsageWidget : IWidget
 
         // Gauge
         DrawHelper.DrawRingGauge(canvas, cx, cy, radius, usage, Colors.GpuAccent);
-        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (FontSize.GaugeValue * Layout.BaselineRatio), Colors.GpuAccent);
+        DrawHelper.DrawCenterValue(canvas, $"{usage:0}%", cx, cy + (FontSize.GaugeValue * Layout.BaselineRatio), Colors.GpuAccent);
 
         // Temperature
         if (gpu is not null)
         {
             using var tempFont = DrawHelper.MakeFont(FontSize.Temperature);
-            using var tempPaint = DrawHelper.Fill(Colors.TemperatureAccent);
+            using var tempPaint = DrawHelper.MakeFillPaint(Colors.TemperatureAccent);
             var tempText = $"{gpu.Temperature:0}\u00b0C";
             canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + (radius * Layout.TemperatureOffsetRatio), tempFont, tempPaint);
         }
@@ -47,8 +47,8 @@ internal sealed class GpuUsageWidget : IWidget
             var leftX = rect.Left + Layout.PaddingX;
             var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
             var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
-            DrawHelper.DrawStackedLabelValue(canvas, "Renderer", $"{gpu.RendererUtilization}%", leftX, sideStartY, Colors.GpuAccent);
-            DrawHelper.DrawStackedLabelValue(canvas, "Tiler", $"{gpu.TilerUtilization}%", leftX, sideStartY + itemSpacing, Colors.GpuAccent);
+            DrawHelper.DrawStackedValue(canvas, "Renderer", $"{gpu.RendererUtilization}%", leftX, sideStartY, Colors.GpuAccent);
+            DrawHelper.DrawStackedValue(canvas, "Tiler", $"{gpu.TilerUtilization}%", leftX, sideStartY + itemSpacing, Colors.GpuAccent);
         }
     }
 }

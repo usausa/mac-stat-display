@@ -14,7 +14,7 @@ internal sealed class FanWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "FAN Speed");
+        DrawHelper.DrawTitle(canvas, rect, "FAN Speed");
 
         var fan = monitor.Fans.Count > 0 ? monitor.Fans[0] : null;
 
@@ -30,7 +30,7 @@ internal sealed class FanWidget : IWidget
         {
             var leftX = rect.Left + Layout.PaddingX;
             var mainBottom = rect.Bottom - Layout.PaddingY;
-            DrawHelper.DrawStackedLabelValue(canvas, "Speed", $"{fan.ActualRpm:0} rpm", leftX, mainBottom, Colors.FanAccent);
+            DrawHelper.DrawStackedValue(canvas, "Speed", $"{fan.ActualRpm:0} rpm", leftX, mainBottom, Colors.FanAccent);
         }
     }
 }

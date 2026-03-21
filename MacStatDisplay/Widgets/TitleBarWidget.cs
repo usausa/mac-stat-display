@@ -23,9 +23,9 @@ internal sealed class TitleBarWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         // Panel
-        using var bg = DrawHelper.Fill(Colors.PanelBackground);
+        using var bg = DrawHelper.MakeFillPaint(Colors.PanelBackground);
         canvas.DrawRoundRect(rect, Layout.HeaderRadius, Layout.HeaderRadius, bg);
-        using var border = DrawHelper.Stroke(Colors.PanelBorder, 1);
+        using var border = DrawHelper.MakeStrokePaint(Colors.PanelBorder, 1);
         canvas.DrawRoundRect(rect, Layout.HeaderRadius, Layout.HeaderRadius, border);
 
         var cy = rect.MidY;
@@ -33,14 +33,14 @@ internal sealed class TitleBarWidget : IWidget
 
         // Column 0-1: Machine info
         using var titleFont = DrawHelper.MakeFont(FontSize.HeaderTitle, true);
-        using var titlePaint = DrawHelper.Fill(Colors.TextPrimary);
+        using var titlePaint = DrawHelper.MakeFillPaint(Colors.TextPrimary);
         var titleBaseline = cy - ((titleFont.Metrics.Ascent + titleFont.Metrics.Descent) / 2f);
         canvas.DrawText(machineInfo, rect.Left + 16, titleBaseline, titleFont, titlePaint);
 
         using var labelFont = DrawHelper.MakeFont(FontSize.HeaderLabel);
-        using var labelPaint = DrawHelper.Fill(Colors.HeaderLabel);
+        using var labelPaint = DrawHelper.MakeFillPaint(Colors.HeaderLabel);
         using var valFont = DrawHelper.MakeFont(FontSize.HeaderValue, true);
-        using var valPaint = DrawHelper.Fill(Colors.TextPrimary);
+        using var valPaint = DrawHelper.MakeFillPaint(Colors.TextPrimary);
 
         const float colPad = 8f;
 

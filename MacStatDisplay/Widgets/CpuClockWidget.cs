@@ -17,7 +17,7 @@ internal sealed class CpuClockWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "CPU Clock");
+        DrawHelper.DrawTitle(canvas, rect, "CPU Clock");
 
         var mhz = monitor.CpuFrequencyAllHz / 1_000_000.0;
         var pMhz = monitor.CpuFrequencyPerformanceHz / 1_000_000.0;
@@ -29,7 +29,7 @@ internal sealed class CpuClockWidget : IWidget
         // E-Core / P-Core
         var leftX = rect.Left + Layout.PaddingX;
         var y = rect.Bottom - Layout.PaddingY;
-        DrawHelper.DrawStackedLabelValue(canvas, "E-Core", $"{eMhz:0}", leftX, y, Colors.CpuClockAccent);
-        DrawHelper.DrawStackedLabelValue(canvas, "P-Core", $"{pMhz:0}", leftX + subValueColumnWidth, y, Colors.CpuClockAccent);
+        DrawHelper.DrawStackedValue(canvas, "E-Core", $"{eMhz:0}", leftX, y, Colors.CpuClockAccent);
+        DrawHelper.DrawStackedValue(canvas, "P-Core", $"{pMhz:0}", leftX + subValueColumnWidth, y, Colors.CpuClockAccent);
     }
 }
