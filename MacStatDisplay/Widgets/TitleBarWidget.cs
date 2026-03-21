@@ -3,6 +3,7 @@ namespace MacStatDisplay.Widgets;
 using System.Globalization;
 
 using MacStatDisplay.Monitor;
+using MacStatDisplay.Theme;
 
 using SkiaSharp;
 
@@ -18,23 +19,23 @@ internal sealed class TitleBarWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         // Panel
-        using var bg = DrawHelper.Fill(WidgetTheme.PanelBackground);
-        canvas.DrawRoundRect(rect, WidgetTheme.HeaderRadius, WidgetTheme.HeaderRadius, bg);
-        using var border = DrawHelper.Stroke(WidgetTheme.PanelBorder, 1);
-        canvas.DrawRoundRect(rect, WidgetTheme.HeaderRadius, WidgetTheme.HeaderRadius, border);
+        using var bg = DrawHelper.Fill(Colors.PanelBackground);
+        canvas.DrawRoundRect(rect, Layout.HeaderRadius, Layout.HeaderRadius, bg);
+        using var border = DrawHelper.Stroke(Colors.PanelBorder, 1);
+        canvas.DrawRoundRect(rect, Layout.HeaderRadius, Layout.HeaderRadius, border);
 
         var cy = rect.MidY;
         var colWidth = rect.Width / GridColumns;
 
         // Column 0-1: Title
-        using var titleFont = DrawHelper.MakeFont(WidgetTheme.HeaderTitleFontSize, true);
-        using var titlePaint = DrawHelper.Fill(WidgetTheme.TextPrimary);
+        using var titleFont = DrawHelper.MakeFont(FontSize.HeaderTitle, true);
+        using var titlePaint = DrawHelper.Fill(Colors.TextPrimary);
         canvas.DrawText("SYSTEM MONITOR", rect.Left + 16, cy + (titleFont.Size * 0.35f), titleFont, titlePaint);
 
-        using var labelFont = DrawHelper.MakeFont(WidgetTheme.HeaderLabelFontSize);
-        using var labelPaint = DrawHelper.Fill(WidgetTheme.HeaderLabel);
-        using var valFont = DrawHelper.MakeFont(WidgetTheme.HeaderValueFontSize, true);
-        using var valPaint = DrawHelper.Fill(WidgetTheme.TextPrimary);
+        using var labelFont = DrawHelper.MakeFont(FontSize.HeaderLabel);
+        using var labelPaint = DrawHelper.Fill(Colors.HeaderLabel);
+        using var valFont = DrawHelper.MakeFont(FontSize.HeaderValue, true);
+        using var valPaint = DrawHelper.Fill(Colors.TextPrimary);
 
         var baseline = cy + (valFont.Size * 0.35f);
         const float colPad = 8f;

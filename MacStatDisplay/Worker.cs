@@ -3,6 +3,7 @@ namespace MacStatDisplay;
 using MacStatDisplay.Display;
 using MacStatDisplay.Monitor;
 using MacStatDisplay.Settings;
+using MacStatDisplay.Theme;
 using MacStatDisplay.Widgets;
 
 using SkiaSharp;
@@ -17,11 +18,12 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         DrawHelper.Initialize();
-        var imageWidth = displayDriver.Width;
-        var imageHeight = displayDriver.Height;
-        using var surface = SKSurface.Create(new SKImageInfo(imageWidth, imageHeight));
-        var canvas = surface.Canvas;
-        var placements = BuildLayout(imageWidth, imageHeight);
+
+        var width = displayDriver.Width;
+        var height = displayDriver.Height;
+
+        using var surface = SKSurface.Create(new SKImageInfo(width, height));
+        var placements = BuildLayout(width, height);
 
         try
         {
@@ -30,7 +32,7 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
 #pragma warning disable CA1031
                 try
                 {
-                    await RunDisplayLoopAsync(canvas, surface, imageWidth, imageHeight, placements, stoppingToken);
+                    await RunDisplayLoopAsync(surface, width, height, placements, stoppingToken);
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
@@ -54,21 +56,18 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         }
     }
 
-    /// <summary>
-    /// Initializes the display driver and runs the rendering loop until error or cancellation.
-    /// </summary>
-    private async Task RunDisplayLoopAsync(
-        SKCanvas canvas, SKSurface surface, int imageWidth, int imageHeight,
-        WidgetPlacement[] placements, CancellationToken stoppingToken)
+    private async Task RunDisplayLoopAsync(SKSurface surface, int width, int height, WidgetPlacement[] placements, CancellationToken stoppingToken)
     {
         if (!displayDriver.Initialize())
         {
             return;
         }
 
+        var canvas = surface.Canvas;
+
         // Initial render immediately after monitor update.
         monitor.Update();
-        RenderDashboard(canvas, imageWidth, imageHeight, placements);
+        RenderDashboard(canvas, width, height, placements);
         displayDriver.Draw(surface);
 
         var refreshInterval = displayDriver.RefreshIntervalSeconds;
@@ -80,7 +79,7 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
                 monitor.Update();
-                RenderDashboard(canvas, imageWidth, imageHeight, placements);
+                RenderDashboard(canvas, width, height, placements);
                 displayDriver.Draw(surface);
             }
         }
@@ -98,7 +97,7 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
                 {
                     tickCount = 0;
                     monitor.Update();
-                    RenderDashboard(canvas, imageWidth, imageHeight, placements);
+                    RenderDashboard(canvas, width, height, placements);
                 }
 
                 displayDriver.Draw(surface);
@@ -117,10 +116,10 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         var gridColumns = settings.Grid.Columns;
         var gridRows = settings.Grid.Rows;
 
-        var gridTop = WidgetTheme.OuterPadding + WidgetTheme.HeaderHeight + WidgetTheme.ContentGap;
-        var gridHeight = imageHeight - gridTop - WidgetTheme.OuterPadding;
-        var cellWidth = (imageWidth - (WidgetTheme.OuterPadding * 2) - (WidgetTheme.ContentGap * (gridColumns - 1))) / (float)gridColumns;
-        var cellHeight = (gridHeight - (WidgetTheme.ContentGap * (gridRows - 1))) / (float)gridRows;
+        var gridTop = Layout.OuterPadding + Layout.HeaderHeight + Layout.ContentGap;
+        var gridHeight = imageHeight - gridTop - Layout.OuterPadding;
+        var cellWidth = (imageWidth - (Layout.OuterPadding * 2) - (Layout.ContentGap * (gridColumns - 1))) / (float)gridColumns;
+        var cellHeight = (gridHeight - (Layout.ContentGap * (gridRows - 1))) / (float)gridRows;
 
         var placements = new WidgetPlacement[settings.Widgets.Count];
         for (var i = 0; i < settings.Widgets.Count; i++)
@@ -129,10 +128,10 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
             var widget = WidgetFactory.Create(entry.Type);
             widget.Initialize(entry.Parameters);
 
-            var x = WidgetTheme.OuterPadding + (entry.Column * (cellWidth + WidgetTheme.ContentGap));
-            var y = gridTop + (entry.Row * (cellHeight + WidgetTheme.ContentGap));
-            var w = (cellWidth * entry.ColumnSpan) + (WidgetTheme.ContentGap * (entry.ColumnSpan - 1));
-            var h = (cellHeight * entry.RowSpan) + (WidgetTheme.ContentGap * (entry.RowSpan - 1));
+            var x = Layout.OuterPadding + (entry.Column * (cellWidth + Layout.ContentGap));
+            var y = gridTop + (entry.Row * (cellHeight + Layout.ContentGap));
+            var w = (cellWidth * entry.ColumnSpan) + (Layout.ContentGap * (entry.ColumnSpan - 1));
+            var h = (cellHeight * entry.RowSpan) + (Layout.ContentGap * (entry.RowSpan - 1));
 
             placements[i] = new WidgetPlacement(widget, new SKRect(x, y, x + w, y + h));
         }
@@ -144,7 +143,7 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
     {
         DrawHelper.DrawBackground(canvas, imageWidth, imageHeight);
 
-        var headerRect = new SKRect(WidgetTheme.OuterPadding, WidgetTheme.OuterPadding, imageWidth - WidgetTheme.OuterPadding, WidgetTheme.OuterPadding + WidgetTheme.HeaderHeight);
+        var headerRect = new SKRect(Layout.OuterPadding, Layout.OuterPadding, imageWidth - Layout.OuterPadding, Layout.OuterPadding + Layout.HeaderHeight);
         titleBarWidget.Draw(canvas, headerRect, monitor);
 
         foreach (var placement in placements)

@@ -1,6 +1,7 @@
 namespace MacStatDisplay.Widgets;
 
 using MacStatDisplay.Monitor;
+using MacStatDisplay.Theme;
 
 using SkiaSharp;
 
@@ -20,11 +21,11 @@ internal sealed class NetworkWidget : IWidget
         DrawHelper.DrawTitleBlock(canvas, rect, "NET", "Traffic");
 
         var entries = monitor.NetworkInterfaces;
-        var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
-        var contentBottom = rect.Bottom - WidgetTheme.PaddingY;
+        var contentTop = rect.Top + Layout.TitleOffsetY + 4;
+        var contentBottom = rect.Bottom - Layout.PaddingY;
         var contentH = contentBottom - contentTop;
-        var leftX = rect.Left + WidgetTheme.PaddingX;
-        var rightX = rect.Right - WidgetTheme.PaddingX;
+        var leftX = rect.Left + Layout.PaddingX;
+        var rightX = rect.Right - Layout.PaddingX;
 
         if (entries.Count == 0)
         {
@@ -50,8 +51,8 @@ internal sealed class NetworkWidget : IWidget
         SparklineBuffer rHist, SparklineBuffer tHist)
     {
         // Name label at entry top
-        using var nameFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
-        using var namePaint = DrawHelper.Fill(WidgetTheme.TextSecondary);
+        using var nameFont = DrawHelper.MakeFont(FontSize.SubLabel);
+        using var namePaint = DrawHelper.Fill(Colors.TextSecondary);
         canvas.DrawText(name, leftX, entryTop + 14, nameFont, namePaint);
 
         var labelH = 18f;
@@ -61,29 +62,29 @@ internal sealed class NetworkWidget : IWidget
         var valueWidth = 85f;
         var graphRight = rightX - valueWidth;
 
-        using var labelFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
-        using var valFont = DrawHelper.MakeFont(WidgetTheme.SubValueFontSize, true);
-        using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSecondary);
+        using var labelFont = DrawHelper.MakeFont(FontSize.SubLabel);
+        using var valFont = DrawHelper.MakeFont(FontSize.SubValue, true);
+        using var statLabelPaint = DrawHelper.Fill(Colors.TextSecondary);
 
         // Use shared max so Upload and Download graphs share the same scale
         var sharedMax = Math.Max(Math.Max(tHist.Max(), rHist.Max()), 1f);
 
         // Upper half: TX (upload) sparkline (upward from center)
         var txGraphRect = new SKRect(leftX, graphAreaTop, graphRight - 4, centerY - 1);
-        DrawHelper.DrawSparkline(canvas, txGraphRect, tHist, sharedMax, WidgetTheme.NetworkUploadAccent);
+        DrawHelper.DrawSparkline(canvas, txGraphRect, tHist, sharedMax, Colors.NetworkUploadAccent);
 
         canvas.DrawText("Upload", rightX - labelFont.MeasureText("Upload"), centerY - 20, labelFont, statLabelPaint);
         var txText = DrawHelper.FormatSpeed(txBps);
-        using var txValPaint = DrawHelper.Fill(WidgetTheme.NetworkUploadAccent);
+        using var txValPaint = DrawHelper.Fill(Colors.NetworkUploadAccent);
         canvas.DrawText(txText, rightX - valFont.MeasureText(txText), centerY - 4, valFont, txValPaint);
 
         // Lower half: RX (download) sparkline (inverted, downward from center)
         var rxGraphRect = new SKRect(leftX, centerY + 1, graphRight - 4, graphAreaBottom);
-        DrawHelper.DrawSparklineInverted(canvas, rxGraphRect, rHist, sharedMax, WidgetTheme.NetworkDownloadAccent);
+        DrawHelper.DrawSparklineInverted(canvas, rxGraphRect, rHist, sharedMax, Colors.NetworkDownloadAccent);
 
         canvas.DrawText("Download", rightX - labelFont.MeasureText("Download"), centerY + 14, labelFont, statLabelPaint);
         var rxText = DrawHelper.FormatSpeed(rxBps);
-        using var rxValPaint = DrawHelper.Fill(WidgetTheme.NetworkDownloadAccent);
+        using var rxValPaint = DrawHelper.Fill(Colors.NetworkDownloadAccent);
         canvas.DrawText(rxText, rightX - valFont.MeasureText(rxText), centerY + 30, valFont, rxValPaint);
     }
 
@@ -91,7 +92,7 @@ internal sealed class NetworkWidget : IWidget
     {
         if (!dict.TryGetValue(key, out var buf))
         {
-            buf = new SparklineBuffer(WidgetTheme.SparklineCapacity);
+            buf = new SparklineBuffer(Layout.SparklineCapacity);
             dict[key] = buf;
         }
 

@@ -1,26 +1,55 @@
 namespace MacStatDisplay.Widgets;
 
+using MacStatDisplay.Theme;
+
 using SkiaSharp;
 
-// Provides shared rendering utilities for dashboard widgets.
 internal static class DrawHelper
 {
     private static SKTypeface typeface = null!;
     private static SKTypeface typefaceBold = null!;
 
-    // Initializes shared typefaces. Must be called once at startup.
     internal static void Initialize()
     {
         typeface = ResolveTypeface(false);
         typefaceBold = ResolveTypeface(true);
     }
 
-    // Disposes shared typefaces.
     internal static void Shutdown()
     {
         typeface.Dispose();
         typefaceBold.Dispose();
     }
+
+    private static SKTypeface ResolveTypeface(bool bold)
+    {
+        if (bold)
+        {
+            var boldPath = Path.Combine("Assets", "Roboto-Bold.ttf");
+            if (File.Exists(boldPath))
+            {
+                var tf = SKTypeface.FromFile(boldPath);
+                if (tf is not null)
+                {
+                    return tf;
+                }
+            }
+        }
+
+        var mediumPath = Path.Combine("Assets", "Roboto-Medium.ttf");
+        if (File.Exists(mediumPath))
+        {
+            var tf = SKTypeface.FromFile(mediumPath);
+            if (tf is not null)
+            {
+                return tf;
+            }
+        }
+
+        return bold ? SKTypeface.FromFamilyName(SKTypeface.Default.FamilyName, SKFontStyle.Bold) : SKTypeface.Default;
+    }
+
+    // TODO
 
     // Creates a font with the resolved typeface.
     internal static SKFont MakeFont(float size, bool bold = false) =>
@@ -56,7 +85,7 @@ internal static class DrawHelper
         paint.Shader = SKShader.CreateLinearGradient(
             new SKPoint(0, 0),
             new SKPoint(width, height),
-            [WidgetTheme.GradientStart, WidgetTheme.GradientEnd],
+            [Colors.GradientStart, Colors.GradientEnd],
             null,
             SKShaderTileMode.Clamp);
         paint.IsAntialias = true;
@@ -66,26 +95,26 @@ internal static class DrawHelper
     // Draws a card panel with rounded corners and border.
     internal static void DrawPanel(SKCanvas canvas, SKRect rect)
     {
-        using var bg = Fill(WidgetTheme.PanelBackground);
-        canvas.DrawRoundRect(rect, WidgetTheme.PanelRadius, WidgetTheme.PanelRadius, bg);
+        using var bg = Fill(Colors.PanelBackground);
+        canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, bg);
 
-        using var border = Stroke(WidgetTheme.PanelBorder, 1);
-        canvas.DrawRoundRect(rect, WidgetTheme.PanelRadius, WidgetTheme.PanelRadius, border);
+        using var border = Stroke(Colors.PanelBorder, 1);
+        canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, border);
     }
 
     // Draws "CATEGORY Title" text at the top-left of a widget.
     internal static void DrawTitleBlock(SKCanvas canvas, SKRect rect, string category, string title)
     {
-        using var font = MakeFont(WidgetTheme.WidgetTitleFontSize, true);
-        using var paint = Fill(WidgetTheme.TextPrimary);
+        using var font = MakeFont(FontSize.WidgetTitle, true);
+        using var paint = Fill(Colors.TextPrimary);
         var label = string.IsNullOrWhiteSpace(category) ? title : $"{category} {title}";
-        canvas.DrawText(label, rect.Left + WidgetTheme.PaddingX, rect.Top + WidgetTheme.TitleOffsetY, font, paint);
+        canvas.DrawText(label, rect.Left + Layout.PaddingX, rect.Top + Layout.TitleOffsetY, font, paint);
     }
 
     // Draws a right-aligned value in large bold font.
     internal static void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
     {
-        using var font = MakeFont(WidgetTheme.PrimaryValueFontSize, true);
+        using var font = MakeFont(FontSize.PrimaryValue, true);
         using var paint = Fill(color);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
@@ -93,7 +122,7 @@ internal static class DrawHelper
     // Draws a centered value in large bold font (for ring gauge interior).
     internal static void DrawCenteredValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
     {
-        using var font = MakeFont(WidgetTheme.GaugeValueFontSize, true);
+        using var font = MakeFont(FontSize.GaugeValue, true);
         using var paint = Fill(color);
         canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, font, paint);
     }
@@ -101,19 +130,19 @@ internal static class DrawHelper
     // Draws right-aligned detail text.
     internal static void DrawRightAlignedDetail(SKCanvas canvas, string text, float rightX, float y)
     {
-        using var font = MakeFont(WidgetTheme.SubValueFontSize);
-        using var paint = Fill(WidgetTheme.TextSecondary);
+        using var font = MakeFont(FontSize.SubValue);
+        using var paint = Fill(Colors.TextSecondary);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
     // Draws a left-aligned label on one line and a colored value below it.
     internal static void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float y, SKColor valueColor)
     {
-        using var labelFont = MakeFont(WidgetTheme.SubLabelFontSize);
-        using var labelPaint = Fill(WidgetTheme.TextSecondary);
+        using var labelFont = MakeFont(FontSize.SubLabel);
+        using var labelPaint = Fill(Colors.TextSecondary);
         canvas.DrawText(label, x, y, labelFont, labelPaint);
 
-        using var valueFont = MakeFont(WidgetTheme.SubValueFontSize, true);
+        using var valueFont = MakeFont(FontSize.SubValue, true);
         using var valuePaint = Fill(valueColor);
         canvas.DrawText(value, x, y + 18, valueFont, valuePaint);
     }
@@ -121,11 +150,11 @@ internal static class DrawHelper
     // Draws a right-aligned label on one line and a colored value below it.
     internal static void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float y, SKColor valueColor)
     {
-        using var labelFont = MakeFont(WidgetTheme.SubLabelFontSize);
-        using var labelPaint = Fill(WidgetTheme.TextSecondary);
+        using var labelFont = MakeFont(FontSize.SubLabel);
+        using var labelPaint = Fill(Colors.TextSecondary);
         canvas.DrawText(label, rightX - labelFont.MeasureText(label), y, labelFont, labelPaint);
 
-        using var valueFont = MakeFont(WidgetTheme.SubValueFontSize, true);
+        using var valueFont = MakeFont(FontSize.SubValue, true);
         using var valuePaint = Fill(valueColor);
         canvas.DrawText(value, rightX - valueFont.MeasureText(value), y + 18, valueFont, valuePaint);
     }
@@ -134,22 +163,22 @@ internal static class DrawHelper
     internal static void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
     {
         using var trackPaint = new SKPaint();
-        trackPaint.Color = WidgetTheme.TrackColor;
+        trackPaint.Color = Colors.TrackColor;
         trackPaint.IsAntialias = true;
         trackPaint.Style = SKPaintStyle.Stroke;
-        trackPaint.StrokeWidth = WidgetTheme.RingStrokeWidth;
+        trackPaint.StrokeWidth = Layout.RingStrokeWidth;
         trackPaint.StrokeCap = SKStrokeCap.Round;
 
         using var valuePaint = new SKPaint();
         valuePaint.Color = color;
         valuePaint.IsAntialias = true;
         valuePaint.Style = SKPaintStyle.Stroke;
-        valuePaint.StrokeWidth = WidgetTheme.RingStrokeWidth;
+        valuePaint.StrokeWidth = Layout.RingStrokeWidth;
         valuePaint.StrokeCap = SKStrokeCap.Round;
 
         var ringRect = new SKRect(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
-        canvas.DrawArc(ringRect, WidgetTheme.RingStartAngle, WidgetTheme.RingArcDegrees, false, trackPaint);
-        canvas.DrawArc(ringRect, WidgetTheme.RingStartAngle, WidgetTheme.RingArcDegrees * percentage / 100f, false, valuePaint);
+        canvas.DrawArc(ringRect, Layout.RingStartAngle, Layout.RingArcDegrees, false, trackPaint);
+        canvas.DrawArc(ringRect, Layout.RingStartAngle, Layout.RingArcDegrees * percentage / 100f, false, valuePaint);
     }
 
     // Draws a sparkline area chart in the given rectangle (value 0 at bottom, growing upward).
@@ -246,58 +275,5 @@ internal static class DrawHelper
         linePaint.Style = SKPaintStyle.Stroke;
         linePaint.StrokeWidth = 1.5f;
         canvas.DrawPath(linePath, linePaint);
-    }
-
-    private static SKTypeface ResolveTypeface(bool bold)
-    {
-        // Bold: prefer Roboto-Bold.ttf, then fall back to Roboto-Medium.ttf
-        if (bold)
-        {
-            var boldPath = Path.Combine("Assets", "Roboto-Bold.ttf");
-            if (File.Exists(boldPath))
-            {
-                var tf = SKTypeface.FromFile(boldPath);
-                if (tf is not null)
-                {
-                    return tf;
-                }
-            }
-        }
-
-        // Regular (and bold fallback): Roboto-Medium.ttf
-        var mediumPath = Path.Combine("Assets", "Roboto-Medium.ttf");
-        if (File.Exists(mediumPath))
-        {
-            var tf = SKTypeface.FromFile(mediumPath);
-            if (tf is not null)
-            {
-                return tf;
-            }
-        }
-
-        // System font fallback
-        string[] families =
-        [
-            "Yu Gothic UI", "Meiryo", "MS Gothic",
-            "Hiragino Sans", "Hiragino Kaku Gothic ProN",
-            "Noto Sans CJK JP", "Noto Sans JP"
-        ];
-
-        var style = bold ? SKFontStyle.Bold : SKFontStyle.Normal;
-
-        foreach (var name in families)
-        {
-            var tf = SKTypeface.FromFamilyName(name, style);
-            if (tf is not null && tf.FamilyName.Equals(name, StringComparison.OrdinalIgnoreCase))
-            {
-                return tf;
-            }
-
-            tf?.Dispose();
-        }
-
-        return bold
-            ? SKTypeface.FromFamilyName(SKTypeface.Default.FamilyName, SKFontStyle.Bold)
-            : SKTypeface.Default;
     }
 }
