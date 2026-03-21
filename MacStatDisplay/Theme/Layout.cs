@@ -38,16 +38,16 @@ internal static class Layout
     internal const float RingStrokeWidth = 16f;
     internal const float RingArcDegrees = 270f;
     internal const float RingStartAngle = 135f;
-    internal const float RingSideMargin = 70f;
-    internal const float RingHeightRatio = 1.707f;
-    internal const float RingCenterOffsetRatio = 0.147f;
-    internal const float RingSideTopOffset = 8f;
+    internal const float RingSideMargin = 64f;
+    internal const float RingHeightRatio = 2f;
+    internal const float RingCenterOffsetRatio = 0.2f;
+    internal const float RingSideTopOffset = 0f;
     internal const float TemperatureOffsetY = 22f;
 
     // Sparkline
 
-    // TODO
     internal const int SparklineCapacity = 100;
+
     internal const float SparklineStrokeWidth = 1.5f;
     internal const float SparklineEntryNameBaseline = 14f;
     internal const float SparklineLabelHeight = 18f;
