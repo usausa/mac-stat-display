@@ -11,6 +11,7 @@ internal sealed class MemoryUsageWidget : IWidget
     {
     }
 
+    // ReSharper disable StringLiteralTypo
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
@@ -37,10 +38,12 @@ internal sealed class MemoryUsageWidget : IWidget
         var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
         DrawHelper.DrawStackedLabelValue(canvas, "Swap", $"{monitor.SwapUsagePercent:0.0}%", leftX, sideStartY, Colors.MemoryAccent);
 
-        // Right: Active, Wired
+        // Right: Active, Wired, Compressor
         var rightX = rect.Right - Layout.PaddingX;
         var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
         DrawHelper.DrawStackedLabelValueRight(canvas, "Active", $"{monitor.MemoryActivePercent:0.0}%", rightX, sideStartY, Colors.MemoryAccent);
         DrawHelper.DrawStackedLabelValueRight(canvas, "Wired", $"{monitor.MemoryWiredPercent:0.0}%", rightX, sideStartY + itemSpacing, Colors.MemoryAccent);
+        DrawHelper.DrawStackedLabelValueRight(canvas, "Compr", $"{monitor.MemoryCompressorPercent:0.0}%", rightX, sideStartY + (itemSpacing * 2), Colors.MemoryAccent);
     }
+    // ReSharper restore StringLiteralTypo
 }

@@ -156,7 +156,7 @@ internal static class DrawHelper
 
         using var labelFont = MakeFont(FontSize.SubLabel);
         using var labelPaint = Fill(Colors.TextSecondary);
-        canvas.DrawText(label, x, bottomY + valueFont.Metrics.Ascent, labelFont, labelPaint);
+        canvas.DrawText(label, x, bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent, labelFont, labelPaint);
     }
 
     // Draws a right-aligned label above a colored value, bottom-aligned at the given y (value baseline).
@@ -168,7 +168,41 @@ internal static class DrawHelper
 
         using var labelFont = MakeFont(FontSize.SubLabel);
         using var labelPaint = Fill(Colors.TextSecondary);
-        canvas.DrawText(label, rightX - labelFont.MeasureText(label), bottomY + valueFont.Metrics.Ascent, labelFont, labelPaint);
+        canvas.DrawText(label, rightX - labelFont.MeasureText(label), bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent, labelFont, labelPaint);
+    }
+
+    // Draws two right-aligned label+value pairs for sparkline side values.
+    // Upper pair is drawn upward from the upper anchor, lower pair is drawn downward from the lower anchor.
+    // The center margin (as a ratio of area height) controls the gap between upper and lower sections.
+    internal static void DrawSparklineSideValues(
+        SKCanvas canvas, float rightX, float areaTop, float areaBottom,
+        string upperLabel, string upperValue, SKColor upperColor,
+        string lowerLabel, string lowerValue, SKColor lowerColor)
+    {
+        using var valFont = MakeFont(FontSize.SubValue, true);
+        using var labelFont = MakeFont(FontSize.SubLabel);
+        using var labelPaint = Fill(Colors.TextSecondary);
+
+        var areaHeight = areaBottom - areaTop;
+        var halfContent = (1f - Layout.SparklineSideCenterMarginRatio) / 2f;
+
+        // Upper: draw upward from upper anchor (value bottom at anchor, label above value)
+        var upperAnchor = areaTop + (areaHeight * halfContent);
+        var upperValueY = upperAnchor - valFont.Metrics.Descent;
+        var upperLabelY = upperValueY + valFont.Metrics.Ascent - labelFont.Metrics.Descent;
+
+        using var upperPaint = Fill(upperColor);
+        canvas.DrawText(upperLabel, rightX - labelFont.MeasureText(upperLabel), upperLabelY, labelFont, labelPaint);
+        canvas.DrawText(upperValue, rightX - valFont.MeasureText(upperValue), upperValueY, valFont, upperPaint);
+
+        // Lower: draw downward from lower anchor (label top at anchor, value below label)
+        var lowerAnchor = areaBottom - (areaHeight * halfContent);
+        var lowerLabelY = lowerAnchor - labelFont.Metrics.Ascent;
+        var lowerValueY = lowerLabelY + labelFont.Metrics.Descent - valFont.Metrics.Ascent;
+
+        using var lowerPaint = Fill(lowerColor);
+        canvas.DrawText(lowerLabel, rightX - labelFont.MeasureText(lowerLabel), lowerLabelY, labelFont, labelPaint);
+        canvas.DrawText(lowerValue, rightX - valFont.MeasureText(lowerValue), lowerValueY, valFont, lowerPaint);
     }
 
     // Draws a 270° ring gauge (open at bottom).

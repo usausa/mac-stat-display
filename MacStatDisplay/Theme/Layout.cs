@@ -49,8 +49,5 @@ internal static class Layout
     internal const float SparklineGraphGap = 4f;
     internal const float SparklineGraphMargin = 2f;
     internal const float SparklineCenterGap = 1f;
-    internal const float SparklineUpperLabelOffsetY = 20f;
-    internal const float SparklineUpperValueOffsetY = 4f;
-    internal const float SparklineLowerLabelOffsetY = 14f;
-    internal const float SparklineLowerValueOffsetY = 30f;
+    internal const float SparklineSideCenterMarginRatio = 0.04f;
 }

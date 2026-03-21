@@ -66,6 +66,7 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     public double MemoryUsagePercent { get; private set; } = 72;
     public double MemoryActivePercent { get; } = 48;
     public double MemoryWiredPercent { get; } = 18;
+    public double MemoryCompressorPercent { get; } = 8;
 
     // Swap
 

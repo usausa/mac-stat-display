@@ -72,6 +72,7 @@ internal interface ISystemMonitor
     double MemoryUsagePercent { get; }
     double MemoryActivePercent { get; }
     double MemoryWiredPercent { get; }
+    double MemoryCompressorPercent { get; }
 
     // Swap
 

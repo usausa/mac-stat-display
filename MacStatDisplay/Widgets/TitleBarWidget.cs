@@ -1,6 +1,7 @@
 namespace MacStatDisplay.Widgets;
 
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 using MacStatDisplay.Monitor;
 using MacStatDisplay.Theme;
@@ -12,8 +13,11 @@ internal sealed class TitleBarWidget : IWidget
 {
     private const int GridColumns = 6;
 
+    private string machineInfo = string.Empty;
+
     public void Initialize(IReadOnlyDictionary<string, string> parameters)
     {
+        machineInfo = $"{Environment.MachineName} · {RuntimeInformation.FrameworkDescription}";
     }
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
@@ -27,52 +31,54 @@ internal sealed class TitleBarWidget : IWidget
         var cy = rect.MidY;
         var colWidth = rect.Width / GridColumns;
 
-        // Column 0-1: Title
+        // Column 0-1: Machine info
         using var titleFont = DrawHelper.MakeFont(FontSize.HeaderTitle, true);
         using var titlePaint = DrawHelper.Fill(Colors.TextPrimary);
-        canvas.DrawText("SYSTEM MONITOR", rect.Left + 16, cy + (titleFont.Size * Layout.BaselineRatio), titleFont, titlePaint);
+        var titleBaseline = cy - ((titleFont.Metrics.Ascent + titleFont.Metrics.Descent) / 2f);
+        canvas.DrawText(machineInfo, rect.Left + 16, titleBaseline, titleFont, titlePaint);
 
         using var labelFont = DrawHelper.MakeFont(FontSize.HeaderLabel);
         using var labelPaint = DrawHelper.Fill(Colors.HeaderLabel);
         using var valFont = DrawHelper.MakeFont(FontSize.HeaderValue, true);
         using var valPaint = DrawHelper.Fill(Colors.TextPrimary);
 
-        var baseline = cy + (valFont.Size * Layout.BaselineRatio);
         const float colPad = 8f;
 
         // Column 2: Process (right-aligned within column)
         var col2Right = rect.Left + (3 * colWidth) - colPad;
         DrawRightAlignedLabelValue(canvas, "Process ", $"{monitor.ProcessCount}",
-            col2Right, baseline, labelFont, labelPaint, valFont, valPaint);
+            col2Right, cy, labelFont, labelPaint, valFont, valPaint);
 
         // Column 3: Thread (right-aligned within column)
         var col3Right = rect.Left + (4 * colWidth) - colPad;
         DrawRightAlignedLabelValue(canvas, "Thread ", $"{monitor.ThreadCount}",
-            col3Right, baseline, labelFont, labelPaint, valFont, valPaint);
+            col3Right, cy, labelFont, labelPaint, valFont, valPaint);
 
         // Column 4: UPTIME (right-aligned within column)
         var col4Right = rect.Left + (5 * colWidth) - colPad;
         var uptime = monitor.Uptime;
         DrawRightAlignedLabelValue(canvas, "UPTIME ", $"{(int)uptime.TotalDays}d {uptime.Hours:D2}h {uptime.Minutes:D2}m",
-            col4Right, baseline, labelFont, labelPaint, valFont, valPaint);
+            col4Right, cy, labelFont, labelPaint, valFont, valPaint);
 
         // Column 5: TIME (right-aligned within column)
         var col5Right = rect.Right - colPad;
         DrawRightAlignedLabelValue(canvas, "TIME ", DateTime.Now.ToString("HH:mm", CultureInfo.InvariantCulture),
-            col5Right, baseline, labelFont, labelPaint, valFont, valPaint);
+            col5Right, cy, labelFont, labelPaint, valFont, valPaint);
     }
 
     private static void DrawRightAlignedLabelValue(
         SKCanvas canvas, string label, string value,
-        float rightX, float y,
+        float rightX, float cy,
         SKFont labelFont, SKPaint labelPaint,
         SKFont valFont, SKPaint valPaint)
     {
+        var valBaseline = cy - ((valFont.Metrics.Ascent + valFont.Metrics.Descent) / 2f);
         var valW = valFont.MeasureText(value);
         var x = rightX - valW;
-        canvas.DrawText(value, x, y, valFont, valPaint);
+        canvas.DrawText(value, x, valBaseline, valFont, valPaint);
 
+        var labelBaseline = cy - ((labelFont.Metrics.Ascent + labelFont.Metrics.Descent) / 2f);
         var lblW = labelFont.MeasureText(label);
-        canvas.DrawText(label, x - lblW, y, labelFont, labelPaint);
+        canvas.DrawText(label, x - lblW, labelBaseline, labelFont, labelPaint);
     }
 }

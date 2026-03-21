@@ -61,10 +61,6 @@ internal sealed class NetworkWidget : IWidget
         var centerY = graphAreaTop + ((graphAreaBottom - graphAreaTop) / 2f);
         var graphRight = rightX - Layout.SparklineValueColumnWidth;
 
-        using var labelFont = DrawHelper.MakeFont(FontSize.SubLabel);
-        using var valFont = DrawHelper.MakeFont(FontSize.SubValue, true);
-        using var statLabelPaint = DrawHelper.Fill(Colors.TextSecondary);
-
         // Use shared max so Upload and Download graphs share the same scale
         var sharedMax = Math.Max(Math.Max(tHist.Max(), rHist.Max()), 1f);
 
@@ -72,19 +68,16 @@ internal sealed class NetworkWidget : IWidget
         var txGraphRect = new SKRect(leftX, graphAreaTop, graphRight - Layout.SparklineGraphGap, centerY - Layout.SparklineCenterGap);
         DrawHelper.DrawSparkline(canvas, txGraphRect, tHist, sharedMax, Colors.NetworkUploadAccent);
 
-        canvas.DrawText("Upload", rightX - labelFont.MeasureText("Upload"), centerY - Layout.SparklineUpperLabelOffsetY, labelFont, statLabelPaint);
-        var txText = DrawHelper.FormatSpeed(txBps);
-        using var txValPaint = DrawHelper.Fill(Colors.NetworkUploadAccent);
-        canvas.DrawText(txText, rightX - valFont.MeasureText(txText), centerY - Layout.SparklineUpperValueOffsetY, valFont, txValPaint);
-
         // Lower half: RX (download) sparkline (inverted, downward from center)
         var rxGraphRect = new SKRect(leftX, centerY + Layout.SparklineCenterGap, graphRight - Layout.SparklineGraphGap, graphAreaBottom);
         DrawHelper.DrawSparklineInverted(canvas, rxGraphRect, rHist, sharedMax, Colors.NetworkDownloadAccent);
 
-        canvas.DrawText("Download", rightX - labelFont.MeasureText("Download"), centerY + Layout.SparklineLowerLabelOffsetY, labelFont, statLabelPaint);
+        // Side values: Upload above center, Download below center
+        var txText = DrawHelper.FormatSpeed(txBps);
         var rxText = DrawHelper.FormatSpeed(rxBps);
-        using var rxValPaint = DrawHelper.Fill(Colors.NetworkDownloadAccent);
-        canvas.DrawText(rxText, rightX - valFont.MeasureText(rxText), centerY + Layout.SparklineLowerValueOffsetY, valFont, rxValPaint);
+        DrawHelper.DrawSparklineSideValues(canvas, rightX, graphAreaTop, graphAreaBottom,
+            "Upload", txText, Colors.NetworkUploadAccent,
+            "Download", rxText, Colors.NetworkDownloadAccent);
     }
 
     private static void PushHistory(Dictionary<string, RingBuffer> dict, string key, float value)

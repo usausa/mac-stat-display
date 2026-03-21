@@ -60,10 +60,6 @@ internal sealed class DiskIoWidget : IWidget
         var centerY = graphAreaTop + ((graphAreaBottom - graphAreaTop) / 2f);
         var graphRight = rightX - Layout.SparklineValueColumnWidth;
 
-        using var labelFont = DrawHelper.MakeFont(FontSize.SubLabel);
-        using var valFont = DrawHelper.MakeFont(FontSize.SubValue, true);
-        using var statLabelPaint = DrawHelper.Fill(Colors.TextSecondary);
-
         // Use shared max so Write and Read graphs share the same scale
         var sharedMax = Math.Max(Math.Max(wHist.Max(), rHist.Max()), 1f);
 
@@ -71,19 +67,16 @@ internal sealed class DiskIoWidget : IWidget
         var wGraphRect = new SKRect(leftX, graphAreaTop, graphRight - Layout.SparklineGraphGap, centerY - Layout.SparklineCenterGap);
         DrawHelper.DrawSparkline(canvas, wGraphRect, wHist, sharedMax, Colors.DiskWriteAccent);
 
-        canvas.DrawText("Write", rightX - labelFont.MeasureText("Write"), centerY - Layout.SparklineUpperLabelOffsetY, labelFont, statLabelPaint);
-        var wText = DrawHelper.FormatSpeed(writeBps);
-        using var wValPaint = DrawHelper.Fill(Colors.DiskWriteAccent);
-        canvas.DrawText(wText, rightX - valFont.MeasureText(wText), centerY - Layout.SparklineUpperValueOffsetY, valFont, wValPaint);
-
         // Lower half: Read sparkline (inverted, downward from center)
         var rGraphRect = new SKRect(leftX, centerY + Layout.SparklineCenterGap, graphRight - Layout.SparklineGraphGap, graphAreaBottom);
         DrawHelper.DrawSparklineInverted(canvas, rGraphRect, rHist, sharedMax, Colors.DiskReadAccent);
 
-        canvas.DrawText("Read", rightX - labelFont.MeasureText("Read"), centerY + Layout.SparklineLowerLabelOffsetY, labelFont, statLabelPaint);
+        // Side values: Write above center, Read below center
+        var wText = DrawHelper.FormatSpeed(writeBps);
         var rText = DrawHelper.FormatSpeed(readBps);
-        using var rValPaint = DrawHelper.Fill(Colors.DiskReadAccent);
-        canvas.DrawText(rText, rightX - valFont.MeasureText(rText), centerY + Layout.SparklineLowerValueOffsetY, valFont, rValPaint);
+        DrawHelper.DrawSparklineSideValues(canvas, rightX, graphAreaTop, graphAreaBottom,
+            "Write", wText, Colors.DiskWriteAccent,
+            "Read", rText, Colors.DiskReadAccent);
     }
 
     private static void PushHistory(Dictionary<string, RingBuffer> dict, string key, float value)
