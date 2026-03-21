@@ -37,8 +37,8 @@ internal sealed class DiskIoWidget : IWidget
         for (var i = 0; i < entries.Count; i++)
         {
             var e = entries[i];
-            PushHistory(readHistory, e.Name, (float)e.ReadBytesPerSec);
-            PushHistory(writeHistory, e.Name, (float)e.WriteBytesPerSec);
+            readHistory.GetOrAdd(e.Name, () => new RingBuffer(Layout.SparklineCapacity)).Push((float)e.ReadBytesPerSec);
+            writeHistory.GetOrAdd(e.Name, () => new RingBuffer(Layout.SparklineCapacity)).Push((float)e.WriteBytesPerSec);
             DrawIoEntry(
                 canvas, e.Name, e.ReadBytesPerSec, e.WriteBytesPerSec,
                 leftX, rightX, contentTop + (i * entryH), entryH,
@@ -79,16 +79,5 @@ internal sealed class DiskIoWidget : IWidget
             canvas, rightX, graphAreaTop, graphAreaBottom,
             "Write", wText, Colors.DiskWriteAccent,
             "Read", rText, Colors.DiskReadAccent);
-    }
-
-    private static void PushHistory(Dictionary<string, RingBuffer> dict, string key, float value)
-    {
-        if (!dict.TryGetValue(key, out var buf))
-        {
-            buf = new RingBuffer(Layout.SparklineCapacity);
-            dict[key] = buf;
-        }
-
-        buf.Push(value);
     }
 }

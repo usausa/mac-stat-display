@@ -49,8 +49,8 @@ internal sealed class FileSystemWidget : IWidget
         var centerY = entryTop + (entryH / 2f);
 
         // Bar
-        var barTop = centerY + 2;
-        var barBottom = Math.Min(barTop + Layout.BarHeight, entryTop + entryH - 2);
+        var barTop = centerY + Layout.BarGaugeMargin;
+        var barBottom = Math.Min(barTop + Layout.BarHeight, entryTop + entryH - Layout.BarGaugeMargin);
         var barRect = new SKRect(leftX, barTop, rightX, barBottom);
 
         using var trackPaint = DrawHelper.Fill(Colors.TrackColor);
@@ -65,14 +65,14 @@ internal sealed class FileSystemWidget : IWidget
         using var mountFont = DrawHelper.MakeFont(FontSize.SubLabel);
         using var subPaint = DrawHelper.Fill(Colors.TextSecondary);
         using var accentPaint = DrawHelper.Fill(Colors.FileSystemAccent);
-        canvas.DrawText(mount, leftX, centerY - 2 + mountFont.Metrics.Ascent - mountFont.Metrics.Descent, mountFont, subPaint);
+        canvas.DrawText(mount, leftX, centerY + mountFont.Metrics.Ascent - mountFont.Metrics.Descent, mountFont, subPaint);
 
         var gbText = $"{usedGb:0.0} / {totalGb:0.0} GB";
-        canvas.DrawText(gbText, leftX, centerY - 2, mountFont, accentPaint);
+        canvas.DrawText(gbText, leftX, centerY, mountFont, accentPaint);
 
         // Right
         using var pctFont = DrawHelper.MakeFont(FontSize.PrimaryValue, true);
         var pctText = $"{usage:0}%";
-        canvas.DrawText(pctText, rightX - pctFont.MeasureText(pctText), centerY - 2, pctFont, accentPaint);
+        canvas.DrawText(pctText, rightX - pctFont.MeasureText(pctText), centerY, pctFont, accentPaint);
     }
 }

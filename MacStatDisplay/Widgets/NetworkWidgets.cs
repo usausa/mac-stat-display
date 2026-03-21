@@ -38,8 +38,8 @@ internal sealed class NetworkWidget : IWidget
         {
             var e = entries[i];
             var displayName = e.DisplayName ?? e.Name;
-            PushHistory(rxHistory, displayName, (float)e.RxBytesPerSec);
-            PushHistory(txHistory, displayName, (float)e.TxBytesPerSec);
+            rxHistory.GetOrAdd(displayName, () => new RingBuffer(Layout.SparklineCapacity)).Push((float)e.RxBytesPerSec);
+            txHistory.GetOrAdd(displayName, () => new RingBuffer(Layout.SparklineCapacity)).Push((float)e.TxBytesPerSec);
             DrawIfEntry(
                 canvas, displayName, e.RxBytesPerSec, e.TxBytesPerSec,
                 leftX, rightX, contentTop + (i * entryH), entryH,
@@ -80,16 +80,5 @@ internal sealed class NetworkWidget : IWidget
             canvas, rightX, graphAreaTop, graphAreaBottom,
             "Upload", txText, Colors.NetworkUploadAccent,
             "Download", rxText, Colors.NetworkDownloadAccent);
-    }
-
-    private static void PushHistory(Dictionary<string, RingBuffer> dict, string key, float value)
-    {
-        if (!dict.TryGetValue(key, out var buf))
-        {
-            buf = new RingBuffer(Layout.SparklineCapacity);
-            dict[key] = buf;
-        }
-
-        buf.Push(value);
     }
 }

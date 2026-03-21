@@ -25,6 +25,7 @@ internal static class Layout
 
     internal const float BarHeight = 16f;
     internal const float BarRadius = 5f;
+    internal const float BarGaugeMargin = 4f;
 
     // Ring Gauge
 
