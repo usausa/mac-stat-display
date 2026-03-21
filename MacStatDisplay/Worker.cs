@@ -10,10 +10,11 @@ using SkiaSharp;
 
 internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISystemMonitor monitor, IDisplayDriver displayDriver) : BackgroundService
 {
-    private readonly TitleBarWidget titleBarWidget = new();
-
-    // A widget paired with its pre-computed drawing rectangle.
     private record struct WidgetPlacement(IWidget Widget, SKRect Rect);
+
+    //--------------------------------------------------------------------------------
+    // Core
+    //--------------------------------------------------------------------------------
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -105,26 +106,34 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         }
     }
 
-    // Builds the widget layout from settings, pre-computing each widget's drawing rectangle.
-    private WidgetPlacement[] BuildLayout(int imageWidth, int imageHeight)
-    {
-        if (settings.Widgets.Count == 0)
-        {
-            return [];
-        }
+    //--------------------------------------------------------------------------------
+    // Helper
+    //--------------------------------------------------------------------------------
 
+    private WidgetPlacement[] BuildLayout(int width, int height)
+    {
+        var placements = new List<WidgetPlacement>();
+
+        // Header
+        var headerWidget = WidgetFactory.Create(settings.Header.Type);
+        headerWidget.Initialize(settings.Header.Parameters);
+        var headerRect = new SKRect(Layout.OuterPadding, Layout.OuterPadding, width - Layout.OuterPadding, Layout.OuterPadding + Layout.HeaderHeight);
+
+        placements.Add(new WidgetPlacement(headerWidget, headerRect));
+
+        // Grid
         var gridColumns = settings.Grid.Columns;
         var gridRows = settings.Grid.Rows;
 
         var gridTop = Layout.OuterPadding + Layout.HeaderHeight + Layout.ContentGap;
-        var gridHeight = imageHeight - gridTop - Layout.OuterPadding;
-        var cellWidth = (imageWidth - (Layout.OuterPadding * 2) - (Layout.ContentGap * (gridColumns - 1))) / (float)gridColumns;
-        var cellHeight = (gridHeight - (Layout.ContentGap * (gridRows - 1))) / (float)gridRows;
+        var gridHeight = height - gridTop - Layout.OuterPadding;
+        var cellWidth = (float)(width - (Layout.OuterPadding * 2) - (Layout.ContentGap * (gridColumns - 1))) / gridColumns;
+        var cellHeight = (float)(gridHeight - (Layout.ContentGap * (gridRows - 1))) / gridRows;
 
-        var placements = new WidgetPlacement[settings.Widgets.Count];
         for (var i = 0; i < settings.Widgets.Count; i++)
         {
             var entry = settings.Widgets[i];
+
             var widget = WidgetFactory.Create(entry.Type);
             widget.Initialize(entry.Parameters);
 
@@ -133,18 +142,15 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
             var w = (cellWidth * entry.ColumnSpan) + (Layout.ContentGap * (entry.ColumnSpan - 1));
             var h = (cellHeight * entry.RowSpan) + (Layout.ContentGap * (entry.RowSpan - 1));
 
-            placements[i] = new WidgetPlacement(widget, new SKRect(x, y, x + w, y + h));
+            placements.Add(new WidgetPlacement(widget, new SKRect(x, y, x + w, y + h)));
         }
 
-        return placements;
+        return placements.ToArray();
     }
 
-    private void RenderDashboard(SKCanvas canvas, int imageWidth, int imageHeight, IEnumerable<WidgetPlacement> placements)
+    private void RenderDashboard(SKCanvas canvas, int width, int height, IEnumerable<WidgetPlacement> placements)
     {
-        DrawHelper.DrawBackground(canvas, imageWidth, imageHeight);
-
-        var headerRect = new SKRect(Layout.OuterPadding, Layout.OuterPadding, imageWidth - Layout.OuterPadding, Layout.OuterPadding + Layout.HeaderHeight);
-        titleBarWidget.Draw(canvas, headerRect, monitor);
+        DrawHelper.DrawBackground(canvas, width, height);
 
         foreach (var placement in placements)
         {

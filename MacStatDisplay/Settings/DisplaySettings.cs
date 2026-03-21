@@ -12,6 +12,8 @@ internal sealed record DisplaySettings
 
     public GridSettings Grid { get; init; } = new();
 
+    public WidgetEntry Header { get; init; } = new() { Type = "TitleBar" };
+
     public List<WidgetEntry> Widgets { get; init; } = [];
 }
 

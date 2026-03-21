@@ -8,6 +8,7 @@ internal static class WidgetFactory
     internal static IWidget Create(string type) =>
         type switch
         {
+            "TitleBar"    => new TitleBarWidget(),
             "CpuUsage"    => new CpuUsageWidget(),
             "CpuClock"    => new CpuClockWidget(),
             "LoadAverage" => new LoadAverageWidget(),
