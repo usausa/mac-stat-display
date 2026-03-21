@@ -2,6 +2,8 @@
 
 A macOS system monitor that displays real-time stats (CPU, memory, GPU, disk, network, etc.) on a USB LCD screen.
 
+Uses the [Thermalright Trofeo Vision LCD](https://www.thermalright.com/product/trofeo-vision-lcd-white/) as the display device.
+
 ![Display](Document/image.jpg)
 
 ## ⚙️Installation
