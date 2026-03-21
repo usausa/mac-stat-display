@@ -23,11 +23,11 @@ internal static class Layout
 
     // Title Bar
 
-    public const float TitleBarRightPad = 8f;
+    public const float TitleBarSidePad = 8f;
     public const float TitleBarLabelValueGap = 6f;
-    public const float TitleBarTimeUptimeMarginRatio = 0.03f;
-    public const float TitleBarUptimeThreadMarginRatio = 0.02f;
-    public const float TitleBarThreadProcessMarginRatio = 0.02f;
+    public const float TitleBarTimeUptimeMarginRatio = 0.01f;
+    public const float TitleBarUptimeThreadMarginRatio = 0.05f;
+    public const float TitleBarThreadProcessMarginRatio = 0.0f;
 
     // Ring Gauge
 
