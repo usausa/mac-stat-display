@@ -6,7 +6,7 @@ internal static class FontSize
     internal const float HeaderValue = 20f;
     internal const float HeaderLabel = 14f;
 
-    internal const float WidgetTitle = 18f;
+    internal const float WidgetTitle = 20f;
 
     internal const float PrimaryValue = 36f;
 

@@ -21,6 +21,7 @@ internal static class Layout
     internal const float HeaderRadius = 16f;
     internal const float PanelRadius = 12f;
 
+    // TODO
     // Stacked Label-Value
 
     internal const float StackedValueOffsetY = 18f;
@@ -33,6 +34,7 @@ internal static class Layout
 
     // Ring Gauge
 
+    // TODO
     internal const float RingStrokeWidth = 16f;
     internal const float RingArcDegrees = 270f;
     internal const float RingStartAngle = 135f;
@@ -44,6 +46,7 @@ internal static class Layout
 
     // Sparkline
 
+    // TODO
     internal const int SparklineCapacity = 100;
     internal const float SparklineStrokeWidth = 1.5f;
     internal const float SparklineEntryNameBaseline = 14f;

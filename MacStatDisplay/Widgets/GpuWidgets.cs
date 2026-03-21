@@ -5,7 +5,6 @@ using MacStatDisplay.Theme;
 
 using SkiaSharp;
 
-// Ring gauge widget for GPU usage (1×2). Shows temperature and renderer/tiler utilization.
 internal sealed class GpuUsageWidget : IWidget
 {
     public void Initialize(IReadOnlyDictionary<string, string> parameters)
@@ -17,8 +16,8 @@ internal sealed class GpuUsageWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitleBlock(canvas, rect, "GPU Usage");
 
+        // TODO
         var gpu = monitor.GpuDevices.Count > 0 ? monitor.GpuDevices[0] : null;
-
         var usage = (float)Math.Clamp(gpu?.DeviceUtilization ?? 0, 0, 100);
 
         // Content area below title

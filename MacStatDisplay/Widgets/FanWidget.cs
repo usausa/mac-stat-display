@@ -14,7 +14,7 @@ internal sealed class FanWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "FAN");
+        DrawHelper.DrawTitleBlock(canvas, rect, "FAN Speed");
 
         var fan = monitor.Fans.Count > 0 ? monitor.Fans[0] : null;
 

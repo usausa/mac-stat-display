@@ -5,7 +5,6 @@ using MacStatDisplay.Theme;
 
 using SkiaSharp;
 
-// Ring gauge widget for memory usage with Active/Wired detail and Swap on the left.
 internal sealed class MemoryUsageWidget : IWidget
 {
     public void Initialize(IReadOnlyDictionary<string, string> parameters)
@@ -15,8 +14,9 @@ internal sealed class MemoryUsageWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "MEM Usage");
+        DrawHelper.DrawTitleBlock(canvas, rect, "Memory Usage");
 
+        // TODO
         var usage = (float)Math.Clamp(monitor.MemoryUsagePercent, 0, 100);
 
         // Content area below title

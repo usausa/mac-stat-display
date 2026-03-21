@@ -5,7 +5,6 @@ using MacStatDisplay.Theme;
 
 using SkiaSharp;
 
-// Ring gauge widget for CPU usage with E/P-core and System/User/Idle breakdown, plus CPU temperature.
 internal sealed class CpuUsageWidget : IWidget
 {
     public void Initialize(IReadOnlyDictionary<string, string> parameters)
@@ -19,6 +18,7 @@ internal sealed class CpuUsageWidget : IWidget
 
         var usage = (float)Math.Clamp(monitor.CpuUsageTotal, 0, 100);
 
+        // TODO
         // Content area below title
         var contentTop = rect.Top + Layout.TitleOffsetY + Layout.ContentTopGap;
         var contentH = rect.Bottom - Layout.PaddingY - contentTop;
