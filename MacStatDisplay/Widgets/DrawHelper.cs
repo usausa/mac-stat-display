@@ -10,13 +10,13 @@ internal static class DrawHelper
     private static SKTypeface typeface = null!;
     private static SKTypeface typefaceBold = null!;
 
-    internal static void Initialize()
+    public static void Initialize()
     {
         typeface = ResolveTypeface(false);
         typefaceBold = ResolveTypeface(true);
     }
 
-    internal static void Shutdown()
+    public static void Shutdown()
     {
         typeface.Dispose();
         typefaceBold.Dispose();
@@ -54,19 +54,19 @@ internal static class DrawHelper
     // Resource
     //--------------------------------------------------------------------------------
 
-    internal static SKFont MakeFont(float size, bool bold = false) =>
+    public static SKFont MakeFont(float size, bool bold = false) =>
         new(bold ? typefaceBold : typeface, size)
         {
             Edging = SKFontEdging.SubpixelAntialias
         };
 
-    internal static SKPaint MakeFillPaint(SKColor color) =>
+    public static SKPaint MakeFillPaint(SKColor color) =>
         new()
         {
             Color = color, IsAntialias = true
         };
 
-    internal static SKPaint MakeStrokePaint(SKColor color, float width) =>
+    public static SKPaint MakeStrokePaint(SKColor color, float width) =>
         new()
         {
             Color = color,
@@ -79,7 +79,7 @@ internal static class DrawHelper
     // Measurement
     //--------------------------------------------------------------------------------
 
-    internal static float MeasureSubValueWidth(string text)
+    public static float MeasureSubValueWidth(string text)
     {
         using var font = MakeFont(FontSize.SubValue, true);
         return font.MeasureText(text);
@@ -90,7 +90,7 @@ internal static class DrawHelper
     //--------------------------------------------------------------------------------
 
     // Draws the full-screen gradient background.
-    internal static void DrawBackground(SKCanvas canvas, int width, int height)
+    public static void DrawBackground(SKCanvas canvas, int width, int height)
     {
         using var paint = new SKPaint();
         paint.Shader = SKShader.CreateLinearGradient(
@@ -104,7 +104,7 @@ internal static class DrawHelper
     }
 
     // Draws a card panel with rounded corners and border.
-    internal static void DrawPanel(SKCanvas canvas, SKRect rect)
+    public static void DrawPanel(SKCanvas canvas, SKRect rect)
     {
         using var bg = MakeFillPaint(Colors.PanelBackground);
         canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, bg);
@@ -117,28 +117,28 @@ internal static class DrawHelper
     // Text
     //--------------------------------------------------------------------------------
 
-    internal static void DrawTitle(SKCanvas canvas, SKRect rect, string title)
+    public static void DrawTitle(SKCanvas canvas, SKRect rect, string title)
     {
         using var font = MakeFont(FontSize.WidgetTitle, true);
         using var paint = MakeFillPaint(Colors.TextPrimary);
         canvas.DrawText(title, rect.Left + Layout.PaddingX, rect.Top + Layout.TitleOffsetY, font, paint);
     }
 
-    internal static void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
+    public static void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
     {
         using var font = MakeFont(FontSize.PrimaryValue, true);
         using var paint = MakeFillPaint(color);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
-    internal static void DrawCenterValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
+    public static void DrawCenterValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
     {
         using var font = MakeFont(FontSize.GaugeValue, true);
         using var paint = MakeFillPaint(color);
         canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, font, paint);
     }
 
-    internal static void DrawStackedValue(SKCanvas canvas, string label, string value, float x, float bottomY, SKColor valueColor)
+    public static void DrawStackedValue(SKCanvas canvas, string label, string value, float x, float bottomY, SKColor valueColor)
     {
         using var valueFont = MakeFont(FontSize.SubValue, true);
         using var valuePaint = MakeFillPaint(valueColor);
@@ -149,7 +149,7 @@ internal static class DrawHelper
         canvas.DrawText(label, x, bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent, labelFont, labelPaint);
     }
 
-    internal static void DrawStackedValueRight(SKCanvas canvas, string label, string value, float rightX, float bottomY, SKColor valueColor)
+    public static void DrawStackedValueRight(SKCanvas canvas, string label, string value, float rightX, float bottomY, SKColor valueColor)
     {
         using var valueFont = MakeFont(FontSize.SubValue, true);
         using var valuePaint = MakeFillPaint(valueColor);
@@ -164,7 +164,7 @@ internal static class DrawHelper
     // Gauge
     //--------------------------------------------------------------------------------
 
-    internal static void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
+    public static void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
     {
         using var trackPaint = new SKPaint();
         trackPaint.Color = Colors.TrackColor;
@@ -189,7 +189,7 @@ internal static class DrawHelper
     // Sparkline
     //--------------------------------------------------------------------------------
 
-    internal static void DrawSparkline(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
+    public static void DrawSparkline(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
     {
         if (maxValue <= 0)
         {
@@ -236,7 +236,7 @@ internal static class DrawHelper
         canvas.DrawPath(linePath, linePaint);
     }
 
-    internal static void DrawSparklineInverted(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
+    public static void DrawSparklineInverted(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
     {
         if (maxValue <= 0)
         {
@@ -283,7 +283,7 @@ internal static class DrawHelper
         canvas.DrawPath(linePath, linePaint);
     }
 
-    internal static void DrawSparklineValues(
+    public static void DrawSparklineValues(
         SKCanvas canvas, float rightX, float areaTop, float areaBottom,
         string upperLabel, string upperValue, SKColor upperColor,
         string lowerLabel, string lowerValue, SKColor lowerColor)
@@ -318,7 +318,7 @@ internal static class DrawHelper
     // Format
     //--------------------------------------------------------------------------------
 
-    internal static string FormatSpeed(double bytesPerSec)
+    public static string FormatSpeed(double bytesPerSec)
     {
         if (bytesPerSec >= 1024 * 1024)
         {

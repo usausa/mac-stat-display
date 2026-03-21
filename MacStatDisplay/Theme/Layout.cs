@@ -4,51 +4,59 @@ internal static class Layout
 {
     // Dashboard
 
-    internal const int OuterPadding = 8;
-    internal const int HeaderHeight = 40;
-    internal const int ContentGap = 8;
+    public const int OuterPadding = 8;
+    public const int HeaderHeight = 40;
+    public const int ContentGap = 8;
 
     // Widget
 
-    internal const float PaddingX = 8f;
-    internal const float PaddingY = 8f;
-    internal const float TitleOffsetY = 20f;
-    internal const float ContentTopGap = 4f;
-    internal const float BaselineRatio = 0.35f;
+    public const float PaddingX = 8f;
+    public const float PaddingY = 8f;
+    public const float TitleOffsetY = 20f;
+    public const float ContentTopGap = 4f;
+    public const float BaselineRatio = 0.35f;
 
     // Panel Radius
 
-    internal const float HeaderRadius = 8f;
-    internal const float PanelRadius = 8f;
+    public const float HeaderRadius = 8f;
+    public const float PanelRadius = 8f;
 
-    // Bar Gauge
+    // Title Bar
 
-    internal const float BarHeight = 16f;
-    internal const float BarRadius = 5f;
-    internal const float BarGaugeMargin = 4f;
+    public const float TitleBarRightPad = 8f;
+    public const float TitleBarLabelValueGap = 6f;
+    public const float TitleBarTimeUptimeMarginRatio = 0.03f;
+    public const float TitleBarUptimeThreadMarginRatio = 0.02f;
+    public const float TitleBarThreadProcessMarginRatio = 0.02f;
 
     // Ring Gauge
 
-    internal const float RingStrokeWidth = 16f;
-    internal const float RingArcDegrees = 270f;
-    internal const float RingStartAngle = 135f;
-    internal const float RingSideMargin = 64f;
-    internal const float RingHeightRatio = 2f;
-    internal const float RingCenterOffsetRatio = 0.2f;
-    internal const float RingSideStartRatio = 0.45f;
-    internal const float RingSideItemSpacingRatio = 0.45f;
-    internal const float TemperatureOffsetRatio = 0.3f;
+    public const float RingStrokeWidth = 16f;
+    public const float RingArcDegrees = 270f;
+    public const float RingStartAngle = 135f;
+    public const float RingSideMargin = 64f;
+    public const float RingHeightRatio = 2f;
+    public const float RingCenterOffsetRatio = 0.2f;
+    public const float RingSideStartRatio = 0.45f;
+    public const float RingSideItemSpacingRatio = 0.45f;
+    public const float TemperatureOffsetRatio = 0.3f;
+
+    // Bar Gauge
+
+    public const float BarHeight = 16f;
+    public const float BarRadius = 5f;
+    public const float BarGaugeMargin = 4f;
 
     // Sparkline
 
-    internal const int SparklineCapacity = 100;
+    public const int SparklineCapacity = 100;
 
-    internal const float SparklineStrokeWidth = 1.5f;
-    internal const float SparklineEntryNameBaseline = 14f;
-    internal const float SparklineLabelHeight = 18f;
-    internal const float SparklineValueColumnWidth = 85f;
-    internal const float SparklineGraphGap = 4f;
-    internal const float SparklineGraphMargin = 2f;
-    internal const float SparklineCenterGap = 1f;
-    internal const float SparklineSideCenterMarginRatio = 0.04f;
+    public const float SparklineStrokeWidth = 1.5f;
+    public const float SparklineEntryNameBaseline = 14f;
+    public const float SparklineLabelHeight = 18f;
+    public const float SparklineValueColumnWidth = 85f;
+    public const float SparklineGraphGap = 4f;
+    public const float SparklineGraphMargin = 2f;
+    public const float SparklineCenterGap = 1f;
+    public const float SparklineSideCenterMarginRatio = 0.04f;
 }

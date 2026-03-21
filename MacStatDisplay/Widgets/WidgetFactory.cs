@@ -2,7 +2,7 @@ namespace MacStatDisplay.Widgets;
 
 internal static class WidgetFactory
 {
-    internal static IWidget Create(string type) =>
+    public static IWidget Create(string type) =>
         type switch
         {
             "TitleBar"    => new TitleBarWidget(),

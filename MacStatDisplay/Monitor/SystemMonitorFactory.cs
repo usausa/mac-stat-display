@@ -2,7 +2,7 @@ namespace MacStatDisplay.Monitor;
 
 internal static class SystemMonitorFactory
 {
-    internal static ISystemMonitor Create(string monitor) =>
+    public static ISystemMonitor Create(string monitor) =>
         monitor switch
         {
             "System" => new SystemMonitor(),
