@@ -24,7 +24,7 @@ internal sealed class PowerWidget : IWidget
 
         // CPU / GPU
         var leftX = rect.Left + Layout.PaddingX;
-        var y = rect.Bottom - Layout.PaddingY - 18;
+        var y = rect.Bottom - Layout.PaddingY - Layout.StackedValueOffsetY;
         DrawHelper.DrawStackedLabelValue(canvas, "CPU", $"{monitor.PowerCpuW:0.0}", leftX, y, Colors.PowerAccent);
         DrawHelper.DrawStackedLabelValue(canvas, "GPU", $"{monitor.PowerGpuW:0.0}", leftX + subValueColumnWidth, y, Colors.PowerAccent);
     }

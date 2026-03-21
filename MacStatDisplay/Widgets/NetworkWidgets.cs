@@ -22,7 +22,7 @@ internal sealed class NetworkWidget : IWidget
         DrawHelper.DrawTitleBlock(canvas, rect, "NET Traffic");
 
         var entries = monitor.NetworkInterfaces;
-        var contentTop = rect.Top + Layout.TitleOffsetY + 4;
+        var contentTop = rect.Top + Layout.TitleOffsetY + Layout.ContentTopGap;
         var contentBottom = rect.Bottom - Layout.PaddingY;
         var contentH = contentBottom - contentTop;
         var leftX = rect.Left + Layout.PaddingX;
@@ -54,14 +54,12 @@ internal sealed class NetworkWidget : IWidget
         // Name label at entry top
         using var nameFont = DrawHelper.MakeFont(FontSize.SubLabel);
         using var namePaint = DrawHelper.Fill(Colors.TextSecondary);
-        canvas.DrawText(name, leftX, entryTop + 14, nameFont, namePaint);
+        canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, nameFont, namePaint);
 
-        var labelH = 18f;
-        var graphAreaTop = entryTop + labelH;
-        var graphAreaBottom = entryTop + entryH - 2;
+        var graphAreaTop = entryTop + Layout.SparklineLabelHeight;
+        var graphAreaBottom = entryTop + entryH - Layout.SparklineGraphMargin;
         var centerY = graphAreaTop + ((graphAreaBottom - graphAreaTop) / 2f);
-        var valueWidth = 85f;
-        var graphRight = rightX - valueWidth;
+        var graphRight = rightX - Layout.SparklineValueColumnWidth;
 
         using var labelFont = DrawHelper.MakeFont(FontSize.SubLabel);
         using var valFont = DrawHelper.MakeFont(FontSize.SubValue, true);
@@ -71,22 +69,22 @@ internal sealed class NetworkWidget : IWidget
         var sharedMax = Math.Max(Math.Max(tHist.Max(), rHist.Max()), 1f);
 
         // Upper half: TX (upload) sparkline (upward from center)
-        var txGraphRect = new SKRect(leftX, graphAreaTop, graphRight - 4, centerY - 1);
+        var txGraphRect = new SKRect(leftX, graphAreaTop, graphRight - Layout.SparklineGraphGap, centerY - Layout.SparklineCenterGap);
         DrawHelper.DrawSparkline(canvas, txGraphRect, tHist, sharedMax, Colors.NetworkUploadAccent);
 
-        canvas.DrawText("Upload", rightX - labelFont.MeasureText("Upload"), centerY - 20, labelFont, statLabelPaint);
+        canvas.DrawText("Upload", rightX - labelFont.MeasureText("Upload"), centerY - Layout.SparklineUpperLabelOffsetY, labelFont, statLabelPaint);
         var txText = DrawHelper.FormatSpeed(txBps);
         using var txValPaint = DrawHelper.Fill(Colors.NetworkUploadAccent);
-        canvas.DrawText(txText, rightX - valFont.MeasureText(txText), centerY - 4, valFont, txValPaint);
+        canvas.DrawText(txText, rightX - valFont.MeasureText(txText), centerY - Layout.SparklineUpperValueOffsetY, valFont, txValPaint);
 
         // Lower half: RX (download) sparkline (inverted, downward from center)
-        var rxGraphRect = new SKRect(leftX, centerY + 1, graphRight - 4, graphAreaBottom);
+        var rxGraphRect = new SKRect(leftX, centerY + Layout.SparklineCenterGap, graphRight - Layout.SparklineGraphGap, graphAreaBottom);
         DrawHelper.DrawSparklineInverted(canvas, rxGraphRect, rHist, sharedMax, Colors.NetworkDownloadAccent);
 
-        canvas.DrawText("Download", rightX - labelFont.MeasureText("Download"), centerY + 14, labelFont, statLabelPaint);
+        canvas.DrawText("Download", rightX - labelFont.MeasureText("Download"), centerY + Layout.SparklineLowerLabelOffsetY, labelFont, statLabelPaint);
         var rxText = DrawHelper.FormatSpeed(rxBps);
         using var rxValPaint = DrawHelper.Fill(Colors.NetworkDownloadAccent);
-        canvas.DrawText(rxText, rightX - valFont.MeasureText(rxText), centerY + 30, valFont, rxValPaint);
+        canvas.DrawText(rxText, rightX - valFont.MeasureText(rxText), centerY + Layout.SparklineLowerValueOffsetY, valFont, rxValPaint);
     }
 
     private static void PushHistory(Dictionary<string, RingBuffer> dict, string key, float value)

@@ -19,7 +19,7 @@ internal sealed class FileSystemWidget : IWidget
         DrawHelper.DrawTitleBlock(canvas, rect, "FS Disk Usage");
 
         var entries = monitor.FileSystems;
-        var contentTop = rect.Top + Layout.TitleOffsetY + 4;
+        var contentTop = rect.Top + Layout.TitleOffsetY + Layout.ContentTopGap;
         var contentBottom = rect.Bottom - Layout.PaddingY;
         var contentH = contentBottom - contentTop;
 
@@ -62,7 +62,7 @@ internal sealed class FileSystemWidget : IWidget
         using var mountFont = DrawHelper.MakeFont(FontSize.SubLabel);
         using var subPaint = DrawHelper.Fill(Colors.TextSecondary);
         using var accentPaint = DrawHelper.Fill(Colors.FileSystemAccent);
-        canvas.DrawText(mount, leftX, centerY - 18, mountFont, subPaint);
+        canvas.DrawText(mount, leftX, centerY - Layout.StackedValueOffsetY, mountFont, subPaint);
 
         var gbText = $"{usedGb:0.0} / {totalGb:0.0} GB";
         canvas.DrawText(gbText, leftX, centerY - 2, mountFont, accentPaint);
@@ -90,7 +90,7 @@ internal sealed class DiskIoWidget : IWidget
         DrawHelper.DrawTitleBlock(canvas, rect, "DISK I/O");
 
         var entries = monitor.DiskDevices;
-        var contentTop = rect.Top + Layout.TitleOffsetY + 4;
+        var contentTop = rect.Top + Layout.TitleOffsetY + Layout.ContentTopGap;
         var contentBottom = rect.Bottom - Layout.PaddingY;
         var contentH = contentBottom - contentTop;
         var leftX = rect.Left + Layout.PaddingX;
@@ -121,14 +121,12 @@ internal sealed class DiskIoWidget : IWidget
         // Name label at entry top
         using var nameFont = DrawHelper.MakeFont(FontSize.SubLabel);
         using var namePaint = DrawHelper.Fill(Colors.TextSecondary);
-        canvas.DrawText(name, leftX, entryTop + 14, nameFont, namePaint);
+        canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, nameFont, namePaint);
 
-        var labelH = 18f;
-        var graphAreaTop = entryTop + labelH;
-        var graphAreaBottom = entryTop + entryH - 2;
+        var graphAreaTop = entryTop + Layout.SparklineLabelHeight;
+        var graphAreaBottom = entryTop + entryH - Layout.SparklineGraphMargin;
         var centerY = graphAreaTop + ((graphAreaBottom - graphAreaTop) / 2f);
-        var valueWidth = 85f;
-        var graphRight = rightX - valueWidth;
+        var graphRight = rightX - Layout.SparklineValueColumnWidth;
 
         using var labelFont = DrawHelper.MakeFont(FontSize.SubLabel);
         using var valFont = DrawHelper.MakeFont(FontSize.SubValue, true);
@@ -138,22 +136,22 @@ internal sealed class DiskIoWidget : IWidget
         var sharedMax = Math.Max(Math.Max(wHist.Max(), rHist.Max()), 1f);
 
         // Upper half: Write sparkline (upward from center)
-        var wGraphRect = new SKRect(leftX, graphAreaTop, graphRight - 4, centerY - 1);
+        var wGraphRect = new SKRect(leftX, graphAreaTop, graphRight - Layout.SparklineGraphGap, centerY - Layout.SparklineCenterGap);
         DrawHelper.DrawSparkline(canvas, wGraphRect, wHist, sharedMax, Colors.DiskWriteAccent);
 
-        canvas.DrawText("Write", rightX - labelFont.MeasureText("Write"), centerY - 20, labelFont, statLabelPaint);
+        canvas.DrawText("Write", rightX - labelFont.MeasureText("Write"), centerY - Layout.SparklineUpperLabelOffsetY, labelFont, statLabelPaint);
         var wText = DrawHelper.FormatSpeed(writeBps);
         using var wValPaint = DrawHelper.Fill(Colors.DiskWriteAccent);
-        canvas.DrawText(wText, rightX - valFont.MeasureText(wText), centerY - 4, valFont, wValPaint);
+        canvas.DrawText(wText, rightX - valFont.MeasureText(wText), centerY - Layout.SparklineUpperValueOffsetY, valFont, wValPaint);
 
         // Lower half: Read sparkline (inverted, downward from center)
-        var rGraphRect = new SKRect(leftX, centerY + 1, graphRight - 4, graphAreaBottom);
+        var rGraphRect = new SKRect(leftX, centerY + Layout.SparklineCenterGap, graphRight - Layout.SparklineGraphGap, graphAreaBottom);
         DrawHelper.DrawSparklineInverted(canvas, rGraphRect, rHist, sharedMax, Colors.DiskReadAccent);
 
-        canvas.DrawText("Read", rightX - labelFont.MeasureText("Read"), centerY + 14, labelFont, statLabelPaint);
+        canvas.DrawText("Read", rightX - labelFont.MeasureText("Read"), centerY + Layout.SparklineLowerLabelOffsetY, labelFont, statLabelPaint);
         var rText = DrawHelper.FormatSpeed(readBps);
         using var rValPaint = DrawHelper.Fill(Colors.DiskReadAccent);
-        canvas.DrawText(rText, rightX - valFont.MeasureText(rText), centerY + 30, valFont, rValPaint);
+        canvas.DrawText(rText, rightX - valFont.MeasureText(rText), centerY + Layout.SparklineLowerValueOffsetY, valFont, rValPaint);
     }
 
     private static void PushHistory(Dictionary<string, RingBuffer> dict, string key, float value)

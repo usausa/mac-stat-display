@@ -20,17 +20,17 @@ internal sealed class CpuUsageWidget : IWidget
         var usage = (float)Math.Clamp(monitor.CpuUsageTotal, 0, 100);
 
         // Content area below title
-        var contentTop = rect.Top + Layout.TitleOffsetY + 4;
+        var contentTop = rect.Top + Layout.TitleOffsetY + Layout.ContentTopGap;
         var contentH = rect.Bottom - Layout.PaddingY - contentTop;
-        var sideMargin = 70f;
-        var maxRadiusH = contentH / 1.707f;
+        var sideMargin = Layout.RingSideMargin;
+        var maxRadiusH = contentH / Layout.RingHeightRatio;
         var maxRadiusW = (rect.Width - (2 * sideMargin)) / 2f;
         var radius = Math.Min(maxRadiusH, maxRadiusW);
         var cx = rect.MidX;
-        var cy = contentTop + (contentH / 2f) + (radius * 0.147f);
+        var cy = contentTop + (contentH / 2f) + (radius * Layout.RingCenterOffsetRatio);
 
         DrawHelper.DrawRingGauge(canvas, cx, cy, radius, usage, Colors.CpuUsageAccent);
-        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (FontSize.GaugeValue * 0.35f), Colors.CpuUsageAccent);
+        DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (FontSize.GaugeValue * Layout.BaselineRatio), Colors.CpuUsageAccent);
 
         // CPU temperature below center value inside the ring
         var cpuTemp = monitor.CpuTemperature;
@@ -39,14 +39,14 @@ internal sealed class CpuUsageWidget : IWidget
             using var tempFont = DrawHelper.MakeFont(FontSize.Temperature);
             using var tempPaint = DrawHelper.Fill(Colors.TemperatureAccent);
             var tempText = $"{cpuTemp.Value:0} C";
-            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * 0.35f) + 22, tempFont, tempPaint);
+            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + Layout.TemperatureOffsetY, tempFont, tempPaint);
         }
 
         // Left: E-Core / P-Core usage
         var leftX = rect.Left + Layout.PaddingX;
-        var sideTop = cy - radius + 8;
+        var sideTop = cy - radius + Layout.RingSideTopOffset;
         DrawHelper.DrawStackedLabelValue(canvas, "E-Core", $"{monitor.CpuUsageEfficiency:0}%", leftX, sideTop, Colors.CpuUsageAccent);
-        DrawHelper.DrawStackedLabelValue(canvas, "P-Core", $"{monitor.CpuUsagePerformance:0}%", leftX, sideTop + 44, Colors.CpuUsageAccent);
+        DrawHelper.DrawStackedLabelValue(canvas, "P-Core", $"{monitor.CpuUsagePerformance:0}%", leftX, sideTop + Layout.StackedItemSpacing, Colors.CpuUsageAccent);
 
         // Right: System / User / Idle
         var rightX = rect.Right - Layout.PaddingX;

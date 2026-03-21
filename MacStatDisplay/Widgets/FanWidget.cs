@@ -5,7 +5,6 @@ using MacStatDisplay.Theme;
 
 using SkiaSharp;
 
-// Text widget for fan speed percentage and RPM. Speed sub-item bottom-aligned with main value.
 internal sealed class FanWidget : IWidget
 {
     public void Initialize(IReadOnlyDictionary<string, string> parameters)
@@ -19,19 +18,19 @@ internal sealed class FanWidget : IWidget
 
         var fan = monitor.Fans.Count > 0 ? monitor.Fans[0] : null;
 
-        // Fan speed percentage bottom-right
+        // Fan speed
         if (fan is not null)
         {
             var speedPercent = fan.ActualRpm / fan.MaxRpm * 100.0;
             DrawHelper.DrawValue(canvas, $"{speedPercent:0}%", rect.Right - Layout.PaddingX, rect.Bottom - Layout.PaddingY, Colors.FanAccent);
         }
 
-        // RPM sub-item at bottom, aligned with main value
+        // RPM
         if (fan is not null)
         {
             var leftX = rect.Left + Layout.PaddingX;
             var mainBottom = rect.Bottom - Layout.PaddingY;
-            DrawHelper.DrawStackedLabelValue(canvas, "Speed", $"{fan.ActualRpm:0} rpm", leftX, mainBottom - 18, Colors.FanAccent);
+            DrawHelper.DrawStackedLabelValue(canvas, "Speed", $"{fan.ActualRpm:0} rpm", leftX, mainBottom - Layout.StackedValueOffsetY, Colors.FanAccent);
         }
     }
 }

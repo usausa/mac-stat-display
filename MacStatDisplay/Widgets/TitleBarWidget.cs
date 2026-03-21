@@ -30,14 +30,14 @@ internal sealed class TitleBarWidget : IWidget
         // Column 0-1: Title
         using var titleFont = DrawHelper.MakeFont(FontSize.HeaderTitle, true);
         using var titlePaint = DrawHelper.Fill(Colors.TextPrimary);
-        canvas.DrawText("SYSTEM MONITOR", rect.Left + 16, cy + (titleFont.Size * 0.35f), titleFont, titlePaint);
+        canvas.DrawText("SYSTEM MONITOR", rect.Left + 16, cy + (titleFont.Size * Layout.BaselineRatio), titleFont, titlePaint);
 
         using var labelFont = DrawHelper.MakeFont(FontSize.HeaderLabel);
         using var labelPaint = DrawHelper.Fill(Colors.HeaderLabel);
         using var valFont = DrawHelper.MakeFont(FontSize.HeaderValue, true);
         using var valPaint = DrawHelper.Fill(Colors.TextPrimary);
 
-        var baseline = cy + (valFont.Size * 0.35f);
+        var baseline = cy + (valFont.Size * Layout.BaselineRatio);
         const float colPad = 8f;
 
         // Column 2: Process (right-aligned within column)

@@ -156,7 +156,7 @@ internal static class DrawHelper
 
         using var valueFont = MakeFont(FontSize.SubValue, true);
         using var valuePaint = Fill(valueColor);
-        canvas.DrawText(value, x, y + 18, valueFont, valuePaint);
+        canvas.DrawText(value, x, y + Layout.StackedValueOffsetY, valueFont, valuePaint);
     }
 
     // Draws a right-aligned label on one line and a colored value below it.
@@ -168,7 +168,7 @@ internal static class DrawHelper
 
         using var valueFont = MakeFont(FontSize.SubValue, true);
         using var valuePaint = Fill(valueColor);
-        canvas.DrawText(value, rightX - valueFont.MeasureText(value), y + 18, valueFont, valuePaint);
+        canvas.DrawText(value, rightX - valueFont.MeasureText(value), y + Layout.StackedValueOffsetY, valueFont, valuePaint);
     }
 
     // Draws a 270° ring gauge (open at bottom).
@@ -237,11 +237,11 @@ internal static class DrawHelper
         linePaint.Color = color.WithAlpha(100);
         linePaint.IsAntialias = true;
         linePaint.Style = SKPaintStyle.Stroke;
-        linePaint.StrokeWidth = 1.5f;
+        linePaint.StrokeWidth = Layout.SparklineStrokeWidth;
         canvas.DrawPath(linePath, linePaint);
     }
 
-    // Draws an inverted sparkline area chart (value 0 at top, growing downward).
+    // Draws an inverted sparkline
     internal static void DrawSparklineInverted(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
     {
         if (maxValue <= 0)
@@ -285,7 +285,7 @@ internal static class DrawHelper
         linePaint.Color = color.WithAlpha(100);
         linePaint.IsAntialias = true;
         linePaint.Style = SKPaintStyle.Stroke;
-        linePaint.StrokeWidth = 1.5f;
+        linePaint.StrokeWidth = Layout.SparklineStrokeWidth;
         canvas.DrawPath(linePath, linePaint);
     }
 }
