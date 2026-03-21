@@ -1,5 +1,6 @@
 namespace MacStatDisplay.Widgets;
 
+using MacStatDisplay.Helpers;
 using MacStatDisplay.Monitor;
 using MacStatDisplay.Theme;
 
@@ -8,8 +9,8 @@ using SkiaSharp;
 // Network traffic widget with sparkline graphs using display entries. Separate TX/RX sparklines per entry.
 internal sealed class NetworkWidget : IWidget
 {
-    private readonly Dictionary<string, SparklineBuffer> rxHistory = [];
-    private readonly Dictionary<string, SparklineBuffer> txHistory = [];
+    private readonly Dictionary<string, RingBuffer> rxHistory = [];
+    private readonly Dictionary<string, RingBuffer> txHistory = [];
 
     public void Initialize(IReadOnlyDictionary<string, string> parameters)
     {
@@ -48,7 +49,7 @@ internal sealed class NetworkWidget : IWidget
     private static void DrawIfEntry(
         SKCanvas canvas, string name, double rxBps, double txBps,
         float leftX, float rightX, float entryTop, float entryH,
-        SparklineBuffer rHist, SparklineBuffer tHist)
+        RingBuffer rHist, RingBuffer tHist)
     {
         // Name label at entry top
         using var nameFont = DrawHelper.MakeFont(FontSize.SubLabel);
@@ -88,11 +89,11 @@ internal sealed class NetworkWidget : IWidget
         canvas.DrawText(rxText, rightX - valFont.MeasureText(rxText), centerY + 30, valFont, rxValPaint);
     }
 
-    private static void PushHistory(Dictionary<string, SparklineBuffer> dict, string key, float value)
+    private static void PushHistory(Dictionary<string, RingBuffer> dict, string key, float value)
     {
         if (!dict.TryGetValue(key, out var buf))
         {
-            buf = new SparklineBuffer(Layout.SparklineCapacity);
+            buf = new RingBuffer(Layout.SparklineCapacity);
             dict[key] = buf;
         }
 

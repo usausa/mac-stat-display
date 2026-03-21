@@ -66,7 +66,6 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
 
         var canvas = surface.Canvas;
 
-        // Initial render immediately after monitor update.
         monitor.Update();
         RenderDashboard(canvas, width, height, placements);
         displayDriver.Draw(surface);
@@ -75,8 +74,8 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
 
         if (refreshInterval <= 0)
         {
-            // No periodic refresh — only redraw on monitor updates.
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(settings.UpdatePeriod));
+
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
                 monitor.Update();
@@ -86,19 +85,18 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         }
         else
         {
-            // Periodic refresh with monitor updates at the configured period.
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(refreshInterval));
-            var tickCount = 0;
 
+            var tick = 0;
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                tickCount += refreshInterval;
-
-                if (tickCount >= settings.UpdatePeriod)
+                tick += refreshInterval;
+                if (tick >= settings.UpdatePeriod)
                 {
-                    tickCount = 0;
                     monitor.Update();
                     RenderDashboard(canvas, width, height, placements);
+
+                    tick = 0;
                 }
 
                 displayDriver.Draw(surface);

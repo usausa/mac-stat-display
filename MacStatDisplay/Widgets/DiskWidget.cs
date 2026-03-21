@@ -1,5 +1,6 @@
 namespace MacStatDisplay.Widgets;
 
+using MacStatDisplay.Helpers;
 using MacStatDisplay.Monitor;
 using MacStatDisplay.Theme;
 
@@ -76,8 +77,8 @@ internal sealed class FileSystemWidget : IWidget
 // Disk I/O widget with sparkline graphs using display entries. Separate R/W sparklines per entry.
 internal sealed class DiskIoWidget : IWidget
 {
-    private readonly Dictionary<string, SparklineBuffer> readHistory = [];
-    private readonly Dictionary<string, SparklineBuffer> writeHistory = [];
+    private readonly Dictionary<string, RingBuffer> readHistory = [];
+    private readonly Dictionary<string, RingBuffer> writeHistory = [];
 
     public void Initialize(IReadOnlyDictionary<string, string> parameters)
     {
@@ -115,7 +116,7 @@ internal sealed class DiskIoWidget : IWidget
     private static void DrawIoEntry(
         SKCanvas canvas, string name, double readBps, double writeBps,
         float leftX, float rightX, float entryTop, float entryH,
-        SparklineBuffer rHist, SparklineBuffer wHist)
+        RingBuffer rHist, RingBuffer wHist)
     {
         // Name label at entry top
         using var nameFont = DrawHelper.MakeFont(FontSize.SubLabel);
@@ -155,11 +156,11 @@ internal sealed class DiskIoWidget : IWidget
         canvas.DrawText(rText, rightX - valFont.MeasureText(rText), centerY + 30, valFont, rValPaint);
     }
 
-    private static void PushHistory(Dictionary<string, SparklineBuffer> dict, string key, float value)
+    private static void PushHistory(Dictionary<string, RingBuffer> dict, string key, float value)
     {
         if (!dict.TryGetValue(key, out var buf))
         {
-            buf = new SparklineBuffer(Layout.SparklineCapacity);
+            buf = new RingBuffer(Layout.SparklineCapacity);
             dict[key] = buf;
         }
 

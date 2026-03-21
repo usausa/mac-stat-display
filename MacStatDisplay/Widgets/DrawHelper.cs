@@ -1,5 +1,6 @@
 namespace MacStatDisplay.Widgets;
 
+using MacStatDisplay.Helpers;
 using MacStatDisplay.Theme;
 
 using SkiaSharp;
@@ -182,7 +183,7 @@ internal static class DrawHelper
     }
 
     // Draws a sparkline area chart in the given rectangle (value 0 at bottom, growing upward).
-    internal static void DrawSparkline(SKCanvas canvas, SKRect rect, SparklineBuffer buffer, float maxValue, SKColor color)
+    internal static void DrawSparkline(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
     {
         if (maxValue <= 0)
         {
@@ -230,7 +231,7 @@ internal static class DrawHelper
     }
 
     // Draws an inverted sparkline area chart (value 0 at top, growing downward).
-    internal static void DrawSparklineInverted(SKCanvas canvas, SKRect rect, SparklineBuffer buffer, float maxValue, SKColor color)
+    internal static void DrawSparklineInverted(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
     {
         if (maxValue <= 0)
         {

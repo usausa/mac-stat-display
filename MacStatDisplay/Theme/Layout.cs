@@ -18,10 +18,9 @@ internal static class Layout
 
     internal const int SparklineCapacity = 100;
 
-    // ── Panel Radius ────────────────────────────────────────────────────
+    // Panel Radius
 
-    // TODO
-    internal const float PanelRadius = 14f;
+    internal const float PanelRadius = 12f;
     internal const float HeaderRadius = 16f;
 
     // Ring Gauge
