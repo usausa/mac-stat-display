@@ -22,14 +22,14 @@ internal sealed class FanWidget : IWidget
         if (fan is not null)
         {
             var speedPercent = fan.ActualRpm / fan.MaxRpm * 100.0;
-            DrawHelper.DrawValue(canvas, $"{speedPercent:0}%", rect.Right - WidgetTheme.PadX, rect.Bottom - WidgetTheme.PadY, WidgetTheme.FanAccent);
+            DrawHelper.DrawValue(canvas, $"{speedPercent:0}%", rect.Right - WidgetTheme.PaddingX, rect.Bottom - WidgetTheme.PaddingY, WidgetTheme.FanAccent);
         }
 
         // RPM sub-item at bottom, aligned with main value
         if (fan is not null)
         {
-            var leftX = rect.Left + WidgetTheme.PadX;
-            var mainBottom = rect.Bottom - WidgetTheme.PadY;
+            var leftX = rect.Left + WidgetTheme.PaddingX;
+            var mainBottom = rect.Bottom - WidgetTheme.PaddingY;
             DrawHelper.DrawStackedLabelValue(canvas, "Speed", $"{fan.ActualRpm:0} rpm", leftX, mainBottom - 18, WidgetTheme.FanAccent);
         }
     }

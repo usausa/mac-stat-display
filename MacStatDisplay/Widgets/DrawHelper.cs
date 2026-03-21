@@ -66,7 +66,7 @@ internal static class DrawHelper
     // Draws a card panel with rounded corners and border.
     internal static void DrawPanel(SKCanvas canvas, SKRect rect)
     {
-        using var bg = Fill(WidgetTheme.PanelBg);
+        using var bg = Fill(WidgetTheme.PanelBackground);
         canvas.DrawRoundRect(rect, WidgetTheme.PanelRadius, WidgetTheme.PanelRadius, bg);
 
         using var border = Stroke(WidgetTheme.PanelBorder, 1);
@@ -79,7 +79,7 @@ internal static class DrawHelper
         using var font = MakeFont(WidgetTheme.WidgetTitleFontSize, true);
         using var paint = Fill(WidgetTheme.TextPrimary);
         var label = string.IsNullOrWhiteSpace(category) ? title : $"{category} {title}";
-        canvas.DrawText(label, rect.Left + WidgetTheme.PadX, rect.Top + WidgetTheme.TitleOffsetY, font, paint);
+        canvas.DrawText(label, rect.Left + WidgetTheme.PaddingX, rect.Top + WidgetTheme.TitleOffsetY, font, paint);
     }
 
     // Draws a right-aligned value in large bold font.
@@ -102,7 +102,7 @@ internal static class DrawHelper
     internal static void DrawRightAlignedDetail(SKCanvas canvas, string text, float rightX, float y)
     {
         using var font = MakeFont(WidgetTheme.SubValueFontSize);
-        using var paint = Fill(WidgetTheme.TextSub);
+        using var paint = Fill(WidgetTheme.TextSecondary);
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
@@ -110,7 +110,7 @@ internal static class DrawHelper
     internal static void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float y, SKColor valueColor)
     {
         using var labelFont = MakeFont(WidgetTheme.SubLabelFontSize);
-        using var labelPaint = Fill(WidgetTheme.TextSub);
+        using var labelPaint = Fill(WidgetTheme.TextSecondary);
         canvas.DrawText(label, x, y, labelFont, labelPaint);
 
         using var valueFont = MakeFont(WidgetTheme.SubValueFontSize, true);
@@ -122,7 +122,7 @@ internal static class DrawHelper
     internal static void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float y, SKColor valueColor)
     {
         using var labelFont = MakeFont(WidgetTheme.SubLabelFontSize);
-        using var labelPaint = Fill(WidgetTheme.TextSub);
+        using var labelPaint = Fill(WidgetTheme.TextSecondary);
         canvas.DrawText(label, rightX - labelFont.MeasureText(label), y, labelFont, labelPaint);
 
         using var valueFont = MakeFont(WidgetTheme.SubValueFontSize, true);

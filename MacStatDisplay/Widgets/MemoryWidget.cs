@@ -20,7 +20,7 @@ internal sealed class MemoryUsageWidget : IWidget
 
         // Content area below title
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
-        var contentH = rect.Bottom - WidgetTheme.PadY - contentTop;
+        var contentH = rect.Bottom - WidgetTheme.PaddingY - contentTop;
         var sideMargin = 70f;
         var maxRadiusH = contentH / 1.707f;
         var maxRadiusW = (rect.Width - (2 * sideMargin)) / 2f;
@@ -33,12 +33,12 @@ internal sealed class MemoryUsageWidget : IWidget
         DrawHelper.DrawCenteredValue(canvas, $"{usage:0}%", cx, cy + (WidgetTheme.GaugeValueFontSize * 0.35f), WidgetTheme.MemoryAccent);
 
         // Left: Swap
-        var leftX = rect.Left + WidgetTheme.PadX;
+        var leftX = rect.Left + WidgetTheme.PaddingX;
         var sideTop = cy - radius + 8;
         DrawHelper.DrawStackedLabelValue(canvas, "Swap", $"{monitor.SwapUsagePercent:0.0}%", leftX, sideTop, WidgetTheme.MemoryAccent);
 
         // Right: Active, Wired
-        var rightX = rect.Right - WidgetTheme.PadX;
+        var rightX = rect.Right - WidgetTheme.PaddingX;
         DrawHelper.DrawStackedLabelValueRight(canvas, "Active", $"{monitor.MemoryActivePercent:0.0}%", rightX, sideTop, WidgetTheme.MemoryAccent);
         DrawHelper.DrawStackedLabelValueRight(canvas, "Wired", $"{monitor.MemoryWiredPercent:0.0}%", rightX, sideTop + 44, WidgetTheme.MemoryAccent);
     }

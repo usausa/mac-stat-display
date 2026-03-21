@@ -18,7 +18,7 @@ internal sealed class FileSystemWidget : IWidget
 
         var entries = monitor.FileSystems;
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
-        var contentBottom = rect.Bottom - WidgetTheme.PadY;
+        var contentBottom = rect.Bottom - WidgetTheme.PaddingY;
         var contentH = contentBottom - contentTop;
 
         var entryH = contentH / Math.Max(entries.Count, 1);
@@ -38,8 +38,8 @@ internal sealed class FileSystemWidget : IWidget
         string mount, double totalGb, double freeGb, double usagePct,
         float entryTop, float entryH)
     {
-        var leftX = rect.Left + WidgetTheme.PadX;
-        var rightX = rect.Right - WidgetTheme.PadX;
+        var leftX = rect.Left + WidgetTheme.PaddingX;
+        var rightX = rect.Right - WidgetTheme.PaddingX;
         var usedGb = totalGb - freeGb;
         var centerY = entryTop + (entryH / 2f);
 
@@ -58,7 +58,7 @@ internal sealed class FileSystemWidget : IWidget
 
         // Left side: mount point (line 1) and GB (line 2)
         using var mountFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
-        using var subPaint = DrawHelper.Fill(WidgetTheme.TextSub);
+        using var subPaint = DrawHelper.Fill(WidgetTheme.TextSecondary);
         using var accentPaint = DrawHelper.Fill(WidgetTheme.FileSystemAccent);
         canvas.DrawText(mount, leftX, centerY - 18, mountFont, subPaint);
 
@@ -89,10 +89,10 @@ internal sealed class DiskIoWidget : IWidget
 
         var entries = monitor.DiskDevices;
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
-        var contentBottom = rect.Bottom - WidgetTheme.PadY;
+        var contentBottom = rect.Bottom - WidgetTheme.PaddingY;
         var contentH = contentBottom - contentTop;
-        var leftX = rect.Left + WidgetTheme.PadX;
-        var rightX = rect.Right - WidgetTheme.PadX;
+        var leftX = rect.Left + WidgetTheme.PaddingX;
+        var rightX = rect.Right - WidgetTheme.PaddingX;
 
         if (entries.Count == 0)
         {
@@ -118,7 +118,7 @@ internal sealed class DiskIoWidget : IWidget
     {
         // Name label at entry top
         using var nameFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
-        using var namePaint = DrawHelper.Fill(WidgetTheme.TextSub);
+        using var namePaint = DrawHelper.Fill(WidgetTheme.TextSecondary);
         canvas.DrawText(name, leftX, entryTop + 14, nameFont, namePaint);
 
         var labelH = 18f;
@@ -130,7 +130,7 @@ internal sealed class DiskIoWidget : IWidget
 
         using var labelFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
         using var valFont = DrawHelper.MakeFont(WidgetTheme.SubValueFontSize, true);
-        using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSub);
+        using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSecondary);
 
         // Use shared max so Write and Read graphs share the same scale
         var sharedMax = Math.Max(Math.Max(wHist.Max(), rHist.Max()), 1f);

@@ -17,11 +17,11 @@ internal sealed class PowerWidget : IWidget
         DrawHelper.DrawTitleBlock(canvas, rect, "POWER", "System");
 
         // Total power bottom-right
-        DrawHelper.DrawValue(canvas, $"{monitor.TotalSystemPower:0.0} W", rect.Right - WidgetTheme.PadX, rect.Bottom - WidgetTheme.PadY, WidgetTheme.PowerAccent);
+        DrawHelper.DrawValue(canvas, $"{monitor.TotalSystemPower:0.0} W", rect.Right - WidgetTheme.PaddingX, rect.Bottom - WidgetTheme.PaddingY, WidgetTheme.PowerAccent);
 
         // CPU and GPU stacked vertically, bottom-aligned with main value
-        var leftX = rect.Left + WidgetTheme.PadX;
-        var mainBottom = rect.Bottom - WidgetTheme.PadY;
+        var leftX = rect.Left + WidgetTheme.PaddingX;
+        var mainBottom = rect.Bottom - WidgetTheme.PaddingY;
         var y2 = mainBottom - 18;
         var y1 = y2 - 36;
         DrawHelper.DrawStackedLabelValue(canvas, "CPU", $"{monitor.PowerCpuW:0.0}W", leftX, y1, WidgetTheme.PowerAccent);

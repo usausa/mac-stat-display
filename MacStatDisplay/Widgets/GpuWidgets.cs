@@ -22,7 +22,7 @@ internal sealed class GpuUsageWidget : IWidget
 
         // Content area below title
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
-        var contentH = rect.Bottom - WidgetTheme.PadY - contentTop;
+        var contentH = rect.Bottom - WidgetTheme.PaddingY - contentTop;
         var sideMargin = 70f;
         var maxRadiusH = contentH / 1.707f;
         var maxRadiusW = (rect.Width - (2 * sideMargin)) / 2f;
@@ -44,7 +44,7 @@ internal sealed class GpuUsageWidget : IWidget
         }
 
         // Left side: Renderer / Tiler utilization from first GPU entry
-        var leftX = rect.Left + WidgetTheme.PadX;
+        var leftX = rect.Left + WidgetTheme.PaddingX;
         var sideTop = cy - radius + 8;
         if (gpu is not null)
         {

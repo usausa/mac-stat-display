@@ -20,7 +20,7 @@ internal sealed class CpuUsageWidget : IWidget
 
         // Content area below title
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
-        var contentH = rect.Bottom - WidgetTheme.PadY - contentTop;
+        var contentH = rect.Bottom - WidgetTheme.PaddingY - contentTop;
         var sideMargin = 70f;
         var maxRadiusH = contentH / 1.707f;
         var maxRadiusW = (rect.Width - (2 * sideMargin)) / 2f;
@@ -42,13 +42,13 @@ internal sealed class CpuUsageWidget : IWidget
         }
 
         // Left: E-Core / P-Core usage
-        var leftX = rect.Left + WidgetTheme.PadX;
+        var leftX = rect.Left + WidgetTheme.PaddingX;
         var sideTop = cy - radius + 8;
         DrawHelper.DrawStackedLabelValue(canvas, "E-Core", $"{monitor.CpuUsageEfficiency:0}%", leftX, sideTop, WidgetTheme.CpuUsageAccent);
         DrawHelper.DrawStackedLabelValue(canvas, "P-Core", $"{monitor.CpuUsagePerformance:0}%", leftX, sideTop + 44, WidgetTheme.CpuUsageAccent);
 
         // Right: System / User / Idle
-        var rightX = rect.Right - WidgetTheme.PadX;
+        var rightX = rect.Right - WidgetTheme.PaddingX;
         DrawHelper.DrawStackedLabelValueRight(canvas, "System", $"{monitor.CpuSystemPercent:0.0}%", rightX, sideTop, WidgetTheme.CpuUsageAccent);
         DrawHelper.DrawStackedLabelValueRight(canvas, "User", $"{monitor.CpuUserPercent:0.0}%", rightX, sideTop + 40, WidgetTheme.CpuUsageAccent);
         DrawHelper.DrawStackedLabelValueRight(canvas, "Idle", $"{100 - monitor.CpuUsageTotal:0.0}%", rightX, sideTop + 80, WidgetTheme.CpuUsageAccent);

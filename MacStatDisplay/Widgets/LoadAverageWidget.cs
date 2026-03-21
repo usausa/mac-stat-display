@@ -17,11 +17,11 @@ internal sealed class LoadAverageWidget : IWidget
         DrawHelper.DrawTitleBlock(canvas, rect, "CPU", "Load");
 
         // Main value (1m) bottom-right
-        DrawHelper.DrawValue(canvas, $"{monitor.LoadAverage1:0.00}", rect.Right - WidgetTheme.PadX, rect.Bottom - WidgetTheme.PadY, WidgetTheme.CpuLoadAccent);
+        DrawHelper.DrawValue(canvas, $"{monitor.LoadAverage1:0.00}", rect.Right - WidgetTheme.PaddingX, rect.Bottom - WidgetTheme.PaddingY, WidgetTheme.CpuLoadAccent);
 
         // 5m / 15m stacked vertically, bottom-aligned with main value
-        var leftX = rect.Left + WidgetTheme.PadX;
-        var mainBottom = rect.Bottom - WidgetTheme.PadY;
+        var leftX = rect.Left + WidgetTheme.PaddingX;
+        var mainBottom = rect.Bottom - WidgetTheme.PaddingY;
         var y2 = mainBottom - 18;
         var y1 = y2 - 36;
         DrawHelper.DrawStackedLabelValue(canvas, "5m", $"{monitor.LoadAverage5:0.00}", leftX, y1, WidgetTheme.CpuLoadAccent);

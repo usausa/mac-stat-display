@@ -21,10 +21,10 @@ internal sealed class NetworkWidget : IWidget
 
         var entries = monitor.NetworkInterfaces;
         var contentTop = rect.Top + WidgetTheme.TitleOffsetY + 4;
-        var contentBottom = rect.Bottom - WidgetTheme.PadY;
+        var contentBottom = rect.Bottom - WidgetTheme.PaddingY;
         var contentH = contentBottom - contentTop;
-        var leftX = rect.Left + WidgetTheme.PadX;
-        var rightX = rect.Right - WidgetTheme.PadX;
+        var leftX = rect.Left + WidgetTheme.PaddingX;
+        var rightX = rect.Right - WidgetTheme.PaddingX;
 
         if (entries.Count == 0)
         {
@@ -51,7 +51,7 @@ internal sealed class NetworkWidget : IWidget
     {
         // Name label at entry top
         using var nameFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
-        using var namePaint = DrawHelper.Fill(WidgetTheme.TextSub);
+        using var namePaint = DrawHelper.Fill(WidgetTheme.TextSecondary);
         canvas.DrawText(name, leftX, entryTop + 14, nameFont, namePaint);
 
         var labelH = 18f;
@@ -63,7 +63,7 @@ internal sealed class NetworkWidget : IWidget
 
         using var labelFont = DrawHelper.MakeFont(WidgetTheme.SubLabelFontSize);
         using var valFont = DrawHelper.MakeFont(WidgetTheme.SubValueFontSize, true);
-        using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSub);
+        using var statLabelPaint = DrawHelper.Fill(WidgetTheme.TextSecondary);
 
         // Use shared max so Upload and Download graphs share the same scale
         var sharedMax = Math.Max(Math.Max(tHist.Max(), rHist.Max()), 1f);

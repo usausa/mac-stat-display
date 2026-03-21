@@ -18,7 +18,7 @@ internal sealed class TitleBarWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         // Panel
-        using var bg = DrawHelper.Fill(WidgetTheme.PanelBg);
+        using var bg = DrawHelper.Fill(WidgetTheme.PanelBackground);
         canvas.DrawRoundRect(rect, WidgetTheme.HeaderRadius, WidgetTheme.HeaderRadius, bg);
         using var border = DrawHelper.Stroke(WidgetTheme.PanelBorder, 1);
         canvas.DrawRoundRect(rect, WidgetTheme.HeaderRadius, WidgetTheme.HeaderRadius, border);
@@ -32,7 +32,7 @@ internal sealed class TitleBarWidget : IWidget
         canvas.DrawText("SYSTEM MONITOR", rect.Left + 16, cy + (titleFont.Size * 0.35f), titleFont, titlePaint);
 
         using var labelFont = DrawHelper.MakeFont(WidgetTheme.HeaderLabelFontSize);
-        using var labelPaint = DrawHelper.Fill(WidgetTheme.HeaderLabelColor);
+        using var labelPaint = DrawHelper.Fill(WidgetTheme.HeaderLabel);
         using var valFont = DrawHelper.MakeFont(WidgetTheme.HeaderValueFontSize, true);
         using var valPaint = DrawHelper.Fill(WidgetTheme.TextPrimary);
 
