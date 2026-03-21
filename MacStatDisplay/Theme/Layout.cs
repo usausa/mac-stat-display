@@ -18,8 +18,8 @@ internal static class Layout
 
     // Panel Radius
 
-    internal const float HeaderRadius = 16f;
-    internal const float PanelRadius = 12f;
+    internal const float HeaderRadius = 8f;
+    internal const float PanelRadius = 8f;
 
     // Bar Gauge
 
@@ -37,7 +37,7 @@ internal static class Layout
     internal const float RingCenterOffsetRatio = 0.2f;
     internal const float RingSideStartRatio = 0.45f;
     internal const float RingSideItemSpacingRatio = 0.45f;
-    internal const float TemperatureOffsetRatio = 0.4f;
+    internal const float TemperatureOffsetRatio = 0.3f;
 
     // Sparkline
 

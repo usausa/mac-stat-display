@@ -9,7 +9,7 @@ internal static class Colors
     internal static readonly SKColor GradientStart = new(15, 20, 28);
     internal static readonly SKColor GradientEnd = new(8, 10, 16);
     internal static readonly SKColor PanelBackground = new(18, 24, 34, 235);
-    internal static readonly SKColor PanelBorder = new(255, 255, 255, 20);
+    internal static readonly SKColor PanelBorder = new(255, 255, 255, 64);
     internal static readonly SKColor TrackColor = new(42, 48, 61);
 
     // Text
