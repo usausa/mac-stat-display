@@ -15,7 +15,7 @@ internal sealed class GpuUsageWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "GPU", "Usage");
+        DrawHelper.DrawTitleBlock(canvas, rect, "GPU Usage");
 
         var gpu = monitor.GpuDevices.Count > 0 ? monitor.GpuDevices[0] : null;
 

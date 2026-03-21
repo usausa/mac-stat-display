@@ -19,7 +19,7 @@ internal sealed class NetworkWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "NET", "Traffic");
+        DrawHelper.DrawTitleBlock(canvas, rect, "NET Traffic");
 
         var entries = monitor.NetworkInterfaces;
         var contentTop = rect.Top + Layout.TitleOffsetY + 4;

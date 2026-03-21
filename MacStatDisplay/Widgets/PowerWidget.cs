@@ -5,27 +5,27 @@ using MacStatDisplay.Theme;
 
 using SkiaSharp;
 
-// Text widget for total system power. CPU/GPU stacked vertically, bottom-aligned with main value.
 internal sealed class PowerWidget : IWidget
 {
+    private float subValueColumnWidth;
+
     public void Initialize(IReadOnlyDictionary<string, string> parameters)
     {
+        subValueColumnWidth = DrawHelper.MeasureSubValueWidth("000000");
     }
 
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "POWER", "System");
+        DrawHelper.DrawTitleBlock(canvas, rect, "Power");
 
-        // Total power bottom-right
+        // Total
         DrawHelper.DrawValue(canvas, $"{monitor.TotalSystemPower:0.0} W", rect.Right - Layout.PaddingX, rect.Bottom - Layout.PaddingY, Colors.PowerAccent);
 
-        // CPU and GPU stacked vertically, bottom-aligned with main value
+        // CPU / GPU
         var leftX = rect.Left + Layout.PaddingX;
-        var mainBottom = rect.Bottom - Layout.PaddingY;
-        var y2 = mainBottom - 18;
-        var y1 = y2 - 36;
-        DrawHelper.DrawStackedLabelValue(canvas, "CPU", $"{monitor.PowerCpuW:0.0}W", leftX, y1, Colors.PowerAccent);
-        DrawHelper.DrawStackedLabelValue(canvas, "GPU", $"{monitor.PowerGpuW:0.0}W", leftX, y2, Colors.PowerAccent);
+        var y = rect.Bottom - Layout.PaddingY - 18;
+        DrawHelper.DrawStackedLabelValue(canvas, "CPU", $"{monitor.PowerCpuW:0.0}", leftX, y, Colors.PowerAccent);
+        DrawHelper.DrawStackedLabelValue(canvas, "GPU", $"{monitor.PowerGpuW:0.0}", leftX + subValueColumnWidth, y, Colors.PowerAccent);
     }
 }

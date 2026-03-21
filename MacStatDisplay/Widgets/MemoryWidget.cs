@@ -15,7 +15,7 @@ internal sealed class MemoryUsageWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "MEM", "Usage");
+        DrawHelper.DrawTitleBlock(canvas, rect, "MEM Usage");
 
         var usage = (float)Math.Clamp(monitor.MemoryUsagePercent, 0, 100);
 

@@ -16,7 +16,7 @@ internal sealed class FileSystemWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "FS", "Disk Usage");
+        DrawHelper.DrawTitleBlock(canvas, rect, "FS Disk Usage");
 
         var entries = monitor.FileSystems;
         var contentTop = rect.Top + Layout.TitleOffsetY + 4;
@@ -87,7 +87,7 @@ internal sealed class DiskIoWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "DISK", "I/O");
+        DrawHelper.DrawTitleBlock(canvas, rect, "DISK I/O");
 
         var entries = monitor.DiskDevices;
         var contentTop = rect.Top + Layout.TitleOffsetY + 4;

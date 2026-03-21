@@ -15,7 +15,7 @@ internal sealed class CpuUsageWidget : IWidget
     public void Draw(SKCanvas canvas, SKRect rect, ISystemMonitor monitor)
     {
         DrawHelper.DrawPanel(canvas, rect);
-        DrawHelper.DrawTitleBlock(canvas, rect, "CPU", "Usage");
+        DrawHelper.DrawTitleBlock(canvas, rect, "CPU Usage");
 
         var usage = (float)Math.Clamp(monitor.CpuUsageTotal, 0, 100);
 

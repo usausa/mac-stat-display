@@ -50,7 +50,19 @@ internal static class DrawHelper
         return bold ? SKTypeface.FromFamilyName(SKTypeface.Default.FamilyName, SKFontStyle.Bold) : SKTypeface.Default;
     }
 
-    // TODO
+    // Measures the width of the given text using SubLabel font.
+    internal static float MeasureSubLabelWidth(string text)
+    {
+        using var font = MakeFont(FontSize.SubLabel);
+        return font.MeasureText(text);
+    }
+
+    // Measures the width of the given text using SubValue bold font.
+    internal static float MeasureSubValueWidth(string text)
+    {
+        using var font = MakeFont(FontSize.SubValue, true);
+        return font.MeasureText(text);
+    }
 
     // Creates a font with the resolved typeface.
     internal static SKFont MakeFont(float size, bool bold = false) =>
@@ -103,13 +115,12 @@ internal static class DrawHelper
         canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, border);
     }
 
-    // Draws "CATEGORY Title" text at the top-left of a widget.
-    internal static void DrawTitleBlock(SKCanvas canvas, SKRect rect, string category, string title)
+    // Draws title text at the top-left of a widget.
+    internal static void DrawTitleBlock(SKCanvas canvas, SKRect rect, string title)
     {
         using var font = MakeFont(FontSize.WidgetTitle, true);
         using var paint = Fill(Colors.TextPrimary);
-        var label = string.IsNullOrWhiteSpace(category) ? title : $"{category} {title}";
-        canvas.DrawText(label, rect.Left + Layout.PaddingX, rect.Top + Layout.TitleOffsetY, font, paint);
+        canvas.DrawText(title, rect.Left + Layout.PaddingX, rect.Top + Layout.TitleOffsetY, font, paint);
     }
 
     // Draws a right-aligned value in large bold font.
