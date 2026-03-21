@@ -20,18 +20,18 @@ internal sealed class DiskIoWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitleBlock(canvas, rect, "Disk I/O");
 
-        // TODO
         var entries = monitor.DiskDevices;
+        if (entries.Count == 0)
+        {
+            return;
+        }
+
+        // Calculate
         var contentTop = rect.Top + Layout.TitleOffsetY + Layout.ContentTopGap;
         var contentBottom = rect.Bottom - Layout.PaddingY;
         var contentH = contentBottom - contentTop;
         var leftX = rect.Left + Layout.PaddingX;
         var rightX = rect.Right - Layout.PaddingX;
-
-        if (entries.Count == 0)
-        {
-            return;
-        }
 
         var entryH = contentH / entries.Count;
         for (var i = 0; i < entries.Count; i++)
@@ -39,7 +39,8 @@ internal sealed class DiskIoWidget : IWidget
             var e = entries[i];
             PushHistory(readHistory, e.Name, (float)e.ReadBytesPerSec);
             PushHistory(writeHistory, e.Name, (float)e.WriteBytesPerSec);
-            DrawIoEntry(canvas, e.Name, e.ReadBytesPerSec, e.WriteBytesPerSec,
+            DrawIoEntry(
+                canvas, e.Name, e.ReadBytesPerSec, e.WriteBytesPerSec,
                 leftX, rightX, contentTop + (i * entryH), entryH,
                 readHistory[e.Name], writeHistory[e.Name]);
         }
@@ -50,31 +51,32 @@ internal sealed class DiskIoWidget : IWidget
         float leftX, float rightX, float entryTop, float entryH,
         RingBuffer rHist, RingBuffer wHist)
     {
-        // Name label at entry top
+        // Name
         using var nameFont = DrawHelper.MakeFont(FontSize.SubLabel);
         using var namePaint = DrawHelper.Fill(Colors.TextSecondary);
         canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, nameFont, namePaint);
 
+        // Calculate
         var graphAreaTop = entryTop + Layout.SparklineLabelHeight;
         var graphAreaBottom = entryTop + entryH - Layout.SparklineGraphMargin;
         var centerY = graphAreaTop + ((graphAreaBottom - graphAreaTop) / 2f);
         var graphRight = rightX - Layout.SparklineValueColumnWidth;
 
-        // Use shared max so Write and Read graphs share the same scale
         var sharedMax = Math.Max(Math.Max(wHist.Max(), rHist.Max()), 1f);
 
-        // Upper half: Write sparkline (upward from center)
+        // Upper
         var wGraphRect = new SKRect(leftX, graphAreaTop, graphRight - Layout.SparklineGraphGap, centerY - Layout.SparklineCenterGap);
         DrawHelper.DrawSparkline(canvas, wGraphRect, wHist, sharedMax, Colors.DiskWriteAccent);
 
-        // Lower half: Read sparkline (inverted, downward from center)
+        // Lower
         var rGraphRect = new SKRect(leftX, centerY + Layout.SparklineCenterGap, graphRight - Layout.SparklineGraphGap, graphAreaBottom);
         DrawHelper.DrawSparklineInverted(canvas, rGraphRect, rHist, sharedMax, Colors.DiskReadAccent);
 
-        // Side values: Write above center, Read below center
+        // Side
         var wText = DrawHelper.FormatSpeed(writeBps);
         var rText = DrawHelper.FormatSpeed(readBps);
-        DrawHelper.DrawSparklineSideValues(canvas, rightX, graphAreaTop, graphAreaBottom,
+        DrawHelper.DrawSparklineSideValues(
+            canvas, rightX, graphAreaTop, graphAreaBottom,
             "Write", wText, Colors.DiskWriteAccent,
             "Read", rText, Colors.DiskReadAccent);
     }
