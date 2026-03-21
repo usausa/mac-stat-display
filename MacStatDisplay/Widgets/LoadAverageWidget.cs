@@ -24,7 +24,7 @@ internal sealed class LoadAverageWidget : IWidget
 
         // 5m / 15m
         var leftX = rect.Left + Layout.PaddingX;
-        var y = rect.Bottom - Layout.PaddingY - Layout.StackedValueOffsetY;
+        var y = rect.Bottom - Layout.PaddingY;
         DrawHelper.DrawStackedLabelValue(canvas, "5m", $"{monitor.LoadAverage5:0.00}", leftX, y, Colors.CpuLoadAccent);
         DrawHelper.DrawStackedLabelValue(canvas, "15m", $"{monitor.LoadAverage15:0.00}", leftX + subValueColumnWidth, y, Colors.CpuLoadAccent);
     }

@@ -61,7 +61,7 @@ internal sealed class FileSystemWidget : IWidget
         using var mountFont = DrawHelper.MakeFont(FontSize.SubLabel);
         using var subPaint = DrawHelper.Fill(Colors.TextSecondary);
         using var accentPaint = DrawHelper.Fill(Colors.FileSystemAccent);
-        canvas.DrawText(mount, leftX, centerY - Layout.StackedValueOffsetY, mountFont, subPaint);
+        canvas.DrawText(mount, leftX, centerY - 2 + mountFont.Metrics.Ascent - mountFont.Metrics.Descent, mountFont, subPaint);
 
         var gbText = $"{usedGb:0.0} / {totalGb:0.0} GB";
         canvas.DrawText(gbText, leftX, centerY - 2, mountFont, accentPaint);

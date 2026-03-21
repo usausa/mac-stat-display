@@ -30,7 +30,7 @@ internal sealed class FanWidget : IWidget
         {
             var leftX = rect.Left + Layout.PaddingX;
             var mainBottom = rect.Bottom - Layout.PaddingY;
-            DrawHelper.DrawStackedLabelValue(canvas, "Speed", $"{fan.ActualRpm:0} rpm", leftX, mainBottom - Layout.StackedValueOffsetY, Colors.FanAccent);
+            DrawHelper.DrawStackedLabelValue(canvas, "Speed", $"{fan.ActualRpm:0} rpm", leftX, mainBottom, Colors.FanAccent);
         }
     }
 }

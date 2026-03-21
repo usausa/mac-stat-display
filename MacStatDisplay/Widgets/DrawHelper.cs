@@ -147,28 +147,28 @@ internal static class DrawHelper
         canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
     }
 
-    // Draws a left-aligned label on one line and a colored value below it.
-    internal static void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float y, SKColor valueColor)
+    // Draws a left-aligned label above a colored value, bottom-aligned at the given y (value baseline).
+    internal static void DrawStackedLabelValue(SKCanvas canvas, string label, string value, float x, float bottomY, SKColor valueColor)
     {
-        using var labelFont = MakeFont(FontSize.SubLabel);
-        using var labelPaint = Fill(Colors.TextSecondary);
-        canvas.DrawText(label, x, y, labelFont, labelPaint);
-
         using var valueFont = MakeFont(FontSize.SubValue, true);
         using var valuePaint = Fill(valueColor);
-        canvas.DrawText(value, x, y + Layout.StackedValueOffsetY, valueFont, valuePaint);
+        canvas.DrawText(value, x, bottomY, valueFont, valuePaint);
+
+        using var labelFont = MakeFont(FontSize.SubLabel);
+        using var labelPaint = Fill(Colors.TextSecondary);
+        canvas.DrawText(label, x, bottomY + valueFont.Metrics.Ascent, labelFont, labelPaint);
     }
 
-    // Draws a right-aligned label on one line and a colored value below it.
-    internal static void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float y, SKColor valueColor)
+    // Draws a right-aligned label above a colored value, bottom-aligned at the given y (value baseline).
+    internal static void DrawStackedLabelValueRight(SKCanvas canvas, string label, string value, float rightX, float bottomY, SKColor valueColor)
     {
-        using var labelFont = MakeFont(FontSize.SubLabel);
-        using var labelPaint = Fill(Colors.TextSecondary);
-        canvas.DrawText(label, rightX - labelFont.MeasureText(label), y, labelFont, labelPaint);
-
         using var valueFont = MakeFont(FontSize.SubValue, true);
         using var valuePaint = Fill(valueColor);
-        canvas.DrawText(value, rightX - valueFont.MeasureText(value), y + Layout.StackedValueOffsetY, valueFont, valuePaint);
+        canvas.DrawText(value, rightX - valueFont.MeasureText(value), bottomY, valueFont, valuePaint);
+
+        using var labelFont = MakeFont(FontSize.SubLabel);
+        using var labelPaint = Fill(Colors.TextSecondary);
+        canvas.DrawText(label, rightX - labelFont.MeasureText(label), bottomY + valueFont.Metrics.Ascent, labelFont, labelPaint);
     }
 
     // Draws a 270° ring gauge (open at bottom).

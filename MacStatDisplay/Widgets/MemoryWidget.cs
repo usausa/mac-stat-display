@@ -34,12 +34,13 @@ internal sealed class MemoryUsageWidget : IWidget
 
         // Left: Swap
         var leftX = rect.Left + Layout.PaddingX;
-        var sideTop = cy - radius + Layout.RingSideTopOffset;
-        DrawHelper.DrawStackedLabelValue(canvas, "Swap", $"{monitor.SwapUsagePercent:0.0}%", leftX, sideTop, Colors.MemoryAccent);
+        var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
+        DrawHelper.DrawStackedLabelValue(canvas, "Swap", $"{monitor.SwapUsagePercent:0.0}%", leftX, sideStartY, Colors.MemoryAccent);
 
         // Right: Active, Wired
         var rightX = rect.Right - Layout.PaddingX;
-        DrawHelper.DrawStackedLabelValueRight(canvas, "Active", $"{monitor.MemoryActivePercent:0.0}%", rightX, sideTop, Colors.MemoryAccent);
-        DrawHelper.DrawStackedLabelValueRight(canvas, "Wired", $"{monitor.MemoryWiredPercent:0.0}%", rightX, sideTop + Layout.StackedItemSpacing, Colors.MemoryAccent);
+        var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
+        DrawHelper.DrawStackedLabelValueRight(canvas, "Active", $"{monitor.MemoryActivePercent:0.0}%", rightX, sideStartY, Colors.MemoryAccent);
+        DrawHelper.DrawStackedLabelValueRight(canvas, "Wired", $"{monitor.MemoryWiredPercent:0.0}%", rightX, sideStartY + itemSpacing, Colors.MemoryAccent);
     }
 }

@@ -21,12 +21,6 @@ internal static class Layout
     internal const float HeaderRadius = 16f;
     internal const float PanelRadius = 12f;
 
-    // TODO
-    // Stacked Label-Value
-
-    internal const float StackedValueOffsetY = 18f;
-    internal const float StackedItemSpacing = 44f;
-
     // Bar Gauge
 
     internal const float BarHeight = 16f;
@@ -34,15 +28,15 @@ internal static class Layout
 
     // Ring Gauge
 
-    // TODO
     internal const float RingStrokeWidth = 16f;
     internal const float RingArcDegrees = 270f;
     internal const float RingStartAngle = 135f;
     internal const float RingSideMargin = 64f;
     internal const float RingHeightRatio = 2f;
     internal const float RingCenterOffsetRatio = 0.2f;
-    internal const float RingSideTopOffset = 0f;
-    internal const float TemperatureOffsetY = 22f;
+    internal const float RingSideStartRatio = 0.45f;
+    internal const float RingSideItemSpacingRatio = 0.45f;
+    internal const float TemperatureOffsetRatio = 0.4f;
 
     // Sparkline
 

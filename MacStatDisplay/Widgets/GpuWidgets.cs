@@ -39,17 +39,18 @@ internal sealed class GpuUsageWidget : IWidget
         {
             using var tempFont = DrawHelper.MakeFont(FontSize.Temperature);
             using var tempPaint = DrawHelper.Fill(Colors.TemperatureAccent);
-            var tempText = $"{temp.Value:0} C";
-            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + Layout.TemperatureOffsetY, tempFont, tempPaint);
+            var tempText = $"{temp.Value:0}\u00b0C";
+            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + (radius * Layout.TemperatureOffsetRatio), tempFont, tempPaint);
         }
 
         // Left side: Renderer / Tiler utilization from first GPU entry
         var leftX = rect.Left + Layout.PaddingX;
-        var sideTop = cy - radius + Layout.RingSideTopOffset;
+        var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
+        var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
         if (gpu is not null)
         {
-            DrawHelper.DrawStackedLabelValue(canvas, "Renderer", $"{gpu.RendererUtilization}%", leftX, sideTop, Colors.GpuAccent);
-            DrawHelper.DrawStackedLabelValue(canvas, "Tiler", $"{gpu.TilerUtilization}%", leftX, sideTop + Layout.StackedItemSpacing, Colors.GpuAccent);
+            DrawHelper.DrawStackedLabelValue(canvas, "Renderer", $"{gpu.RendererUtilization}%", leftX, sideStartY, Colors.GpuAccent);
+            DrawHelper.DrawStackedLabelValue(canvas, "Tiler", $"{gpu.TilerUtilization}%", leftX, sideStartY + itemSpacing, Colors.GpuAccent);
         }
     }
 }

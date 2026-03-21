@@ -28,7 +28,7 @@ internal sealed class CpuClockWidget : IWidget
 
         // E-Core / P-Core
         var leftX = rect.Left + Layout.PaddingX;
-        var y = rect.Bottom - Layout.PaddingY - Layout.StackedValueOffsetY;
+        var y = rect.Bottom - Layout.PaddingY;
         DrawHelper.DrawStackedLabelValue(canvas, "E-Core", $"{eMhz:0}", leftX, y, Colors.CpuClockAccent);
         DrawHelper.DrawStackedLabelValue(canvas, "P-Core", $"{pMhz:0}", leftX + subValueColumnWidth, y, Colors.CpuClockAccent);
     }

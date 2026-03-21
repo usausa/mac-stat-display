@@ -38,20 +38,21 @@ internal sealed class CpuUsageWidget : IWidget
         {
             using var tempFont = DrawHelper.MakeFont(FontSize.Temperature);
             using var tempPaint = DrawHelper.Fill(Colors.TemperatureAccent);
-            var tempText = $"{cpuTemp.Value:0} C";
-            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + Layout.TemperatureOffsetY, tempFont, tempPaint);
+            var tempText = $"{cpuTemp.Value:0}\u00b0C";
+            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + (radius * Layout.TemperatureOffsetRatio), tempFont, tempPaint);
         }
 
         // Left: E-Core / P-Core usage
         var leftX = rect.Left + Layout.PaddingX;
-        var sideTop = cy - radius + Layout.RingSideTopOffset;
-        DrawHelper.DrawStackedLabelValue(canvas, "E-Core", $"{monitor.CpuUsageEfficiency:0}%", leftX, sideTop, Colors.CpuUsageAccent);
-        DrawHelper.DrawStackedLabelValue(canvas, "P-Core", $"{monitor.CpuUsagePerformance:0}%", leftX, sideTop + Layout.StackedItemSpacing, Colors.CpuUsageAccent);
+        var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
+        var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
+        DrawHelper.DrawStackedLabelValue(canvas, "E-Core", $"{monitor.CpuUsageEfficiency:0}%", leftX, sideStartY, Colors.CpuUsageAccent);
+        DrawHelper.DrawStackedLabelValue(canvas, "P-Core", $"{monitor.CpuUsagePerformance:0}%", leftX, sideStartY + itemSpacing, Colors.CpuUsageAccent);
 
         // Right: System / User / Idle
         var rightX = rect.Right - Layout.PaddingX;
-        DrawHelper.DrawStackedLabelValueRight(canvas, "System", $"{monitor.CpuSystemPercent:0.0}%", rightX, sideTop, Colors.CpuUsageAccent);
-        DrawHelper.DrawStackedLabelValueRight(canvas, "User", $"{monitor.CpuUserPercent:0.0}%", rightX, sideTop + 40, Colors.CpuUsageAccent);
-        DrawHelper.DrawStackedLabelValueRight(canvas, "Idle", $"{100 - monitor.CpuUsageTotal:0.0}%", rightX, sideTop + 80, Colors.CpuUsageAccent);
+        DrawHelper.DrawStackedLabelValueRight(canvas, "System", $"{monitor.CpuSystemPercent:0.0}%", rightX, sideStartY, Colors.CpuUsageAccent);
+        DrawHelper.DrawStackedLabelValueRight(canvas, "User", $"{monitor.CpuUserPercent:0.0}%", rightX, sideStartY + itemSpacing, Colors.CpuUsageAccent);
+        DrawHelper.DrawStackedLabelValueRight(canvas, "Idle", $"{100 - monitor.CpuUsageTotal:0.0}%", rightX, sideStartY + (itemSpacing * 2), Colors.CpuUsageAccent);
     }
 }
