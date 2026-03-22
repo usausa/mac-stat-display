@@ -150,29 +150,29 @@ internal sealed class MockSystemMonitor : ISystemMonitor
 
     public void Update()
     {
-        CpuUsageTotal            = Vary(CpuUsageTotal, 5, 95);
-        CpuUsageEfficiency        = Vary(CpuUsageEfficiency, 5, 95);
-        CpuUsagePerformance       = Vary(CpuUsagePerformance, 5, 95);
+        CpuUsageTotal = Vary(CpuUsageTotal, 5, 95);
+        CpuUsageEfficiency = Vary(CpuUsageEfficiency, 5, 95);
+        CpuUsagePerformance = Vary(CpuUsagePerformance, 5, 95);
         CpuFrequencyEfficiencyHz  = Vary(CpuFrequencyEfficiencyHz,  1_000_000_000, 2_600_000_000);
         CpuFrequencyPerformanceHz = Vary(CpuFrequencyPerformanceHz, 1_000_000_000, 3_500_000_000);
-        CpuFrequencyAllHz         = (CpuFrequencyEfficiencyHz + CpuFrequencyPerformanceHz) / 2.0;
-        CpuUserPercent      = Vary(CpuUserPercent, 1, 80);
-        CpuSystemPercent    = Vary(CpuSystemPercent, 1, 30);
-        LoadAverage1        = Vary(LoadAverage1, 0.1, 10);
-        LoadAverage5        = Vary(LoadAverage5, 0.1, 8);
-        LoadAverage15       = Vary(LoadAverage15, 0.1, 6);
-        ProcessCount        = (int)Vary(ProcessCount, 300, 500);
-        ThreadCount         = (int)Vary(ThreadCount, 1500, 2500);
-        MemoryUsagePercent  = Vary(MemoryUsagePercent, 30, 95);
-        CpuTemperature         = Vary(CpuTemperature ?? 62, 40, 90);
-        NandTemperature         = Vary(NandTemperature ?? 52, 40, 80);
-        SsdTemperature          = Vary(SsdTemperature ?? 48, 35, 70);
-        MainboardTemperature    = Vary(MainboardTemperature ?? 45, 30, 65);
-        PowerCpuW           = Vary(PowerCpuW, 5, 50);
-        PowerGpuW           = Vary(PowerGpuW, 3, 40);
-        PowerAneW           = Vary(PowerAneW, 0.5, 8);
-        PowerRamW           = Vary(PowerRamW, 0.5, 5);
-        PowerPciW           = Vary(PowerPciW, 0.1, 3);
+        CpuFrequencyAllHz = (CpuFrequencyEfficiencyHz + CpuFrequencyPerformanceHz) / 2.0;
+        CpuUserPercent = Vary(CpuUserPercent, 1, 80);
+        CpuSystemPercent = Vary(CpuSystemPercent, 1, 30);
+        LoadAverage1 = Vary(LoadAverage1, 0.1, 10);
+        LoadAverage5 = Vary(LoadAverage5, 0.1, 8);
+        LoadAverage15 = Vary(LoadAverage15, 0.1, 6);
+        ProcessCount = (int)Vary(ProcessCount, 300, 500);
+        ThreadCount = (int)Vary(ThreadCount, 1500, 2500);
+        MemoryUsagePercent = Vary(MemoryUsagePercent, 30, 95);
+        CpuTemperature = Vary(CpuTemperature ?? 62, 40, 90);
+        NandTemperature = Vary(NandTemperature ?? 52, 40, 80);
+        SsdTemperature = Vary(SsdTemperature ?? 48, 35, 70);
+        MainboardTemperature = Vary(MainboardTemperature ?? 45, 30, 65);
+        PowerCpuW = Vary(PowerCpuW, 5, 50);
+        PowerGpuW = Vary(PowerGpuW, 3, 40);
+        PowerAneW = Vary(PowerAneW, 0.5, 8);
+        PowerRamW = Vary(PowerRamW, 0.5, 5);
+        PowerPciW = Vary(PowerPciW, 0.1, 3);
         TotalSystemPower    = PowerCpuW + PowerGpuW + PowerAneW + PowerRamW + PowerPciW;
 
         diskRead1  = Vary(diskRead1,  0, 500_000);

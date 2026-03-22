@@ -2,119 +2,119 @@ namespace MacStatDisplay.Monitor;
 
 using MacDotNet.SystemInfo;
 
-internal sealed class DiskDeviceEntry : IDiskDeviceEntry
-{
-#pragma warning disable SA1401
-    internal readonly DiskDeviceStat Stat;
-
-    internal bool Live;
-
-    internal ulong PreviousBytesRead;
-
-    internal ulong PreviousBytesWrite;
-#pragma warning restore SA1401
-
-    // Delegation properties
-    public string Name => Stat.BsdName;
-    public DiskBusType BusType => Stat.BusType;
-    public ulong DiskSize => Stat.DiskSize;
-
-    // Calculated rates (set by SystemMonitor)
-    public double ReadBytesPerSec { get; internal set; }
-    public double WriteBytesPerSec { get; internal set; }
-
-    internal DiskDeviceEntry(DiskDeviceStat diskDeviceStat)
-    {
-        Stat = diskDeviceStat;
-        PreviousBytesRead = diskDeviceStat.BytesRead;
-        PreviousBytesWrite = diskDeviceStat.BytesWrite;
-        Live = true;
-    }
-}
-
-internal sealed class FileSystemMonitorEntry : IFileSystemEntry
-{
-#pragma warning disable SA1401
-    internal readonly FileSystemEntry Entry;
-
-    internal bool Live;
-#pragma warning restore SA1401
-
-    // Delegation properties
-    public string MountPoint => Entry.MountPoint;
-    public string FileSystem => Entry.FileSystem;
-    public ulong TotalSize => Entry.TotalSize;
-    public ulong FreeSize => Entry.FreeSize;
-    public ulong AvailableSize => Entry.AvailableSize;
-
-    internal FileSystemMonitorEntry(FileSystemEntry fileSystemEntry)
-    {
-        Entry = fileSystemEntry;
-        Live = true;
-    }
-}
-
-internal sealed class NetworkIfEntry : INetworkIfEntry
-{
-#pragma warning disable SA1401
-    internal readonly NetworkStatEntry Stat;
-
-    internal bool Live;
-
-    internal uint PreviousRxBytes;
-
-    internal uint PreviousTxBytes;
-#pragma warning restore SA1401
-
-    // Delegation properties
-    public string Name => Stat.Name;
-    public string? DisplayName => Stat.DisplayName;
-    public uint RxBytes => Stat.RxBytes;
-    public uint TxBytes => Stat.TxBytes;
-
-    // Calculated rates (set by SystemMonitor)
-    public double RxBytesPerSec { get; internal set; }
-    public double TxBytesPerSec { get; internal set; }
-
-    internal NetworkIfEntry(NetworkStatEntry networkStatEntry)
-    {
-        Stat = networkStatEntry;
-        PreviousRxBytes = networkStatEntry.RxBytes;
-        PreviousTxBytes = networkStatEntry.TxBytes;
-        Live = true;
-    }
-}
-
-internal sealed class GpuEntry : IGpuEntry
-{
-#pragma warning disable SA1401
-    internal readonly GpuDevice Device;
-#pragma warning restore SA1401
-
-    // Delegation properties
-    public string Name => Device.Name;
-    public long DeviceUtilization => Device.DeviceUtilization;
-    public long RendererUtilization => Device.RendererUtilization;
-    public long TilerUtilization => Device.TilerUtilization;
-    public int Temperature => Device.Temperature;
-
-    internal GpuEntry(GpuDevice gpuDevice) => Device = gpuDevice;
-}
-
-internal sealed class FanSensorEntry : IFanEntry
-{
-    private readonly FanSensor sensor;
-
-    public int Index => sensor.Index;
-    public double ActualRpm => sensor.ActualRpm;
-    public double MinRpm => sensor.MinRpm;
-    public double MaxRpm => sensor.MaxRpm;
-
-    internal FanSensorEntry(FanSensor fanSensor) => sensor = fanSensor;
-}
-
 internal sealed class SystemMonitor : ISystemMonitor
 {
+    internal sealed class DiskDeviceEntry : IDiskDeviceEntry
+    {
+#pragma warning disable SA1401
+        internal readonly DiskDeviceStat Stat;
+
+        internal bool Live;
+
+        internal ulong PreviousBytesRead;
+
+        internal ulong PreviousBytesWrite;
+#pragma warning restore SA1401
+
+        // Delegation properties
+        public string Name => Stat.BsdName;
+        public DiskBusType BusType => Stat.BusType;
+        public ulong DiskSize => Stat.DiskSize;
+
+        // Calculated rates (set by SystemMonitor)
+        public double ReadBytesPerSec { get; internal set; }
+        public double WriteBytesPerSec { get; internal set; }
+
+        internal DiskDeviceEntry(DiskDeviceStat diskDeviceStat)
+        {
+            Stat = diskDeviceStat;
+            PreviousBytesRead = diskDeviceStat.BytesRead;
+            PreviousBytesWrite = diskDeviceStat.BytesWrite;
+            Live = true;
+        }
+    }
+
+    internal sealed class FileSystemMonitorEntry : IFileSystemEntry
+    {
+#pragma warning disable SA1401
+        internal readonly FileSystemEntry Entry;
+
+        internal bool Live;
+#pragma warning restore SA1401
+
+        // Delegation properties
+        public string MountPoint => Entry.MountPoint;
+        public string FileSystem => Entry.FileSystem;
+        public ulong TotalSize => Entry.TotalSize;
+        public ulong FreeSize => Entry.FreeSize;
+        public ulong AvailableSize => Entry.AvailableSize;
+
+        internal FileSystemMonitorEntry(FileSystemEntry fileSystemEntry)
+        {
+            Entry = fileSystemEntry;
+            Live = true;
+        }
+    }
+
+    internal sealed class NetworkIfEntry : INetworkIfEntry
+    {
+#pragma warning disable SA1401
+        internal readonly NetworkStatEntry Stat;
+
+        internal bool Live;
+
+        internal uint PreviousRxBytes;
+
+        internal uint PreviousTxBytes;
+#pragma warning restore SA1401
+
+        // Delegation properties
+        public string Name => Stat.Name;
+        public string? DisplayName => Stat.DisplayName;
+        public uint RxBytes => Stat.RxBytes;
+        public uint TxBytes => Stat.TxBytes;
+
+        // Calculated rates (set by SystemMonitor)
+        public double RxBytesPerSec { get; internal set; }
+        public double TxBytesPerSec { get; internal set; }
+
+        internal NetworkIfEntry(NetworkStatEntry networkStatEntry)
+        {
+            Stat = networkStatEntry;
+            PreviousRxBytes = networkStatEntry.RxBytes;
+            PreviousTxBytes = networkStatEntry.TxBytes;
+            Live = true;
+        }
+    }
+
+    internal sealed class GpuEntry : IGpuEntry
+    {
+#pragma warning disable SA1401
+        internal readonly GpuDevice Device;
+#pragma warning restore SA1401
+
+        // Delegation properties
+        public string Name => Device.Name;
+        public long DeviceUtilization => Device.DeviceUtilization;
+        public long RendererUtilization => Device.RendererUtilization;
+        public long TilerUtilization => Device.TilerUtilization;
+        public int Temperature => Device.Temperature;
+
+        internal GpuEntry(GpuDevice gpuDevice) => Device = gpuDevice;
+    }
+
+    internal sealed class FanSensorEntry : IFanEntry
+    {
+        private readonly FanSensor sensor;
+
+        public int Index => sensor.Index;
+        public double ActualRpm => sensor.ActualRpm;
+        public double MinRpm => sensor.MinRpm;
+        public double MaxRpm => sensor.MaxRpm;
+
+        internal FanSensorEntry(FanSensor fanSensor) => sensor = fanSensor;
+    }
+
     //--------------------------------------------------------------------------------
     // System info providers
     //--------------------------------------------------------------------------------
