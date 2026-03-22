@@ -87,22 +87,6 @@ internal sealed class SystemMonitor : ISystemMonitor
         }
     }
 
-    internal sealed class GpuEntry : IGpuEntry
-    {
-#pragma warning disable SA1401
-        internal readonly GpuDevice Device;
-#pragma warning restore SA1401
-
-        // Delegation properties
-        public string Name => Device.Name;
-        public long DeviceUtilization => Device.DeviceUtilization;
-        public long RendererUtilization => Device.RendererUtilization;
-        public long TilerUtilization => Device.TilerUtilization;
-        public int Temperature => Device.Temperature;
-
-        internal GpuEntry(GpuDevice gpuDevice) => Device = gpuDevice;
-    }
-
     internal sealed class FanSensorEntry : IFanEntry
     {
         private readonly FanSensor sensor;
@@ -114,6 +98,19 @@ internal sealed class SystemMonitor : ISystemMonitor
 
         internal FanSensorEntry(FanSensor fanSensor) => sensor = fanSensor;
     }
+
+    //--------------------------------------------------------------------------------
+    // Sensor Keys
+    //--------------------------------------------------------------------------------
+
+    // ReSharper disable StringLiteralTypo
+    private static readonly string[] FixedKeys = ["TGDD", "TCGC", "TG0D", "TG0P"];
+
+    private static readonly HashSet<string> M3GpuKeys = new(StringComparer.Ordinal)
+    {
+        "Tf14", "Tf18", "Tf19", "Tf1A", "Tf24", "Tf28", "Tf29", "Tf2A"
+    };
+    // ReSharper restore StringLiteralTypo
 
     //--------------------------------------------------------------------------------
     // System info providers
@@ -140,7 +137,7 @@ internal sealed class SystemMonitor : ISystemMonitor
     private readonly List<DiskDeviceEntry> diskEntries = [];
     private readonly List<NetworkIfEntry> networkEntries = [];
     private readonly List<FileSystemMonitorEntry> fileSystemEntries = [];
-    private readonly List<GpuEntry> gpuEntries = [];
+    private readonly GpuDevice? gpuDevice;
     private readonly List<FanSensorEntry> fanEntries = [];
 
     // CPU counter
@@ -191,6 +188,7 @@ internal sealed class SystemMonitor : ISystemMonitor
     private readonly TemperatureSensor? sensorNand;           // TH0x
     private readonly TemperatureSensor? sensorSsd;            // TPSD
     private readonly TemperatureSensor? sensorMainboard;      // Tm0P
+    private readonly TemperatureSensor? sensorGpu;
     private readonly VoltageSensor? sensorDcInVoltage;        // VD0R
     private readonly CurrentSensor? sensorDcInCurrent;        // ID0R
     private readonly PowerSensor? sensorDcInPower;            // Pb0f
@@ -262,7 +260,10 @@ internal sealed class SystemMonitor : ISystemMonitor
 
     // GPU
 
-    public IReadOnlyList<IGpuEntry> GpuDevices => gpuEntries;
+    public long? GpuDeviceUtilization => gpuDevice?.DeviceUtilization;
+    public long? GpuRendererUtilization => gpuDevice?.RendererUtilization;
+    public long? GpuTilerUtilization => gpuDevice?.TilerUtilization;
+    public double? GpuTemperature => sensorGpu?.Value;
 
     // Temperature
 
@@ -324,14 +325,16 @@ internal sealed class SystemMonitor : ISystemMonitor
         prevEfficiencyCoreCounters = cpuStat.EfficiencyCores.Select(c => new CpuCoreCounters(c.User, c.System, c.Idle, c.Nice)).ToArray();
         prevPerformanceCoreCounters = cpuStat.PerformanceCores.Select(c => new CpuCoreCounters(c.User, c.System, c.Idle, c.Nice)).ToArray();
         // GPU
-        gpuEntries.AddRange(PlatformProvider.GetGpuDevices().Select(d => new GpuEntry(d)));
+        var gpuDevices = PlatformProvider.GetGpuDevices();
+        gpuDevice = gpuDevices.Count > 0 ? gpuDevices[0] : null;
         // Sensor
         // ReSharper disable StringLiteralTypo
-        var temps = smcMonitor.Temperatures;
-        sensorCpuDieAvg = temps.FirstOrDefault(t => t.Key == "TCMb");
-        sensorNand = temps.FirstOrDefault(t => t.Key == "TH0x");
-        sensorSsd = temps.FirstOrDefault(t => t.Key == "TPSD");
-        sensorMainboard = temps.FirstOrDefault(t => t.Key == "Tm0P");
+        var temperatureSensors = smcMonitor.Temperatures;
+        sensorCpuDieAvg = temperatureSensors.FirstOrDefault(t => t.Key == "TCMb");
+        sensorNand = temperatureSensors.FirstOrDefault(t => t.Key == "TH0x");
+        sensorSsd = temperatureSensors.FirstOrDefault(t => t.Key == "TPSD");
+        sensorMainboard = temperatureSensors.FirstOrDefault(t => t.Key == "Tm0P");
+        sensorGpu = FindGpuTemperature(temperatureSensors);
         sensorDcInVoltage = smcMonitor.Voltages.FirstOrDefault(v => v.Key == "VD0R");
         sensorDcInCurrent = smcMonitor.Currents.FirstOrDefault(c => c.Key == "ID0R");
         sensorDcInPower = smcMonitor.Powers.FirstOrDefault(p => p.Key == "Pb0f");
@@ -346,6 +349,56 @@ internal sealed class SystemMonitor : ISystemMonitor
         CalculateNetworkEntries(0);
 
         SavePowerCounters();
+    }
+
+    //--------------------------------------------------------------------------------
+    // Helper
+    //--------------------------------------------------------------------------------
+
+    private static TemperatureSensor? FindGpuTemperature(IReadOnlyList<TemperatureSensor> sensors)
+    {
+        // 1. Intel/AMD
+        foreach (var key in FixedKeys)
+        {
+            foreach (var sensor in sensors)
+            {
+                if ((sensor.Key == key) && (sensor.Value > 0))
+                {
+                    return sensor;
+                }
+            }
+        }
+
+        TemperatureSensor? find = null;
+
+        // Tg (Apple Silicon M1/M2/M4)
+        foreach (var sensor in sensors)
+        {
+            if (sensor.Key.StartsWith("Tg", StringComparison.Ordinal) &&
+                (sensor.Value > 0) &&
+                ((find is null) || (String.Compare(sensor.Key, find.Key, StringComparison.Ordinal) < 0)))
+            {
+                find = sensor;
+            }
+        }
+
+        if (find is not null)
+        {
+            return find;
+        }
+
+        // Tf (Apple Silicon M3)
+        foreach (var sensor in sensors)
+        {
+            if (M3GpuKeys.Contains(sensor.Key) &&
+                (sensor.Value > 0) &&
+                ((find is null) || (String.Compare(sensor.Key, find.Key, StringComparison.Ordinal) < 0)))
+            {
+                find = sensor;
+            }
+        }
+
+        return find;
     }
 
     //--------------------------------------------------------------------------------
@@ -368,12 +421,7 @@ internal sealed class SystemMonitor : ISystemMonitor
         networkStat.Update();
         processSummary.Update();
         fileSystemStat.Update();
-
-        for (var i = 0; i < gpuEntries.Count; i++)
-        {
-            gpuEntries[i].Device.Update();
-        }
-
+        gpuDevice?.Update();
         powerStat.Update();
         smcMonitor.Update();
 

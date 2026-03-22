@@ -16,8 +16,7 @@ internal sealed class GpuUsageWidget : IWidget
         DrawHelper.DrawPanel(canvas, rect);
         DrawHelper.DrawTitle(canvas, rect, "GPU Usage");
 
-        var gpu = monitor.GpuDevices.Count > 0 ? monitor.GpuDevices[0] : null;
-        var usage = (float)Math.Clamp(gpu?.DeviceUtilization ?? 0, 0, 100);
+        var usage = (float)Math.Clamp(monitor.GpuDeviceUtilization ?? 0, 0, 100);
 
         // Calculate
         var contentTop = rect.Top + Layout.TitleOffsetY + Layout.ContentTopGap;
@@ -33,22 +32,26 @@ internal sealed class GpuUsageWidget : IWidget
         DrawHelper.DrawCenterValue(canvas, $"{usage:0}%", cx, cy + (FontSize.GaugeValue * Layout.BaselineRatio), Colors.GpuAccent);
 
         // Temperature
-        if (gpu is not null)
+        if (monitor.GpuTemperature.HasValue)
         {
             using var tempFont = DrawHelper.MakeFont(FontSize.Temperature);
             using var tempPaint = DrawHelper.MakeFillPaint(Colors.TemperatureAccent);
-            var tempText = $"{gpu.Temperature:0}\u00b0C";
+            var tempText = $"{monitor.GpuTemperature.Value:0}\u00b0C";
             canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + (radius * Layout.TemperatureOffsetRatio), tempFont, tempPaint);
         }
 
         // Left
-        if (gpu is not null)
+        var leftX = rect.Left + Layout.PaddingX;
+        var currentY = cy - radius + (radius * Layout.RingSideStartRatio);
+        var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
+        if (monitor.GpuRendererUtilization.HasValue)
         {
-            var leftX = rect.Left + Layout.PaddingX;
-            var sideStartY = cy - radius + (radius * Layout.RingSideStartRatio);
-            var itemSpacing = radius * Layout.RingSideItemSpacingRatio;
-            DrawHelper.DrawStackedValue(canvas, "Renderer", $"{gpu.RendererUtilization}%", leftX, sideStartY, Colors.GpuAccent);
-            DrawHelper.DrawStackedValue(canvas, "Tiler", $"{gpu.TilerUtilization}%", leftX, sideStartY + itemSpacing, Colors.GpuAccent);
+            DrawHelper.DrawStackedValue(canvas, "Renderer", $"{monitor.GpuRendererUtilization.Value}%", leftX, currentY, Colors.GpuAccent);
+            currentY += itemSpacing;
+        }
+        if (monitor.GpuTilerUtilization.HasValue)
+        {
+            DrawHelper.DrawStackedValue(canvas, "Tiler", $"{monitor.GpuTilerUtilization.Value}%", leftX, currentY, Colors.GpuAccent);
         }
     }
 }

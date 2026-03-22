@@ -24,15 +24,6 @@ internal interface INetworkIfEntry
     double TxBytesPerSec { get; }
 }
 
-internal interface IGpuEntry
-{
-    string Name { get; }
-    long DeviceUtilization { get; }
-    long RendererUtilization { get; }
-    long TilerUtilization { get; }
-    int Temperature { get; }
-}
-
 internal interface IFanEntry
 {
     int Index { get; }
@@ -100,7 +91,10 @@ internal interface ISystemMonitor
 
     // GPU
 
-    IReadOnlyList<IGpuEntry> GpuDevices { get; }
+    long? GpuDeviceUtilization { get; }
+    long? GpuRendererUtilization { get; }
+    long? GpuTilerUtilization { get; }
+    double? GpuTemperature { get; }
 
     // Temperature
 

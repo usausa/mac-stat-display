@@ -14,9 +14,6 @@ internal sealed class MockSystemMonitor : ISystemMonitor
     private sealed record MockNetworkIfEntry(string Name, string? DisplayName, double RxBytesPerSec, double TxBytesPerSec)
         : INetworkIfEntry;
 
-    private sealed record MockGpuEntry(string Name, long DeviceUtilization, long RendererUtilization, long TilerUtilization, int Temperature)
-        : IGpuEntry;
-
     private sealed record MockFanEntry(int Index, double ActualRpm, double MinRpm, double MaxRpm)
         : IFanEntry;
 
@@ -106,10 +103,10 @@ internal sealed class MockSystemMonitor : ISystemMonitor
 
     // GPU
 
-    public IReadOnlyList<IGpuEntry> GpuDevices { get; private set; } =
-    [
-        new MockGpuEntry("Apple M2 GPU", 45, 36, 50, 55)
-    ];
+    public long? GpuDeviceUtilization { get; private set; } = 45;
+    public long? GpuRendererUtilization { get; private set; } = 36;
+    public long? GpuTilerUtilization { get; private set; } = 50;
+    public double? GpuTemperature { get; private set; } = 55;
 
     // Temperature
 
@@ -197,10 +194,10 @@ internal sealed class MockSystemMonitor : ISystemMonitor
 
         gpuUtil = Vary(gpuUtil, 5, 95);
         gpuTemp = Vary(gpuTemp, 35, 85);
-        GpuDevices =
-        [
-            new MockGpuEntry("Apple M2 GPU", (long)gpuUtil, (long)(gpuUtil * 0.8), (long)(gpuUtil * 1.1), (int)gpuTemp)
-        ];
+        GpuDeviceUtilization = (long)gpuUtil;
+        GpuRendererUtilization = (long)(gpuUtil * 0.8);
+        GpuTilerUtilization = (long)(gpuUtil * 1.1);
+        GpuTemperature = (int)gpuTemp;
 
         fanRpm = Vary(fanRpm, 1200, 4500);
         Fans =
