@@ -2,6 +2,7 @@ namespace MacStatDisplay.Monitor;
 
 using MacDotNet.SystemInfo;
 
+#pragma warning disable IDE0032
 internal sealed class SystemMonitor : ISystemMonitor
 {
     internal sealed class DiskDeviceEntry : IDiskDeviceEntry
@@ -776,3 +777,4 @@ internal sealed class SystemMonitor : ISystemMonitor
         SavePowerCounters();
     }
 }
+#pragma warning restore IDE0032
