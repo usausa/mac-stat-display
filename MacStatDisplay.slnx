@@ -18,5 +18,5 @@
     <File Path="MacStatDisplay.sln.DotSettings" />
     <File Path="README.md" />
   </Folder>
-  <Project Path="MacStatDisplay/MacStatDisplay.csproj" Id="f29fdbb9-49c7-4b25-a72b-382b9e214849" />
+  <Project Path="MacStatDisplay/MacStatDisplay.csproj" />
 </Solution>
