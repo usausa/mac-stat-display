@@ -10,6 +10,12 @@ using Serilog;
 // Builder
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 var builder = Host.CreateApplicationBuilder(args);
+builder.Configuration.SetBasePath(AppContext.BaseDirectory);
+
+// Service
+builder.Services
+    .AddWindowsService()
+    .AddSystemd();
 
 // Logging
 builder.Logging.ClearProviders();
