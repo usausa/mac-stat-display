@@ -1,10 +1,4 @@
 <Solution>
-  <Configurations>
-    <BuildType Name="Debug" />
-    <BuildType Name="DebugLinux" />
-    <BuildType Name="DebugMac" />
-    <BuildType Name="Release" />
-  </Configurations>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
