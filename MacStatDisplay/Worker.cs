@@ -87,16 +87,15 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         {
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(refreshInterval));
 
-            var tick = 0;
+            var nextUpdateTime = DateTime.UtcNow.AddSeconds(settings.UpdatePeriod);
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                tick += refreshInterval;
-                if (tick >= settings.UpdatePeriod)
+                if (DateTime.UtcNow >= nextUpdateTime)
                 {
                     monitor.Update();
                     RenderDashboard(canvas, width, height, placements);
 
-                    tick = 0;
+                    nextUpdateTime = DateTime.UtcNow.AddSeconds(settings.UpdatePeriod);
                 }
 
                 displayDriver.Draw(surface);

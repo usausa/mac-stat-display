@@ -21,7 +21,7 @@ internal sealed class FanWidget : IWidget
         // Fan speed
         if (fan is not null)
         {
-            var speedPercent = fan.ActualRpm / fan.MaxRpm * 100.0;
+            var speedPercent = fan.MaxRpm > 0 ? fan.ActualRpm / fan.MaxRpm * 100.0 : 0.0;
             DrawHelper.DrawValue(canvas, $"{speedPercent:0}%", rect.Right - Layout.PaddingX, rect.Bottom - Layout.PaddingY, Colors.FanAccent);
         }
 

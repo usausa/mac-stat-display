@@ -421,6 +421,7 @@ internal sealed class SystemMonitor : ISystemMonitor
         diskStat.Update();
         networkStat.Update();
         processSummary.Update();
+        fileHandleStat.Update();
         fileSystemStat.Update();
         gpuDevice?.Update();
         powerStat.Update();
@@ -690,8 +691,8 @@ internal sealed class SystemMonitor : ISystemMonitor
     {
         if (elapsed > 0)
         {
-            var rxDelta = entry.Stat.RxBytes >= entry.PreviousRxBytes ? entry.Stat.RxBytes - entry.PreviousRxBytes : 0;
-            var txDelta = entry.Stat.TxBytes >= entry.PreviousTxBytes ? entry.Stat.TxBytes - entry.PreviousTxBytes : 0;
+            var rxDelta = unchecked(entry.Stat.RxBytes - entry.PreviousRxBytes);
+            var txDelta = unchecked(entry.Stat.TxBytes - entry.PreviousTxBytes);
             entry.RxBytesPerSec = rxDelta / elapsed;
             entry.TxBytesPerSec = txDelta / elapsed;
         }
@@ -767,11 +768,11 @@ internal sealed class SystemMonitor : ISystemMonitor
     {
         if ((elapsed > 0) && powerStat.Supported)
         {
-            powerCpuW = (powerStat.Cpu - prevPowerCpuJ) / elapsed;
-            powerGpuW = (powerStat.Gpu - prevPowerGpuJ) / elapsed;
-            powerAneW = (powerStat.Ane - prevPowerAneJ) / elapsed;
-            powerRamW = (powerStat.Ram - prevPowerRamJ) / elapsed;
-            powerPciW = (powerStat.Pci - prevPowerPciJ) / elapsed;
+            powerCpuW = Math.Max(0, (powerStat.Cpu - prevPowerCpuJ) / elapsed);
+            powerGpuW = Math.Max(0, (powerStat.Gpu - prevPowerGpuJ) / elapsed);
+            powerAneW = Math.Max(0, (powerStat.Ane - prevPowerAneJ) / elapsed);
+            powerRamW = Math.Max(0, (powerStat.Ram - prevPowerRamJ) / elapsed);
+            powerPciW = Math.Max(0, (powerStat.Pci - prevPowerPciJ) / elapsed);
         }
 
         SavePowerCounters();
