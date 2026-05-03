@@ -1,5 +1,6 @@
 namespace MacStatDisplay.Monitor;
 
+#pragma warning disable IDE0051
 internal interface IDiskDeviceEntry
 {
     string Name { get; }
@@ -91,9 +92,9 @@ internal interface ISystemMonitor
 
     // GPU
 
-    long? GpuDeviceUtilization { get; }
-    long? GpuRendererUtilization { get; }
-    long? GpuTilerUtilization { get; }
+    ulong? GpuDeviceUtilization { get; }
+    ulong? GpuRendererUtilization { get; }
+    ulong? GpuTilerUtilization { get; }
     double? GpuTemperature { get; }
 
     // Temperature
@@ -133,3 +134,4 @@ internal interface ISystemMonitor
 
     void Update();
 }
+#pragma warning restore IDE0051

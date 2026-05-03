@@ -261,9 +261,9 @@ internal sealed class SystemMonitor : ISystemMonitor
 
     // GPU
 
-    public long? GpuDeviceUtilization => gpuDevice?.DeviceUtilization;
-    public long? GpuRendererUtilization => gpuDevice?.RendererUtilization;
-    public long? GpuTilerUtilization => gpuDevice?.TilerUtilization;
+    public ulong? GpuDeviceUtilization => gpuDevice?.DeviceUtilization;
+    public ulong? GpuRendererUtilization => gpuDevice?.RendererUtilization;
+    public ulong? GpuTilerUtilization => gpuDevice?.TilerUtilization;
     public double? GpuTemperature => sensorGpu?.Value;
 
     // Temperature

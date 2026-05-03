@@ -103,9 +103,9 @@ internal sealed class MockSystemMonitor : ISystemMonitor
 
     // GPU
 
-    public long? GpuDeviceUtilization { get; private set; } = 45;
-    public long? GpuRendererUtilization { get; private set; } = 36;
-    public long? GpuTilerUtilization { get; private set; } = 50;
+    public ulong? GpuDeviceUtilization { get; private set; } = 45;
+    public ulong? GpuRendererUtilization { get; private set; } = 36;
+    public ulong? GpuTilerUtilization { get; private set; } = 50;
     public double? GpuTemperature { get; private set; } = 55;
 
     // Temperature
@@ -194,9 +194,9 @@ internal sealed class MockSystemMonitor : ISystemMonitor
 
         gpuUtil = Vary(gpuUtil, 5, 95);
         gpuTemp = Vary(gpuTemp, 35, 85);
-        GpuDeviceUtilization = (long)gpuUtil;
-        GpuRendererUtilization = (long)(gpuUtil * 0.8);
-        GpuTilerUtilization = (long)(gpuUtil * 1.1);
+        GpuDeviceUtilization = (ulong)gpuUtil;
+        GpuRendererUtilization = (ulong)(gpuUtil * 0.8);
+        GpuTilerUtilization = (ulong)(gpuUtil * 1.1);
         GpuTemperature = (int)gpuTemp;
 
         fanRpm = Vary(fanRpm, 1200, 4500);
