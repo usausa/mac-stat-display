@@ -107,10 +107,12 @@ internal sealed class SystemMonitor : ISystemMonitor
     // ReSharper disable StringLiteralTypo
     private static readonly string[] FixedKeys = ["TGDD", "TCGC", "TG0D", "TG0P"];
 
+#pragma warning disable IDE0028
     private static readonly HashSet<string> M3GpuKeys = new(StringComparer.Ordinal)
     {
         "Tf14", "Tf18", "Tf19", "Tf1A", "Tf24", "Tf28", "Tf29", "Tf2A"
     };
+#pragma warning restore IDE0028
     // ReSharper restore StringLiteralTypo
 
     //--------------------------------------------------------------------------------
