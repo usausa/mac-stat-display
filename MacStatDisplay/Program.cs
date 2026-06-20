@@ -26,12 +26,10 @@ var displaySettings = builder.Configuration.GetSection("Display").Get<DisplaySet
 builder.Services.AddSingleton(displaySettings);
 
 // System monitor
-builder.Services.AddSingleton(SystemMonitorFactory.Create(displaySettings.Monitor));
+builder.Services.AddSingleton<ISystemMonitor>(_ => SystemMonitorFactory.Create(displaySettings.Monitor));
 
 // Display driver
-#pragma warning disable CA2000
-builder.Services.AddSingleton(DisplayDriverFactory.Create(displaySettings.Driver));
-#pragma warning restore CA2000
+builder.Services.AddSingleton<IDisplayDriver>(_ => DisplayDriverFactory.Create(displaySettings.Driver));
 
 // Worker
 builder.Services.AddHostedService<Worker>();

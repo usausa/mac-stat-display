@@ -13,6 +13,11 @@ internal static partial class Log
     [LoggerMessage(Level = LogLevel.Information, Message = "Environment: version=[{version}], directory=[{directory}]")]
     public static partial void InfoServiceSettingsEnvironment(this ILogger logger, Version? version, string directory);
 
+    // Setting
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Widget placement is out of grid range. type=[{type}], column=[{column}], row=[{row}], columnSpan=[{columnSpan}], rowSpan=[{rowSpan}]")]
+    public static partial void WarnWidgetPlacementOutOfRange(this ILogger logger, string type, int column, int row, int columnSpan, int rowSpan);
+
     // Error
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Unknown exception.")]

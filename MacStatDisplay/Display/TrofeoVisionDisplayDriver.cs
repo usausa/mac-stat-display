@@ -23,12 +23,14 @@ internal sealed class TrofeoVisionDisplayDriver : IDisplayDriver
 
     public bool Initialize()
     {
+        screen?.Dispose();
+        screen = null;
+
         var hidDevice = DeviceList.Local
             .GetHidDevices(ScreenDevice.VendorId, ScreenDevice.ProductId)
             .FirstOrDefault();
         if (hidDevice is null)
         {
-            screen = null;
             return false;
         }
 
@@ -40,6 +42,6 @@ internal sealed class TrofeoVisionDisplayDriver : IDisplayDriver
     {
         using var image = surface.Snapshot();
         using var data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
-        screen!.DrawJpeg(data.ToArray());
+        screen!.DrawJpeg(data.AsSpan());
     }
 }
