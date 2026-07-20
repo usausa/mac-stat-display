@@ -161,19 +161,19 @@ internal static class DrawHelper
     public static void DrawTitle(SKCanvas canvas, SKRect rect, string title)
     {
         var font = GetFont(FontSize.WidgetTitle, true);
-        canvas.DrawText(title, rect.Left + Layout.PaddingX, rect.Top + Layout.TitleOffsetY, font, GetFillPaint(Colors.TextPrimary));
+        canvas.DrawText(title, rect.Left + Layout.PaddingX, rect.Top + Layout.TitleOffsetY, SKTextAlign.Left, font, GetFillPaint(Colors.TextPrimary));
     }
 
     public static void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
     {
         var font = GetFont(FontSize.PrimaryValue, true);
-        canvas.DrawText(text, rightX - font.MeasureText(text), y, font, GetFillPaint(color));
+        canvas.DrawText(text, rightX - font.MeasureText(text), y, SKTextAlign.Left, font, GetFillPaint(color));
     }
 
     public static void DrawCenterValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
     {
         var font = GetFont(FontSize.GaugeValue, true);
-        canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, font, GetFillPaint(color));
+        canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, SKTextAlign.Left, font, GetFillPaint(color));
     }
 
     public static void DrawStackedValue(SKCanvas canvas, string label, string value, float x, float bottomY, SKColor valueColor)
@@ -181,10 +181,10 @@ internal static class DrawHelper
         var valueFont = GetFont(FontSize.SubValue, true);
         var labelFont = GetFont(FontSize.SubLabel);
 
-        canvas.DrawText(value, x, bottomY, valueFont, GetFillPaint(valueColor));
+        canvas.DrawText(value, x, bottomY, SKTextAlign.Left, valueFont, GetFillPaint(valueColor));
 
         var labelY = bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent;
-        canvas.DrawText(label, x, labelY, labelFont, GetFillPaint(Colors.TextSecondary));
+        canvas.DrawText(label, x, labelY, SKTextAlign.Left, labelFont, GetFillPaint(Colors.TextSecondary));
     }
 
     public static void DrawStackedValueRight(SKCanvas canvas, string label, string value, float rightX, float bottomY, SKColor valueColor)
@@ -192,10 +192,10 @@ internal static class DrawHelper
         var valueFont = GetFont(FontSize.SubValue, true);
         var labelFont = GetFont(FontSize.SubLabel);
 
-        canvas.DrawText(value, rightX - valueFont.MeasureText(value), bottomY, valueFont, GetFillPaint(valueColor));
+        canvas.DrawText(value, rightX - valueFont.MeasureText(value), bottomY, SKTextAlign.Left, valueFont, GetFillPaint(valueColor));
 
         var labelY = bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent;
-        canvas.DrawText(label, rightX - labelFont.MeasureText(label), labelY, labelFont, GetFillPaint(Colors.TextSecondary));
+        canvas.DrawText(label, rightX - labelFont.MeasureText(label), labelY, SKTextAlign.Left, labelFont, GetFillPaint(Colors.TextSecondary));
     }
 
     //--------------------------------------------------------------------------------
@@ -318,16 +318,16 @@ internal static class DrawHelper
         var upperLabelY = upperValueY + valFont.Metrics.Ascent - labelFont.Metrics.Descent;
 
         // The fill paint is shared, so its colour is set immediately before each draw
-        canvas.DrawText(upperLabel, rightX - labelFont.MeasureText(upperLabel), upperLabelY, labelFont, GetFillPaint(Colors.TextSecondary));
-        canvas.DrawText(upperValue, rightX - valFont.MeasureText(upperValue), upperValueY, valFont, GetFillPaint(upperColor));
+        canvas.DrawText(upperLabel, rightX - labelFont.MeasureText(upperLabel), upperLabelY, SKTextAlign.Left, labelFont, GetFillPaint(Colors.TextSecondary));
+        canvas.DrawText(upperValue, rightX - valFont.MeasureText(upperValue), upperValueY, SKTextAlign.Left, valFont, GetFillPaint(upperColor));
 
         // Lower
         var lowerAnchor = areaBottom - (areaHeight * halfContent);
         var lowerLabelY = lowerAnchor - labelFont.Metrics.Ascent;
         var lowerValueY = lowerLabelY + labelFont.Metrics.Descent - valFont.Metrics.Ascent;
 
-        canvas.DrawText(lowerLabel, rightX - labelFont.MeasureText(lowerLabel), lowerLabelY, labelFont, GetFillPaint(Colors.TextSecondary));
-        canvas.DrawText(lowerValue, rightX - valFont.MeasureText(lowerValue), lowerValueY, valFont, GetFillPaint(lowerColor));
+        canvas.DrawText(lowerLabel, rightX - labelFont.MeasureText(lowerLabel), lowerLabelY, SKTextAlign.Left, labelFont, GetFillPaint(Colors.TextSecondary));
+        canvas.DrawText(lowerValue, rightX - valFont.MeasureText(lowerValue), lowerValueY, SKTextAlign.Left, valFont, GetFillPaint(lowerColor));
     }
 
     //--------------------------------------------------------------------------------

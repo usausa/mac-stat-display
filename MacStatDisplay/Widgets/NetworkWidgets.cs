@@ -56,7 +56,7 @@ internal sealed class NetworkWidget : IWidget
     {
         // Name
         var nameFont = DrawHelper.GetFont(FontSize.SubLabel);
-        canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, nameFont, DrawHelper.GetFillPaint(Colors.TextSecondary));
+        canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, SKTextAlign.Left, nameFont, DrawHelper.GetFillPaint(Colors.TextSecondary));
 
         // Calculate
         var graphAreaTop = entryTop + Layout.SparklineLabelHeight;

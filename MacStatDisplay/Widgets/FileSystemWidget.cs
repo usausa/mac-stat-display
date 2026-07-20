@@ -61,14 +61,14 @@ internal sealed class FileSystemWidget : IWidget
 
         // Left
         var mountFont = DrawHelper.GetFont(FontSize.SubLabel);
-        canvas.DrawText(mount, leftX, centerY + mountFont.Metrics.Ascent - mountFont.Metrics.Descent, mountFont, DrawHelper.GetFillPaint(Colors.TextSecondary));
+        canvas.DrawText(mount, leftX, centerY + mountFont.Metrics.Ascent - mountFont.Metrics.Descent, SKTextAlign.Left, mountFont, DrawHelper.GetFillPaint(Colors.TextSecondary));
 
         var gbText = $"{usedGb:0.0} / {totalGb:0.0} GB";
-        canvas.DrawText(gbText, leftX, centerY, mountFont, DrawHelper.GetFillPaint(Colors.FileSystemAccent));
+        canvas.DrawText(gbText, leftX, centerY, SKTextAlign.Left, mountFont, DrawHelper.GetFillPaint(Colors.FileSystemAccent));
 
         // Right
         var pctFont = DrawHelper.GetFont(FontSize.PrimaryValue, true);
         var pctText = $"{usage:0}%";
-        canvas.DrawText(pctText, rightX - pctFont.MeasureText(pctText), centerY, pctFont, DrawHelper.GetFillPaint(Colors.FileSystemAccent));
+        canvas.DrawText(pctText, rightX - pctFont.MeasureText(pctText), centerY, SKTextAlign.Left, pctFont, DrawHelper.GetFillPaint(Colors.FileSystemAccent));
     }
 }

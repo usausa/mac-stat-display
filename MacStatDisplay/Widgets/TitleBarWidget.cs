@@ -48,7 +48,7 @@ internal sealed class TitleBarWidget : IWidget
         // Title
         var titleFont = DrawHelper.GetFont(FontSize.HeaderTitle, true);
         var titleBaseline = cy - ((titleFont.Metrics.Ascent + titleFont.Metrics.Descent) / 2f);
-        canvas.DrawText(labelText, rect.Left + Layout.TitleBarSidePad, titleBaseline, titleFont, DrawHelper.GetFillPaint(Colors.TextPrimary));
+        canvas.DrawText(labelText, rect.Left + Layout.TitleBarSidePad, titleBaseline, SKTextAlign.Left, titleFont, DrawHelper.GetFillPaint(Colors.TextPrimary));
 
         // Values
         var labelFont = DrawHelper.GetFont(FontSize.HeaderLabel);
@@ -87,13 +87,13 @@ internal sealed class TitleBarWidget : IWidget
     {
         // Value
         var valBaseline = cy - ((valFont.Metrics.Ascent + valFont.Metrics.Descent) / 2f);
-        canvas.DrawText(value, rightX - maxValueWidth, valBaseline, valFont, DrawHelper.GetFillPaint(valColor));
+        canvas.DrawText(value, rightX - maxValueWidth, valBaseline, SKTextAlign.Left, valFont, DrawHelper.GetFillPaint(valColor));
 
         // Label
         var labelRightX = rightX - maxValueWidth - labelValueGap;
         var labelLeftX = labelRightX - labelWidth;
         var labelBaseline = cy - ((labelFont.Metrics.Ascent + labelFont.Metrics.Descent) / 2f);
-        canvas.DrawText(label, labelLeftX, labelBaseline, labelFont, DrawHelper.GetFillPaint(labelColor));
+        canvas.DrawText(label, labelLeftX, labelBaseline, SKTextAlign.Left, labelFont, DrawHelper.GetFillPaint(labelColor));
 
         return labelLeftX;
     }
