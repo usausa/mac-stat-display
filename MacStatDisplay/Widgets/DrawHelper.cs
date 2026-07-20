@@ -236,30 +236,32 @@ internal static class DrawHelper
         var stepX = rect.Width / (cap - 1);
 
         // Fill area
-        using var areaPath = new SKPath();
-        areaPath.MoveTo(rect.Left, rect.Bottom);
+        using var areaBuilder = new SKPathBuilder();
+        areaBuilder.MoveTo(rect.Left, rect.Bottom);
         for (var i = 0; i < cap; i++)
         {
             var x = rect.Left + (i * stepX);
             var y = rect.Bottom - (Math.Clamp(buffer[i] / maxValue, 0, 1) * rect.Height);
-            areaPath.LineTo(x, y);
+            areaBuilder.LineTo(x, y);
         }
 
-        areaPath.LineTo(rect.Right, rect.Bottom);
-        areaPath.Close();
+        areaBuilder.LineTo(rect.Right, rect.Bottom);
+        areaBuilder.Close();
 
+        using var areaPath = areaBuilder.Snapshot();
         canvas.DrawPath(areaPath, GetFillPaint(color.WithAlpha(30)));
 
         // Draw line
-        using var linePath = new SKPath();
-        linePath.MoveTo(rect.Left, rect.Bottom - (Math.Clamp(buffer[0] / maxValue, 0, 1) * rect.Height));
+        using var lineBuilder = new SKPathBuilder();
+        lineBuilder.MoveTo(rect.Left, rect.Bottom - (Math.Clamp(buffer[0] / maxValue, 0, 1) * rect.Height));
         for (var i = 1; i < cap; i++)
         {
             var x = rect.Left + (i * stepX);
             var y = rect.Bottom - (Math.Clamp(buffer[i] / maxValue, 0, 1) * rect.Height);
-            linePath.LineTo(x, y);
+            lineBuilder.LineTo(x, y);
         }
 
+        using var linePath = lineBuilder.Snapshot();
         canvas.DrawPath(linePath, GetStrokePaint(color.WithAlpha(100), Layout.SparklineStrokeWidth));
     }
 
@@ -274,30 +276,32 @@ internal static class DrawHelper
         var stepX = rect.Width / (cap - 1);
 
         // Fill area
-        using var areaPath = new SKPath();
-        areaPath.MoveTo(rect.Left, rect.Top);
+        using var areaBuilder = new SKPathBuilder();
+        areaBuilder.MoveTo(rect.Left, rect.Top);
         for (var i = 0; i < cap; i++)
         {
             var x = rect.Left + (i * stepX);
             var y = rect.Top + (Math.Clamp(buffer[i] / maxValue, 0, 1) * rect.Height);
-            areaPath.LineTo(x, y);
+            areaBuilder.LineTo(x, y);
         }
 
-        areaPath.LineTo(rect.Right, rect.Top);
-        areaPath.Close();
+        areaBuilder.LineTo(rect.Right, rect.Top);
+        areaBuilder.Close();
 
+        using var areaPath = areaBuilder.Snapshot();
         canvas.DrawPath(areaPath, GetFillPaint(color.WithAlpha(30)));
 
         // Draw line
-        using var linePath = new SKPath();
-        linePath.MoveTo(rect.Left, rect.Top + (Math.Clamp(buffer[0] / maxValue, 0, 1) * rect.Height));
+        using var lineBuilder = new SKPathBuilder();
+        lineBuilder.MoveTo(rect.Left, rect.Top + (Math.Clamp(buffer[0] / maxValue, 0, 1) * rect.Height));
         for (var i = 1; i < cap; i++)
         {
             var x = rect.Left + (i * stepX);
             var y = rect.Top + (Math.Clamp(buffer[i] / maxValue, 0, 1) * rect.Height);
-            linePath.LineTo(x, y);
+            lineBuilder.LineTo(x, y);
         }
 
+        using var linePath = lineBuilder.Snapshot();
         canvas.DrawPath(linePath, GetStrokePaint(color.WithAlpha(100), Layout.SparklineStrokeWidth));
     }
 
