@@ -7,17 +7,44 @@ using SkiaSharp;
 
 internal static class DrawHelper
 {
+    private static readonly Dictionary<(float Size, bool Bold), SKFont> Fonts = [];
+
     private static SKTypeface typeface = null!;
     private static SKTypeface typefaceBold = null!;
+
+    private static SKPaint fillPaint = null!;
+    private static SKPaint strokePaint = null!;
+
+    private static SKPaint? backgroundPaint;
+    private static SKShader? backgroundShader;
+    private static int backgroundWidth;
+    private static int backgroundHeight;
 
     public static void Initialize()
     {
         typeface = ResolveTypeface(false);
         typefaceBold = ResolveTypeface(true);
+
+        fillPaint = new SKPaint { IsAntialias = true };
+        strokePaint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Stroke };
     }
 
     public static void Shutdown()
     {
+        foreach (var font in Fonts.Values)
+        {
+            font.Dispose();
+        }
+
+        Fonts.Clear();
+
+        backgroundPaint?.Dispose();
+        backgroundPaint = null;
+        backgroundShader?.Dispose();
+        backgroundShader = null;
+
+        fillPaint.Dispose();
+        strokePaint.Dispose();
         typeface.Dispose();
         typefaceBold.Dispose();
     }
@@ -54,26 +81,33 @@ internal static class DrawHelper
     // Resource
     //--------------------------------------------------------------------------------
 
-    public static SKFont MakeFont(float size, bool bold = false) =>
-        new(bold ? typefaceBold : typeface, size)
+    public static SKFont GetFont(float size, bool bold = false)
+    {
+        if (!Fonts.TryGetValue((size, bold), out var font))
         {
-            Edging = SKFontEdging.SubpixelAntialias
-        };
+            font = new SKFont(bold ? typefaceBold : typeface, size)
+            {
+                Edging = SKFontEdging.SubpixelAntialias
+            };
+            Fonts[(size, bold)] = font;
+        }
 
-    public static SKPaint MakeFillPaint(SKColor color) =>
-        new()
-        {
-            Color = color, IsAntialias = true
-        };
+        return font;
+    }
 
-    public static SKPaint MakeStrokePaint(SKColor color, float width) =>
-        new()
-        {
-            Color = color,
-            IsAntialias = true,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = width
-        };
+    public static SKPaint GetFillPaint(SKColor color)
+    {
+        fillPaint.Color = color;
+        return fillPaint;
+    }
+
+    public static SKPaint GetStrokePaint(SKColor color, float width, SKStrokeCap cap = SKStrokeCap.Butt)
+    {
+        strokePaint.Color = color;
+        strokePaint.StrokeWidth = width;
+        strokePaint.StrokeCap = cap;
+        return strokePaint;
+    }
 
     //--------------------------------------------------------------------------------
     // Measurement
@@ -81,36 +115,43 @@ internal static class DrawHelper
 
     public static float MeasureSubValueWidth(string text)
     {
-        using var font = MakeFont(FontSize.SubValue, true);
-        return font.MeasureText(text);
+        return GetFont(FontSize.SubValue, true).MeasureText(text);
     }
 
     //--------------------------------------------------------------------------------
     // Background / Panel
     //--------------------------------------------------------------------------------
 
-    // Draws the full-screen gradient background.
     public static void DrawBackground(SKCanvas canvas, int width, int height)
     {
-        using var paint = new SKPaint();
-        paint.Shader = SKShader.CreateLinearGradient(
-            new SKPoint(0, 0),
-            new SKPoint(width, height),
-            [Colors.GradientStart, Colors.GradientEnd],
-            null,
-            SKShaderTileMode.Clamp);
-        paint.IsAntialias = true;
-        canvas.DrawRect(0, 0, width, height, paint);
+        if ((backgroundPaint is null) || (backgroundWidth != width) || (backgroundHeight != height))
+        {
+            backgroundPaint?.Dispose();
+            backgroundShader?.Dispose();
+
+            backgroundShader = SKShader.CreateLinearGradient(
+                new SKPoint(0, 0),
+                new SKPoint(width, height),
+                [Colors.GradientStart, Colors.GradientEnd],
+                null,
+                SKShaderTileMode.Clamp);
+            backgroundPaint = new SKPaint
+            {
+                Shader = backgroundShader, IsAntialias = true
+            };
+
+            backgroundWidth = width;
+            backgroundHeight = height;
+        }
+
+        canvas.DrawRect(0, 0, width, height, backgroundPaint);
     }
 
     // Draws a card panel with rounded corners and border.
     public static void DrawPanel(SKCanvas canvas, SKRect rect)
     {
-        using var bg = MakeFillPaint(Colors.PanelBackground);
-        canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, bg);
-
-        using var border = MakeStrokePaint(Colors.PanelBorder, 1);
-        canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, border);
+        canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, GetFillPaint(Colors.PanelBackground));
+        canvas.DrawRoundRect(rect, Layout.PanelRadius, Layout.PanelRadius, GetStrokePaint(Colors.PanelBorder, 1));
     }
 
     //--------------------------------------------------------------------------------
@@ -119,45 +160,42 @@ internal static class DrawHelper
 
     public static void DrawTitle(SKCanvas canvas, SKRect rect, string title)
     {
-        using var font = MakeFont(FontSize.WidgetTitle, true);
-        using var paint = MakeFillPaint(Colors.TextPrimary);
-        canvas.DrawText(title, rect.Left + Layout.PaddingX, rect.Top + Layout.TitleOffsetY, font, paint);
+        var font = GetFont(FontSize.WidgetTitle, true);
+        canvas.DrawText(title, rect.Left + Layout.PaddingX, rect.Top + Layout.TitleOffsetY, font, GetFillPaint(Colors.TextPrimary));
     }
 
     public static void DrawValue(SKCanvas canvas, string text, float rightX, float y, SKColor color)
     {
-        using var font = MakeFont(FontSize.PrimaryValue, true);
-        using var paint = MakeFillPaint(color);
-        canvas.DrawText(text, rightX - font.MeasureText(text), y, font, paint);
+        var font = GetFont(FontSize.PrimaryValue, true);
+        canvas.DrawText(text, rightX - font.MeasureText(text), y, font, GetFillPaint(color));
     }
 
     public static void DrawCenterValue(SKCanvas canvas, string text, float centerX, float y, SKColor color)
     {
-        using var font = MakeFont(FontSize.GaugeValue, true);
-        using var paint = MakeFillPaint(color);
-        canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, font, paint);
+        var font = GetFont(FontSize.GaugeValue, true);
+        canvas.DrawText(text, centerX - (font.MeasureText(text) / 2f), y, font, GetFillPaint(color));
     }
 
     public static void DrawStackedValue(SKCanvas canvas, string label, string value, float x, float bottomY, SKColor valueColor)
     {
-        using var valueFont = MakeFont(FontSize.SubValue, true);
-        using var valuePaint = MakeFillPaint(valueColor);
-        canvas.DrawText(value, x, bottomY, valueFont, valuePaint);
+        var valueFont = GetFont(FontSize.SubValue, true);
+        var labelFont = GetFont(FontSize.SubLabel);
 
-        using var labelFont = MakeFont(FontSize.SubLabel);
-        using var labelPaint = MakeFillPaint(Colors.TextSecondary);
-        canvas.DrawText(label, x, bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent, labelFont, labelPaint);
+        canvas.DrawText(value, x, bottomY, valueFont, GetFillPaint(valueColor));
+
+        var labelY = bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent;
+        canvas.DrawText(label, x, labelY, labelFont, GetFillPaint(Colors.TextSecondary));
     }
 
     public static void DrawStackedValueRight(SKCanvas canvas, string label, string value, float rightX, float bottomY, SKColor valueColor)
     {
-        using var valueFont = MakeFont(FontSize.SubValue, true);
-        using var valuePaint = MakeFillPaint(valueColor);
-        canvas.DrawText(value, rightX - valueFont.MeasureText(value), bottomY, valueFont, valuePaint);
+        var valueFont = GetFont(FontSize.SubValue, true);
+        var labelFont = GetFont(FontSize.SubLabel);
 
-        using var labelFont = MakeFont(FontSize.SubLabel);
-        using var labelPaint = MakeFillPaint(Colors.TextSecondary);
-        canvas.DrawText(label, rightX - labelFont.MeasureText(label), bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent, labelFont, labelPaint);
+        canvas.DrawText(value, rightX - valueFont.MeasureText(value), bottomY, valueFont, GetFillPaint(valueColor));
+
+        var labelY = bottomY + valueFont.Metrics.Ascent - labelFont.Metrics.Descent;
+        canvas.DrawText(label, rightX - labelFont.MeasureText(label), labelY, labelFont, GetFillPaint(Colors.TextSecondary));
     }
 
     //--------------------------------------------------------------------------------
@@ -166,23 +204,21 @@ internal static class DrawHelper
 
     public static void DrawRingGauge(SKCanvas canvas, float centerX, float centerY, float radius, float percentage, SKColor color)
     {
-        using var trackPaint = new SKPaint();
-        trackPaint.Color = Colors.TrackColor;
-        trackPaint.IsAntialias = true;
-        trackPaint.Style = SKPaintStyle.Stroke;
-        trackPaint.StrokeWidth = Layout.RingStrokeWidth;
-        trackPaint.StrokeCap = SKStrokeCap.Round;
-
-        using var valuePaint = new SKPaint();
-        valuePaint.Color = color;
-        valuePaint.IsAntialias = true;
-        valuePaint.Style = SKPaintStyle.Stroke;
-        valuePaint.StrokeWidth = Layout.RingStrokeWidth;
-        valuePaint.StrokeCap = SKStrokeCap.Round;
-
         var ringRect = new SKRect(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
-        canvas.DrawArc(ringRect, Layout.RingStartAngle, Layout.RingArcDegrees, false, trackPaint);
-        canvas.DrawArc(ringRect, Layout.RingStartAngle, Layout.RingArcDegrees * percentage / 100f, false, valuePaint);
+
+        canvas.DrawArc(
+            ringRect,
+            Layout.RingStartAngle,
+            Layout.RingArcDegrees,
+            false,
+            GetStrokePaint(Colors.TrackColor, Layout.RingStrokeWidth, SKStrokeCap.Round));
+
+        canvas.DrawArc(
+            ringRect,
+            Layout.RingStartAngle,
+            Layout.RingArcDegrees * percentage / 100f,
+            false,
+            GetStrokePaint(color, Layout.RingStrokeWidth, SKStrokeCap.Round));
     }
 
     //--------------------------------------------------------------------------------
@@ -212,11 +248,7 @@ internal static class DrawHelper
         areaPath.LineTo(rect.Right, rect.Bottom);
         areaPath.Close();
 
-        using var fillPaint = new SKPaint();
-        fillPaint.Color = color.WithAlpha(30);
-        fillPaint.IsAntialias = true;
-        fillPaint.Style = SKPaintStyle.Fill;
-        canvas.DrawPath(areaPath, fillPaint);
+        canvas.DrawPath(areaPath, GetFillPaint(color.WithAlpha(30)));
 
         // Draw line
         using var linePath = new SKPath();
@@ -228,12 +260,7 @@ internal static class DrawHelper
             linePath.LineTo(x, y);
         }
 
-        using var linePaint = new SKPaint();
-        linePaint.Color = color.WithAlpha(100);
-        linePaint.IsAntialias = true;
-        linePaint.Style = SKPaintStyle.Stroke;
-        linePaint.StrokeWidth = Layout.SparklineStrokeWidth;
-        canvas.DrawPath(linePath, linePaint);
+        canvas.DrawPath(linePath, GetStrokePaint(color.WithAlpha(100), Layout.SparklineStrokeWidth));
     }
 
     public static void DrawSparklineInverted(SKCanvas canvas, SKRect rect, RingBuffer buffer, float maxValue, SKColor color)
@@ -259,11 +286,7 @@ internal static class DrawHelper
         areaPath.LineTo(rect.Right, rect.Top);
         areaPath.Close();
 
-        using var fillPaint = new SKPaint();
-        fillPaint.Color = color.WithAlpha(30);
-        fillPaint.IsAntialias = true;
-        fillPaint.Style = SKPaintStyle.Fill;
-        canvas.DrawPath(areaPath, fillPaint);
+        canvas.DrawPath(areaPath, GetFillPaint(color.WithAlpha(30)));
 
         // Draw line
         using var linePath = new SKPath();
@@ -275,12 +298,7 @@ internal static class DrawHelper
             linePath.LineTo(x, y);
         }
 
-        using var linePaint = new SKPaint();
-        linePaint.Color = color.WithAlpha(100);
-        linePaint.IsAntialias = true;
-        linePaint.Style = SKPaintStyle.Stroke;
-        linePaint.StrokeWidth = Layout.SparklineStrokeWidth;
-        canvas.DrawPath(linePath, linePaint);
+        canvas.DrawPath(linePath, GetStrokePaint(color.WithAlpha(100), Layout.SparklineStrokeWidth));
     }
 
     public static void DrawSparklineValues(
@@ -288,9 +306,8 @@ internal static class DrawHelper
         string upperLabel, string upperValue, SKColor upperColor,
         string lowerLabel, string lowerValue, SKColor lowerColor)
     {
-        using var valFont = MakeFont(FontSize.SubValue, true);
-        using var labelFont = MakeFont(FontSize.SubLabel);
-        using var labelPaint = MakeFillPaint(Colors.TextSecondary);
+        var valFont = GetFont(FontSize.SubValue, true);
+        var labelFont = GetFont(FontSize.SubLabel);
 
         var areaHeight = areaBottom - areaTop;
         var halfContent = (1f - Layout.SparklineSideCenterMarginRatio) / 2f;
@@ -300,18 +317,17 @@ internal static class DrawHelper
         var upperValueY = upperAnchor - valFont.Metrics.Descent;
         var upperLabelY = upperValueY + valFont.Metrics.Ascent - labelFont.Metrics.Descent;
 
-        using var upperPaint = MakeFillPaint(upperColor);
-        canvas.DrawText(upperLabel, rightX - labelFont.MeasureText(upperLabel), upperLabelY, labelFont, labelPaint);
-        canvas.DrawText(upperValue, rightX - valFont.MeasureText(upperValue), upperValueY, valFont, upperPaint);
+        // The fill paint is shared, so its colour is set immediately before each draw
+        canvas.DrawText(upperLabel, rightX - labelFont.MeasureText(upperLabel), upperLabelY, labelFont, GetFillPaint(Colors.TextSecondary));
+        canvas.DrawText(upperValue, rightX - valFont.MeasureText(upperValue), upperValueY, valFont, GetFillPaint(upperColor));
 
         // Lower
         var lowerAnchor = areaBottom - (areaHeight * halfContent);
         var lowerLabelY = lowerAnchor - labelFont.Metrics.Ascent;
         var lowerValueY = lowerLabelY + labelFont.Metrics.Descent - valFont.Metrics.Ascent;
 
-        using var lowerPaint = MakeFillPaint(lowerColor);
-        canvas.DrawText(lowerLabel, rightX - labelFont.MeasureText(lowerLabel), lowerLabelY, labelFont, labelPaint);
-        canvas.DrawText(lowerValue, rightX - valFont.MeasureText(lowerValue), lowerValueY, valFont, lowerPaint);
+        canvas.DrawText(lowerLabel, rightX - labelFont.MeasureText(lowerLabel), lowerLabelY, labelFont, GetFillPaint(Colors.TextSecondary));
+        canvas.DrawText(lowerValue, rightX - valFont.MeasureText(lowerValue), lowerValueY, valFont, GetFillPaint(lowerColor));
     }
 
     //--------------------------------------------------------------------------------

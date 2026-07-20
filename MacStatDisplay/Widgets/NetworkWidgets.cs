@@ -38,12 +38,14 @@ internal sealed class NetworkWidget : IWidget
         {
             var e = entries[i];
             var displayName = e.DisplayName ?? e.Name;
-            rxHistory.GetOrAdd(displayName, () => new RingBuffer(Layout.SparklineCapacity)).Push((float)e.RxBytesPerSec);
-            txHistory.GetOrAdd(displayName, () => new RingBuffer(Layout.SparklineCapacity)).Push((float)e.TxBytesPerSec);
+            var rxBuffer = rxHistory.GetOrAdd(displayName, () => new RingBuffer(Layout.SparklineCapacity));
+            var txBuffer = txHistory.GetOrAdd(displayName, () => new RingBuffer(Layout.SparklineCapacity));
+            rxBuffer.Push((float)e.RxBytesPerSec);
+            txBuffer.Push((float)e.TxBytesPerSec);
             DrawIfEntry(
                 canvas, displayName, e.RxBytesPerSec, e.TxBytesPerSec,
                 leftX, rightX, contentTop + (i * entryH), entryH,
-                rxHistory[displayName], txHistory[displayName]);
+                rxBuffer, txBuffer);
         }
     }
 
@@ -53,9 +55,8 @@ internal sealed class NetworkWidget : IWidget
         RingBuffer rHist, RingBuffer tHist)
     {
         // Name
-        using var nameFont = DrawHelper.MakeFont(FontSize.SubLabel);
-        using var namePaint = DrawHelper.MakeFillPaint(Colors.TextSecondary);
-        canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, nameFont, namePaint);
+        var nameFont = DrawHelper.GetFont(FontSize.SubLabel);
+        canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, nameFont, DrawHelper.GetFillPaint(Colors.TextSecondary));
 
         // Calculate
         var graphAreaTop = entryTop + Layout.SparklineLabelHeight;

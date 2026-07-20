@@ -53,26 +53,22 @@ internal sealed class FileSystemWidget : IWidget
         var barBottom = Math.Min(barTop + Layout.BarHeight, entryTop + entryH - Layout.BarGaugeMargin);
         var barRect = new SKRect(leftX, barTop, rightX, barBottom);
 
-        using var trackPaint = DrawHelper.MakeFillPaint(Colors.TrackColor);
-        canvas.DrawRoundRect(barRect, Layout.BarRadius, Layout.BarRadius, trackPaint);
+        canvas.DrawRoundRect(barRect, Layout.BarRadius, Layout.BarRadius, DrawHelper.GetFillPaint(Colors.TrackColor));
 
         var fillWidth = barRect.Width * (float)Math.Clamp(usage, 0, 100) / 100f;
         var fillRect = new SKRect(barRect.Left, barRect.Top, barRect.Left + fillWidth, barRect.Bottom);
-        using var fillPaint = DrawHelper.MakeFillPaint(Colors.FileSystemAccent);
-        canvas.DrawRoundRect(fillRect, Layout.BarRadius, Layout.BarRadius, fillPaint);
+        canvas.DrawRoundRect(fillRect, Layout.BarRadius, Layout.BarRadius, DrawHelper.GetFillPaint(Colors.FileSystemAccent));
 
         // Left
-        using var mountFont = DrawHelper.MakeFont(FontSize.SubLabel);
-        using var subPaint = DrawHelper.MakeFillPaint(Colors.TextSecondary);
-        using var accentPaint = DrawHelper.MakeFillPaint(Colors.FileSystemAccent);
-        canvas.DrawText(mount, leftX, centerY + mountFont.Metrics.Ascent - mountFont.Metrics.Descent, mountFont, subPaint);
+        var mountFont = DrawHelper.GetFont(FontSize.SubLabel);
+        canvas.DrawText(mount, leftX, centerY + mountFont.Metrics.Ascent - mountFont.Metrics.Descent, mountFont, DrawHelper.GetFillPaint(Colors.TextSecondary));
 
         var gbText = $"{usedGb:0.0} / {totalGb:0.0} GB";
-        canvas.DrawText(gbText, leftX, centerY, mountFont, accentPaint);
+        canvas.DrawText(gbText, leftX, centerY, mountFont, DrawHelper.GetFillPaint(Colors.FileSystemAccent));
 
         // Right
-        using var pctFont = DrawHelper.MakeFont(FontSize.PrimaryValue, true);
+        var pctFont = DrawHelper.GetFont(FontSize.PrimaryValue, true);
         var pctText = $"{usage:0}%";
-        canvas.DrawText(pctText, rightX - pctFont.MeasureText(pctText), centerY, pctFont, accentPaint);
+        canvas.DrawText(pctText, rightX - pctFont.MeasureText(pctText), centerY, pctFont, DrawHelper.GetFillPaint(Colors.FileSystemAccent));
     }
 }

@@ -34,10 +34,9 @@ internal sealed class GpuUsageWidget : IWidget
         // Temperature
         if (monitor.GpuTemperature.HasValue)
         {
-            using var tempFont = DrawHelper.MakeFont(FontSize.Temperature);
-            using var tempPaint = DrawHelper.MakeFillPaint(Colors.TemperatureAccent);
+            var tempFont = DrawHelper.GetFont(FontSize.Temperature);
             var tempText = $"{monitor.GpuTemperature.Value:0}\u00b0C";
-            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + (radius * Layout.TemperatureOffsetRatio), tempFont, tempPaint);
+            canvas.DrawText(tempText, cx - (tempFont.MeasureText(tempText) / 2f), cy + (FontSize.GaugeValue * Layout.BaselineRatio) + (radius * Layout.TemperatureOffsetRatio), tempFont, DrawHelper.GetFillPaint(Colors.TemperatureAccent));
         }
 
         // Left

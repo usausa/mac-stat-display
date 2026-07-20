@@ -37,12 +37,14 @@ internal sealed class DiskIoWidget : IWidget
         for (var i = 0; i < entries.Count; i++)
         {
             var e = entries[i];
-            readHistory.GetOrAdd(e.Name, () => new RingBuffer(Layout.SparklineCapacity)).Push((float)e.ReadBytesPerSec);
-            writeHistory.GetOrAdd(e.Name, () => new RingBuffer(Layout.SparklineCapacity)).Push((float)e.WriteBytesPerSec);
+            var readBuffer = readHistory.GetOrAdd(e.Name, () => new RingBuffer(Layout.SparklineCapacity));
+            var writeBuffer = writeHistory.GetOrAdd(e.Name, () => new RingBuffer(Layout.SparklineCapacity));
+            readBuffer.Push((float)e.ReadBytesPerSec);
+            writeBuffer.Push((float)e.WriteBytesPerSec);
             DrawIoEntry(
                 canvas, e.Name, e.ReadBytesPerSec, e.WriteBytesPerSec,
                 leftX, rightX, contentTop + (i * entryH), entryH,
-                readHistory[e.Name], writeHistory[e.Name]);
+                readBuffer, writeBuffer);
         }
     }
 
@@ -52,9 +54,8 @@ internal sealed class DiskIoWidget : IWidget
         RingBuffer rHist, RingBuffer wHist)
     {
         // Name
-        using var nameFont = DrawHelper.MakeFont(FontSize.SubLabel);
-        using var namePaint = DrawHelper.MakeFillPaint(Colors.TextSecondary);
-        canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, nameFont, namePaint);
+        var nameFont = DrawHelper.GetFont(FontSize.SubLabel);
+        canvas.DrawText(name, leftX, entryTop + Layout.SparklineEntryNameBaseline, nameFont, DrawHelper.GetFillPaint(Colors.TextSecondary));
 
         // Calculate
         var graphAreaTop = entryTop + Layout.SparklineLabelHeight;
