@@ -135,6 +135,7 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
                 (entry.Column + entry.ColumnSpan > gridColumns) || (entry.Row + entry.RowSpan > gridRows))
             {
                 log.WarnWidgetPlacementOutOfRange(entry.Type, entry.Column, entry.Row, entry.ColumnSpan, entry.RowSpan);
+                continue;
             }
 
             var widget = WidgetFactory.Create(entry.Type);
