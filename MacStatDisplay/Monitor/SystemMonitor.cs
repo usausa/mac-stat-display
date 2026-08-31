@@ -97,7 +97,10 @@ internal sealed class SystemMonitor : ISystemMonitor
         public double MinRpm => sensor.MinRpm;
         public double MaxRpm => sensor.MaxRpm;
 
-        internal FanSensorEntry(FanSensor fanSensor) => sensor = fanSensor;
+        internal FanSensorEntry(FanSensor fanSensor)
+        {
+            sensor = fanSensor;
+        }
     }
 
     //--------------------------------------------------------------------------------

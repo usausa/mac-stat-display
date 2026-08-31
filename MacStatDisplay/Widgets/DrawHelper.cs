@@ -137,7 +137,8 @@ internal static class DrawHelper
                 SKShaderTileMode.Clamp);
             backgroundPaint = new SKPaint
             {
-                Shader = backgroundShader, IsAntialias = true
+                Shader = backgroundShader,
+                IsAntialias = true
             };
 
             backgroundWidth = width;

@@ -150,7 +150,7 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         CpuUsageTotal = Vary(CpuUsageTotal, 5, 95);
         CpuUsageEfficiency = Vary(CpuUsageEfficiency, 5, 95);
         CpuUsagePerformance = Vary(CpuUsagePerformance, 5, 95);
-        CpuFrequencyEfficiencyHz  = Vary(CpuFrequencyEfficiencyHz,  1_000_000_000, 2_600_000_000);
+        CpuFrequencyEfficiencyHz = Vary(CpuFrequencyEfficiencyHz, 1_000_000_000, 2_600_000_000);
         CpuFrequencyPerformanceHz = Vary(CpuFrequencyPerformanceHz, 1_000_000_000, 3_500_000_000);
         CpuFrequencyAllHz = (CpuFrequencyEfficiencyHz + CpuFrequencyPerformanceHz) / 2.0;
         CpuUserPercent = Vary(CpuUserPercent, 1, 80);
@@ -170,11 +170,11 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         PowerAneW = Vary(PowerAneW, 0.5, 8);
         PowerRamW = Vary(PowerRamW, 0.5, 5);
         PowerPciW = Vary(PowerPciW, 0.1, 3);
-        TotalSystemPower    = PowerCpuW + PowerGpuW + PowerAneW + PowerRamW + PowerPciW;
+        TotalSystemPower = PowerCpuW + PowerGpuW + PowerAneW + PowerRamW + PowerPciW;
 
-        diskRead1  = Vary(diskRead1,  0, 500_000);
+        diskRead1 = Vary(diskRead1, 0, 500_000);
         diskWrite1 = Vary(diskWrite1, 0, 300_000);
-        diskRead2  = Vary(diskRead2,  0, 200_000);
+        diskRead2 = Vary(diskRead2, 0, 200_000);
         diskWrite2 = Vary(diskWrite2, 0, 100_000);
         DiskDevices =
         [
@@ -184,8 +184,8 @@ internal sealed class MockSystemMonitor : ISystemMonitor
 
         netRx1 = Vary(netRx1, 0, 20_000_000);
         netTx1 = Vary(netTx1, 0, 10_000_000);
-        netRx2 = Vary(netRx2, 0,  2_000_000);
-        netTx2 = Vary(netTx2, 0,    500_000);
+        netRx2 = Vary(netRx2, 0, 2_000_000);
+        netTx2 = Vary(netTx2, 0, 500_000);
         NetworkInterfaces =
         [
             new MockNetworkIfEntry("en0", "en0 (Wi-Fi)",    netRx1, netTx1),
