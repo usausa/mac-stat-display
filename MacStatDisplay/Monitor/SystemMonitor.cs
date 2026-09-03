@@ -536,6 +536,7 @@ internal sealed class SystemMonitor : ISystemMonitor
         }
 
         var sum = 0.0;
+        // ReSharper disable once ForCanBeConvertedToForeach
         for (var i = 0; i < cores.Count; i++)
         {
             sum += cores[i].Frequency;
@@ -575,6 +576,7 @@ internal sealed class SystemMonitor : ISystemMonitor
     // Disk
     //--------------------------------------------------------------------------------
 
+    // ReSharper disable ForCanBeConvertedToForeach
     private void CalculateDiskEntries(double elapsed)
     {
         var devices = diskStat.Devices;
@@ -622,6 +624,7 @@ internal sealed class SystemMonitor : ISystemMonitor
             diskEntries.Sort(static (x, y) => StringComparer.Ordinal.Compare(x.Name, y.Name));
         }
     }
+    // ReSharper restore ForCanBeConvertedToForeach
 
     private static void UpdateDiskEntry(DiskDeviceEntry entry, double elapsed)
     {
@@ -641,6 +644,7 @@ internal sealed class SystemMonitor : ISystemMonitor
     // Network
     //--------------------------------------------------------------------------------
 
+    // ReSharper disable ForCanBeConvertedToForeach
     private void CalculateNetworkEntries(double elapsed)
     {
         var ifaces = networkStat.Interfaces;
@@ -693,6 +697,7 @@ internal sealed class SystemMonitor : ISystemMonitor
             networkEntries.Sort(static (x, y) => StringComparer.Ordinal.Compare(x.Name, y.Name));
         }
     }
+    // ReSharper restore ForCanBeConvertedToForeach
 
     private static void UpdateNetworkEntry(NetworkIfEntry entry, double elapsed)
     {
@@ -712,6 +717,7 @@ internal sealed class SystemMonitor : ISystemMonitor
     // FileSystem
     //--------------------------------------------------------------------------------
 
+    // ReSharper disable ForCanBeConvertedToForeach
     private void CalculateFileSystemEntries()
     {
         var entries = fileSystemStat.Entries;
@@ -757,6 +763,7 @@ internal sealed class SystemMonitor : ISystemMonitor
             fileSystemEntries.Sort(static (x, y) => StringComparer.Ordinal.Compare(x.MountPoint, y.MountPoint));
         }
     }
+    // ReSharper restore ForCanBeConvertedToForeach
 
     //--------------------------------------------------------------------------------
     // Power
