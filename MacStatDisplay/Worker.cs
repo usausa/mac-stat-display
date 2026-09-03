@@ -147,7 +147,7 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
             placements.Add(new WidgetPlacement(widget, new SKRect(x, y, x + w, y + h)));
         }
 
-        return placements.ToArray();
+        return [.. placements];
     }
 
     private void RenderDashboard(SKCanvas canvas, int width, int height, IEnumerable<WidgetPlacement> placements)
