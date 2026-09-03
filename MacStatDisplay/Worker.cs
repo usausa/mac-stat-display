@@ -127,10 +127,8 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         var cellWidth = (float)(width - (Layout.OuterPadding * 2) - (Layout.ContentGap * (gridColumns - 1))) / gridColumns;
         var cellHeight = (float)(gridHeight - (Layout.ContentGap * (gridRows - 1))) / gridRows;
 
-        for (var i = 0; i < settings.Widgets.Count; i++)
+        foreach (var entry in settings.Widgets)
         {
-            var entry = settings.Widgets[i];
-
             if ((entry.Column < 0) || (entry.Row < 0) || (entry.ColumnSpan < 1) || (entry.RowSpan < 1) ||
                 (entry.Column + entry.ColumnSpan > gridColumns) || (entry.Row + entry.RowSpan > gridRows))
             {
