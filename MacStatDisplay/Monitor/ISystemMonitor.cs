@@ -33,7 +33,7 @@ internal interface IFanEntry
     double MaxRpm { get; }
 }
 
-internal interface ISystemMonitor
+internal interface ISystemMonitor : IDisposable
 {
     // CPU Usage
 
@@ -124,11 +124,11 @@ internal interface ISystemMonitor
 
     // Power Consumption
 
-    double PowerCpuW { get; }
-    double PowerGpuW { get; }
-    double PowerAneW { get; }
-    double PowerRamW { get; }
-    double PowerPciW { get; }
+    double? PowerCpuW { get; }
+    double? PowerGpuW { get; }
+    double? PowerAneW { get; }
+    double? PowerRamW { get; }
+    double? PowerPciW { get; }
 
     // Update
 

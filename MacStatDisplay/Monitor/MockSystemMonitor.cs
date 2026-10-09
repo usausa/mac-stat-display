@@ -137,11 +137,17 @@ internal sealed class MockSystemMonitor : ISystemMonitor
 
     // Power Consumption
 
-    public double PowerCpuW { get; private set; } = 28.2;
-    public double PowerGpuW { get; private set; } = 15.8;
-    public double PowerAneW { get; private set; } = 2.1;
-    public double PowerRamW { get; private set; } = 1.8;
-    public double PowerPciW { get; private set; } = 0.8;
+    public double? PowerCpuW { get; private set; } = 28.2;
+    public double? PowerGpuW { get; private set; } = 15.8;
+    public double? PowerAneW { get; private set; } = 2.1;
+    public double? PowerRamW { get; private set; } = 1.8;
+    public double? PowerPciW { get; private set; } = 0.8;
+
+    // Dispose
+
+    public void Dispose()
+    {
+    }
 
     // Update
 
@@ -165,11 +171,11 @@ internal sealed class MockSystemMonitor : ISystemMonitor
         NandTemperature = Vary(NandTemperature ?? 52, 40, 80);
         SsdTemperature = Vary(SsdTemperature ?? 48, 35, 70);
         MainboardTemperature = Vary(MainboardTemperature ?? 45, 30, 65);
-        PowerCpuW = Vary(PowerCpuW, 5, 50);
-        PowerGpuW = Vary(PowerGpuW, 3, 40);
-        PowerAneW = Vary(PowerAneW, 0.5, 8);
-        PowerRamW = Vary(PowerRamW, 0.5, 5);
-        PowerPciW = Vary(PowerPciW, 0.1, 3);
+        PowerCpuW = Vary(PowerCpuW ?? 28.2, 5, 50);
+        PowerGpuW = Vary(PowerGpuW ?? 15.8, 3, 40);
+        PowerAneW = Vary(PowerAneW ?? 2.1, 0.5, 8);
+        PowerRamW = Vary(PowerRamW ?? 1.8, 0.5, 5);
+        PowerPciW = Vary(PowerPciW ?? 0.8, 0.1, 3);
         TotalSystemPower = PowerCpuW + PowerGpuW + PowerAneW + PowerRamW + PowerPciW;
 
         diskRead1 = Vary(diskRead1, 0, 500_000);

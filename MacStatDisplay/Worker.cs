@@ -70,9 +70,9 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         RenderDashboard(canvas, width, height, placements);
         displayDriver.Draw(surface);
 
-        var refreshInterval = displayDriver.RefreshIntervalSeconds;
+        var refreshPeriod = settings.RefreshPeriod ?? displayDriver.RefreshIntervalSeconds;
 
-        if (refreshInterval <= 0)
+        if (refreshPeriod <= 0)
         {
             using var timer = new PeriodicTimer(TimeSpan.FromSeconds(settings.UpdatePeriod));
 
@@ -85,20 +85,25 @@ internal sealed class Worker(ILogger<Worker> log, DisplaySettings settings, ISys
         }
         else
         {
-            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(refreshInterval));
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(refreshPeriod));
 
-            var nextUpdateTime = DateTime.UtcNow.AddSeconds(settings.UpdatePeriod);
+            var elapsedSeconds = 0L;
+            var nextUpdateSeconds = (long)settings.UpdatePeriod;
             while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                if (DateTime.UtcNow >= nextUpdateTime)
+                elapsedSeconds += refreshPeriod;
+                if (elapsedSeconds >= nextUpdateSeconds)
                 {
                     monitor.Update();
                     RenderDashboard(canvas, width, height, placements);
+                    displayDriver.Draw(surface);
 
-                    nextUpdateTime = DateTime.UtcNow.AddSeconds(settings.UpdatePeriod);
+                    nextUpdateSeconds = elapsedSeconds + settings.UpdatePeriod;
                 }
-
-                displayDriver.Draw(surface);
+                else
+                {
+                    displayDriver.Refresh();
+                }
             }
         }
     }

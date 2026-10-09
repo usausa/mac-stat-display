@@ -2,7 +2,7 @@ namespace MacStatDisplay.Display;
 
 using SkiaSharp;
 
-internal sealed class FileDisplayDriver : IDisplayDriver
+internal sealed class FileDisplayDriver(int quality) : IDisplayDriver
 {
     public int Width => 1280;
 
@@ -19,10 +19,14 @@ internal sealed class FileDisplayDriver : IDisplayDriver
     public void Draw(SKSurface surface)
     {
         using var image = surface.Snapshot();
-        using var data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
+        using var data = image.Encode(SKEncodedImageFormat.Jpeg, quality);
 
         var filePath = Path.Combine(AppContext.BaseDirectory, "display.jpg");
         using var stream = File.Create(filePath);
         data.SaveTo(stream);
+    }
+
+    public void Refresh()
+    {
     }
 }

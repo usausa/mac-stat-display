@@ -20,12 +20,14 @@ internal sealed class PowerWidget : IWidget
         DrawHelper.DrawTitle(canvas, rect, "Power Consumption");
 
         // Total
-        DrawHelper.DrawValue(canvas, $"{monitor.TotalSystemPower:0.0} W", rect.Right - Layout.PaddingX, rect.Bottom - Layout.PaddingY, Colors.PowerAccent);
+        DrawHelper.DrawValue(canvas, FormatWatt(monitor.TotalSystemPower, " W"), rect.Right - Layout.PaddingX, rect.Bottom - Layout.PaddingY, Colors.PowerAccent);
 
         // CPU / GPU
         var leftX = rect.Left + Layout.PaddingX;
         var y = rect.Bottom - Layout.PaddingY;
-        DrawHelper.DrawStackedValue(canvas, "CPU", $"{monitor.PowerCpuW:0.0}", leftX, y, Colors.PowerAccent);
-        DrawHelper.DrawStackedValue(canvas, "GPU", $"{monitor.PowerGpuW:0.0}", leftX + subValueColumnWidth, y, Colors.PowerAccent);
+        DrawHelper.DrawStackedValue(canvas, "CPU", FormatWatt(monitor.PowerCpuW), leftX, y, Colors.PowerAccent);
+        DrawHelper.DrawStackedValue(canvas, "GPU", FormatWatt(monitor.PowerGpuW), leftX + subValueColumnWidth, y, Colors.PowerAccent);
     }
+
+    private static string FormatWatt(double? value, string unit = "") => value.HasValue ? $"{value.Value:0.0}{unit}" : "-";
 }

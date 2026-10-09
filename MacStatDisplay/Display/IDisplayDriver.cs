@@ -13,4 +13,6 @@ internal interface IDisplayDriver : IDisposable
     bool Initialize();
 
     void Draw(SKSurface surface);
+
+    void Refresh();
 }

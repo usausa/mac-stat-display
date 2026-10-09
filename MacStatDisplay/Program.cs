@@ -29,7 +29,7 @@ builder.Services.AddSingleton(displaySettings);
 builder.Services.AddSingleton<ISystemMonitor>(_ => SystemMonitorFactory.Create(displaySettings.Monitor));
 
 // Display driver
-builder.Services.AddSingleton<IDisplayDriver>(_ => DisplayDriverFactory.Create(displaySettings.Driver));
+builder.Services.AddSingleton<IDisplayDriver>(_ => DisplayDriverFactory.Create(displaySettings.Driver, displaySettings.JpegQuality));
 
 // Worker
 builder.Services.AddHostedService<Worker>();

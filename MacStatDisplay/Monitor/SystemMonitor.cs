@@ -64,16 +64,16 @@ internal sealed class SystemMonitor : ISystemMonitor
 
         internal bool Live;
 
-        internal uint PreviousRxBytes;
+        internal ulong PreviousRxBytes;
 
-        internal uint PreviousTxBytes;
+        internal ulong PreviousTxBytes;
 #pragma warning restore SA1401
 
         // Delegation properties
         public string Name => Stat.Name;
         public string? DisplayName => Stat.DisplayName;
-        public uint RxBytes => Stat.RxBytes;
-        public uint TxBytes => Stat.TxBytes;
+        public ulong RxBytes => Stat.RxBytes;
+        public ulong TxBytes => Stat.TxBytes;
 
         // Calculated rates (set by SystemMonitor)
         public double RxBytesPerSec { get; internal set; }
@@ -155,7 +155,9 @@ internal sealed class SystemMonitor : ISystemMonitor
     private readonly CpuCoreCounters[] prevEfficiencyCoreCounters;
     private readonly CpuCoreCounters[] prevPerformanceCoreCounters;
 
-    // Power counters
+    private const double CpuEnergyStaleSeconds = 10;
+
+    private DateTime prevPowerCpuChangedAt;
     private double prevPowerCpuJ;
     private double prevPowerGpuJ;
     private double prevPowerAneJ;
@@ -183,11 +185,11 @@ internal sealed class SystemMonitor : ISystemMonitor
     private double swapUsagePercent;
 
     // Pre-computed power rates
-    private double powerCpuW;
-    private double powerGpuW;
-    private double powerAneW;
-    private double powerRamW;
-    private double powerPciW;
+    private double? powerCpuW;
+    private double? powerGpuW;
+    private double? powerAneW;
+    private double? powerRamW;
+    private double? powerPciW;
 
     // Individual sensor references (set during initialization)
     // ReSharper disable CommentTypo
@@ -203,6 +205,8 @@ internal sealed class SystemMonitor : ISystemMonitor
     // ReSharper restore CommentTypo
 
     private DateTime lastUpdateTime;
+
+    private bool disposed;
 
     //--------------------------------------------------------------------------------
     // Property
@@ -298,11 +302,11 @@ internal sealed class SystemMonitor : ISystemMonitor
 
     // Power Consumption
 
-    public double PowerCpuW => powerCpuW;
-    public double PowerGpuW => powerGpuW;
-    public double PowerAneW => powerAneW;
-    public double PowerRamW => powerRamW;
-    public double PowerPciW => powerPciW;
+    public double? PowerCpuW => powerCpuW;
+    public double? PowerGpuW => powerGpuW;
+    public double? PowerAneW => powerAneW;
+    public double? PowerRamW => powerRamW;
+    public double? PowerPciW => powerPciW;
 
     //--------------------------------------------------------------------------------
     // Constructor
@@ -323,7 +327,7 @@ internal sealed class SystemMonitor : ISystemMonitor
         processSummary = PlatformProvider.GetProcessSummary();
         fileHandleStat = PlatformProvider.GetFileHandleStat();
         powerStat = PlatformProvider.GetPowerStat();
-        smcMonitor = PlatformProvider.GetSmcMonitor();
+        smcMonitor = PlatformProvider.GetSmcMonitor(IsUsedSensorKey);
         fileSystemStat = PlatformProvider.GetFileSystemStat();
 
         // CPU
@@ -335,6 +339,10 @@ internal sealed class SystemMonitor : ISystemMonitor
         // GPU
         var gpuDevices = PlatformProvider.GetGpuDevices();
         gpuDevice = gpuDevices.Count > 0 ? gpuDevices[0] : null;
+        for (var i = 1; i < gpuDevices.Count; i++)
+        {
+            gpuDevices[i].Dispose();
+        }
         // Sensor
         // ReSharper disable StringLiteralTypo
         var temperatureSensors = smcMonitor.Temperatures;
@@ -357,11 +365,49 @@ internal sealed class SystemMonitor : ISystemMonitor
         CalculateNetworkEntries(0);
 
         SavePowerCounters();
+        SaveCpuPowerCounters();
+    }
+
+    public void Dispose()
+    {
+        if (disposed)
+        {
+            return;
+        }
+
+        disposed = true;
+
+        uptime.Dispose();
+        cpuStat.Dispose();
+        cpuFrequency.Dispose();
+        loadAverage.Dispose();
+        memoryStat.Dispose();
+        swapUsage.Dispose();
+        diskStat.Dispose();
+        networkStat.Dispose();
+        processSummary.Dispose();
+        fileHandleStat.Dispose();
+        powerStat.Dispose();
+        smcMonitor.Dispose();
+        fileSystemStat.Dispose();
+        gpuDevice?.Dispose();
     }
 
     //--------------------------------------------------------------------------------
     // Helper
     //--------------------------------------------------------------------------------
+
+    // ReSharper disable StringLiteralTypo
+    private static bool IsUsedSensorKey(string key)
+    {
+        if (key is "TCMb" or "TH0x" or "TPSD" or "Tm0P" or "VD0R" or "ID0R" or "Pb0f" or "PDTR")
+        {
+            return true;
+        }
+
+        return FixedKeys.Contains(key) || key.StartsWith("Tg", StringComparison.Ordinal) || M3GpuKeys.Contains(key);
+    }
+    // ReSharper restore StringLiteralTypo
 
     private static TemperatureSensor? FindGpuTemperature(IReadOnlyList<TemperatureSensor> sensors)
     {
@@ -415,6 +461,8 @@ internal sealed class SystemMonitor : ISystemMonitor
 
     public void Update()
     {
+        ObjectDisposedException.ThrowIf(disposed, this);
+
         var now = DateTime.UtcNow;
         var elapsed = (now - lastUpdateTime).TotalSeconds;
         lastUpdateTime = now;
@@ -431,7 +479,7 @@ internal sealed class SystemMonitor : ISystemMonitor
         fileHandleStat.Update();
         fileSystemStat.Update();
         gpuDevice?.Update();
-        powerStat.Update();
+        var powerUpdated = powerStat.Update();
         smcMonitor.Update();
 
         CalculateCpuUsage();
@@ -440,7 +488,7 @@ internal sealed class SystemMonitor : ISystemMonitor
         CalculateDiskEntries(elapsed);
         CalculateFileSystemEntries();
         CalculateNetworkEntries(elapsed);
-        CalculatePowerRates(elapsed);
+        CalculatePowerRates(elapsed, powerUpdated);
     }
 
     //--------------------------------------------------------------------------------
@@ -703,8 +751,8 @@ internal sealed class SystemMonitor : ISystemMonitor
     {
         if (elapsed > 0)
         {
-            var rxDelta = unchecked(entry.Stat.RxBytes - entry.PreviousRxBytes);
-            var txDelta = unchecked(entry.Stat.TxBytes - entry.PreviousTxBytes);
+            var rxDelta = entry.Stat.RxBytes >= entry.PreviousRxBytes ? entry.Stat.RxBytes - entry.PreviousRxBytes : 0;
+            var txDelta = entry.Stat.TxBytes >= entry.PreviousTxBytes ? entry.Stat.TxBytes - entry.PreviousTxBytes : 0;
             entry.RxBytesPerSec = rxDelta / elapsed;
             entry.TxBytesPerSec = txDelta / elapsed;
         }
@@ -771,25 +819,63 @@ internal sealed class SystemMonitor : ISystemMonitor
 
     private void SavePowerCounters()
     {
-        prevPowerCpuJ = powerStat.Cpu;
         prevPowerGpuJ = powerStat.Gpu;
-        prevPowerAneJ = powerStat.Ane;
-        prevPowerRamJ = powerStat.Ram;
         prevPowerPciJ = powerStat.Pci;
     }
 
-    private void CalculatePowerRates(double elapsed)
+    private void SaveCpuPowerCounters()
     {
-        if ((elapsed > 0) && powerStat.Supported)
+        prevPowerCpuChangedAt = powerStat.CpuChangedAt;
+        prevPowerCpuJ = powerStat.Cpu;
+        prevPowerAneJ = powerStat.Ane;
+        prevPowerRamJ = powerStat.Ram;
+    }
+
+    private void CalculatePowerRates(double elapsed, bool updated)
+    {
+        CalculateCpuPowerRates();
+
+        if (!updated)
         {
-            powerCpuW = Math.Max(0, (powerStat.Cpu - prevPowerCpuJ) / elapsed);
+            powerGpuW = null;
+            powerPciW = null;
+        }
+        else if (elapsed > 0)
+        {
             powerGpuW = Math.Max(0, (powerStat.Gpu - prevPowerGpuJ) / elapsed);
-            powerAneW = Math.Max(0, (powerStat.Ane - prevPowerAneJ) / elapsed);
-            powerRamW = Math.Max(0, (powerStat.Ram - prevPowerRamJ) / elapsed);
             powerPciW = Math.Max(0, (powerStat.Pci - prevPowerPciJ) / elapsed);
         }
 
         SavePowerCounters();
+    }
+
+    private void CalculateCpuPowerRates()
+    {
+        var changedAt = powerStat.CpuChangedAt;
+        if (changedAt != prevPowerCpuChangedAt)
+        {
+            var seconds = (changedAt - prevPowerCpuChangedAt).TotalSeconds;
+            if ((prevPowerCpuChangedAt != default) && (seconds > 0) && (seconds <= CpuEnergyStaleSeconds))
+            {
+                powerCpuW = Math.Max(0, (powerStat.Cpu - prevPowerCpuJ) / seconds);
+                powerAneW = Math.Max(0, (powerStat.Ane - prevPowerAneJ) / seconds);
+                powerRamW = Math.Max(0, (powerStat.Ram - prevPowerRamJ) / seconds);
+            }
+            else
+            {
+                powerCpuW = null;
+                powerAneW = null;
+                powerRamW = null;
+            }
+
+            SaveCpuPowerCounters();
+        }
+        else if ((DateTime.Now - changedAt).TotalSeconds > CpuEnergyStaleSeconds)
+        {
+            powerCpuW = null;
+            powerAneW = null;
+            powerRamW = null;
+        }
     }
 }
 #pragma warning restore IDE0032

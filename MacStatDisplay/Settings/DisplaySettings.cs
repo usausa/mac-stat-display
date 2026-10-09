@@ -8,6 +8,10 @@ internal sealed record DisplaySettings
 
     public int UpdatePeriod { get; init; } = 3;
 
+    public int? RefreshPeriod { get; init; }
+
+    public int JpegQuality { get; init; } = 100;
+
     public int DeviceRetrySeconds { get; init; } = 5;
 
     public GridSettings Grid { get; init; } = new();
