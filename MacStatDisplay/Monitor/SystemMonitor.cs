@@ -110,14 +110,10 @@ internal sealed class SystemMonitor : ISystemMonitor
     // ReSharper disable StringLiteralTypo
     private static readonly string[] FixedKeys = ["TGDD", "TCGC", "TG0D", "TG0P"];
 
-    // ReSharper disable UseCollectionExpression
-#pragma warning disable IDE0028
     private static readonly HashSet<string> M3GpuKeys = new(StringComparer.Ordinal)
     {
         "Tf14", "Tf18", "Tf19", "Tf1A", "Tf24", "Tf28", "Tf29", "Tf2A"
     };
-#pragma warning restore IDE0028
-    // ReSharper restore UseCollectionExpression
     // ReSharper restore StringLiteralTypo
 
     //--------------------------------------------------------------------------------
@@ -331,11 +327,9 @@ internal sealed class SystemMonitor : ISystemMonitor
         fileSystemStat = PlatformProvider.GetFileSystemStat();
 
         // CPU
-#pragma warning disable IDE0028
         prevAllCoreCounters = cpuStat.CpuCores.Select(c => new CpuCoreCounters(c.User, c.System, c.Idle, c.Nice)).ToArray();
         prevEfficiencyCoreCounters = cpuStat.EfficiencyCores.Select(c => new CpuCoreCounters(c.User, c.System, c.Idle, c.Nice)).ToArray();
         prevPerformanceCoreCounters = cpuStat.PerformanceCores.Select(c => new CpuCoreCounters(c.User, c.System, c.Idle, c.Nice)).ToArray();
-#pragma warning restore IDE0028
         // GPU
         var gpuDevices = PlatformProvider.GetGpuDevices();
         gpuDevice = gpuDevices.Count > 0 ? gpuDevices[0] : null;
