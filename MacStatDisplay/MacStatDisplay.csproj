@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net11.0</TargetFramework>
-    <CodeAnalysisRuleSet>..\Analyzers.ruleset</CodeAnalysisRuleSet>
     <UserSecretsId>dcfab256-5ea2-4c63-9b81-cd1e656e4bcc</UserSecretsId>
   </PropertyGroup>
 
